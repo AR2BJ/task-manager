@@ -168,7 +168,7 @@ body {
     border-color 0.3s ease;
 }
 
-select.form-select {
+select {
   appearance: none;
   background-repeat: no-repeat;
   background-position: right 0.85rem center;
@@ -180,14 +180,12 @@ select.form-select {
   text-overflow: ellipsis;
 }
 
-.dark select.form-select {
+.dark select {
   background-image: url("../../../public/picture/chevron-down-solid-light.svg");
-  background-color: var(--color-surface);
 }
 
-.light select.form-select {
+.light select {
   background-image: url("../../../public/picture/chevron-down-solid-dark.svg");
-  background-color: var(--color-surface);
 }
 
 .btn-primary {

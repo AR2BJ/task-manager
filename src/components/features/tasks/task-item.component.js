@@ -1,0 +1,314 @@
+import {
+  calculateSubtaskProgress,
+  getDaysRemaining,
+  isOverdue,
+  openSubtasksState,
+} from "@/utils/helpers.js";
+
+export const TaskItemComponent = {
+  render(task) {
+    const isCompleted = task.status === "done";
+    const isArchived = task.archived;
+
+    const overdue = isOverdue(task.dueDate, task.status);
+    const daysRemaining = getDaysRemaining(task.dueDate);
+
+    let dueDateBadge = "";
+    if (task.dueDate) {
+      if (overdue) {
+        dueDateBadge = `
+          <span class="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-500 animate-pulse">
+            <i class="fa-regular fa-clock"></i> Overdue (${Math.abs(daysRemaining)}d ago)
+          </span>
+        `;
+      } else if (daysRemaining === 0) {
+        dueDateBadge = `
+          <span class="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
+            <i class="fa-regular fa-clock"></i> Due Today
+          </span>
+        `;
+      } else if (daysRemaining !== null) {
+        dueDateBadge = `
+          <span class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-secondary">
+            <i class="fa-regular fa-calendar-day"></i> Due in ${daysRemaining}d
+          </span>
+        `;
+      }
+    }
+
+    const priorityStyles = {
+      low: "border-emerald-500/20 bg-emerald-500/10 text-emerald-500/80",
+      medium: "border-amber-500/20 bg-amber-500/10 text-amber-500/80",
+      high: "border-red-500/20 bg-red-500/10 text-red-500/80",
+      urgent: "border-violet-500/20 bg-violet-500/10 text-violet-500/80",
+    };
+    const priorityClass =
+      priorityStyles[task.priority] || priorityStyles.medium;
+
+    const statusStyles = {
+      todo: "border-border bg-surface-2 text-secondary",
+      in_progress: "border-amber-500/20 bg-amber-500/10 text-amber-500/80",
+      done: "border-emerald-500/20 bg-emerald-500/10 text-emerald-500/80",
+      blocked: "border-red-500/20 bg-red-500/10 text-red-500/80",
+    };
+    const statusClass = statusStyles[task.status] || statusStyles.todo;
+
+    const subtaskProgress = calculateSubtaskProgress(task.subtasks);
+    const hasSubtasks =
+      Array.isArray(task.subtasks) && task.subtasks.length > 0;
+
+    const subtaskProgressColor =
+      subtaskProgress.percentage === 100
+        ? "bg-emerald-500/80"
+        : subtaskProgress.percentage <= 65 && subtaskProgress.percentage >= 35
+          ? "bg-amber-500/80"
+          : subtaskProgress.percentage <= 35 && subtaskProgress.percentage > 0
+            ? "bg-red-500/80"
+            : subtaskProgress.percentage === 0
+              ? "bg-slate-500/80"
+              : "bg-brand/80";
+
+    const subtaskPercentColor =
+      subtaskProgress.percentage === 100
+        ? "text-emerald-500/80"
+        : subtaskProgress.percentage <= 65 && subtaskProgress.percentage >= 35
+          ? "text-amber-500/80"
+          : subtaskProgress.percentage <= 35 && subtaskProgress.percentage > 0
+            ? "text-red-500/80"
+            : subtaskProgress.percentage === 0
+              ? "text-slate-500/80"
+              : "text-brand/80";
+
+    const actionButtonClass = isArchived
+      ? "restore-btn hover:bg-emerald-600/10"
+      : "archive-btn hover:bg-amber-600/10";
+    const actionTooltip = isArchived ? "Restore" : "Archive";
+    const actionIcon = isArchived
+      ? "fa-arrow-rotate-left text-emerald-500/80"
+      : "fa-box-archive text-amber-500/80";
+
+    const checkTooltip = isCompleted ? "Uncheck Task" : "Check Task";
+    const isExpanded = openSubtasksState.has(task.id);
+
+    return `
+      <div
+        data-id="${task.id}"
+        class="task-item group relative flex flex-col gap-4 p-3 md:p-4 rounded-xl bg-surface-2/40 hover:bg-surface-2/60 transition-all"
+      >
+        <div
+          class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        >
+          <div
+            class="flex flex-col sm:flex-row justify-start items-start gap-3 min-w-0 flex-1"
+          >
+            <div class="relative shrink-0">
+              ${
+                isArchived
+                  ? ""
+                  : `
+                <button
+                  data-id="${task.id}"
+                  class="toggle-btn w-9 h-9 shrink-0 rounded-lg border-2 flex items-center justify-center transition peer hover:cursor-pointer ${
+                    isCompleted
+                      ? "bg-brand/80 border-brand/80 text-(--color-btn-primary-text) shadow-lg shadow-brand/20"
+                      : "border-border text-secondary hover:border-brand/80 hover:text-brand/80"
+                  }"
+                >
+                  <i class="fa-regular ${isCompleted ? "fa-check text-sm md:text-base font-bold" : "fa-square text-sm"}"></i>
+                </button>
+              `
+              }
+              <div
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+              >
+                ${checkTooltip}
+              </div>
+            </div>
+
+            <div class="flex flex-col min-w-0 w-full gap-1.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span
+                  class="inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold tracking-wider ${priorityClass}"
+                >
+                  ${task.priority || "medium"}
+                </span>
+
+                <span
+                  class="inline-flex items-center rounded-md border ${statusClass} px-2 py-0.5 text-[10px] uppercase font-semibold tracking-wider"
+                >
+                  ${(task.status || "todo").replace("_", " ")}
+                </span>
+
+                ${dueDateBadge}
+                ${(task.tags || [])
+                  .map(
+                    (tag) => `
+                    <span class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-secondary tracking-wider">
+                      <i class="fa-regular fa-tag"></i>
+                      ${tag}
+                    </span>
+                  `,
+                  )
+                  .join("")}
+              </div>
+
+              <h2
+                class="text-base font-bold text-primary tracking-tight leading-snug wrap-break-word ${
+                  isCompleted ? "line-through opacity-60" : ""
+                }"
+              >
+                ${task.title}
+              </h2>
+
+              ${
+                task.description
+                  ? `<p class="text-xs text-secondary/90 leading-relaxed wrap-break-word">${task.description}</p>`
+                  : ""
+              }
+
+              <div class="flex items-center gap-3 mt-1 text-[11px] text-muted">
+                <span
+                  ><i class="fa-regular fa-clock me-1"></i>Created
+                  ${task.createdAt}</span
+                >
+                ${
+                  task.completedAt
+                    ? `<span class="text-emerald-500/80"><i class="fa-regular fa-circle-check me-1"></i>Completed ${task.completedAt}</span>`
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="flex flex-row items-center justify-end self-start gap-2 shrink-0 border-t md:border-t-0 border-border pt-3 md:pt-0"
+          >
+            <div class="relative">
+              <button
+                data-id="${task.id}"
+                class="${actionButtonClass} w-9 h-9 rounded-lg bg-surface-2 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+              >
+                <i class="fa-regular ${actionIcon} text-base"></i>
+              </button>
+              <div
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+              >
+                ${actionTooltip}
+              </div>
+            </div>
+
+            <div class="relative">
+              <button
+                data-id="${task.id}"
+                class="edit-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-blue-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+              >
+                <i
+                  class="fa-regular fa-pen-to-square text-blue-500/80 text-base"
+                ></i>
+              </button>
+              <div
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+              >
+                Edit
+              </div>
+            </div>
+
+            <div class="relative">
+              <button
+                data-id="${task.id}"
+                class="delete-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+              >
+                <i
+                  class="fa-regular fa-trash-can text-red-500/80 text-base"
+                ></i>
+              </button>
+              <div
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+              >
+                Delete
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${
+          hasSubtasks
+            ? `
+            <div class="mt-2 border-t border-border/60 pt-2">
+              <button
+                type="button"
+                data-task-id="${task.id}"
+                class="toggle-subtasks-btn w-full flex items-center justify-between p-2 rounded-xl hover:bg-surface-2/50 transition cursor-pointer group/sub-hdr text-left"
+              >
+                <div class="flex items-center gap-2">
+                  <i class="fa-regular fa-list-check text-brand/80"></i> 
+                  <span class="text-xs font-bold text-secondary group-hover/sub-hdr:text-primary transition">
+                    Subtasks (${subtaskProgress.completedCount}/${subtaskProgress.totalCount})
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <div class="w-24 md:w-32 h-1.5 rounded-full bg-surface-2 overflow-hidden">
+                    <div class="h-full ${subtaskProgressColor} transition-all duration-300" style="width: ${subtaskProgress.percentage}%"></div>
+                  </div>
+                  
+                  <span class="text-[11px] font-mono font-bold ${subtaskPercentColor}">${subtaskProgress.percentage}%</span>
+                  
+                  <div class="subtask-chevron w-5 h-5 rounded-md flex items-center justify-center text-secondary group-hover/sub-hdr:text-primary transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}">
+                    <i class="fa-regular fa-chevron-down text-xs"></i>
+                  </div>
+                </div>
+              </button>
+
+              <div
+                id="subtasks-container-${task.id}"
+                class="subtasks-dropdown-body ${isExpanded ? "" : "hidden"} animate-slide-down space-y-1.5 pt-2 ps-1 pe-1"
+              >
+                ${task.subtasks
+                  .map(
+                    (st) => `
+                      <div class="flex items-center justify-between gap-1 group/st rounded-lg p-2 hover:bg-surface-2/60 border border-transparent hover:border-border/50 transition cursor-pointer">
+                        <div class="relative flex flex-row justify-start items-center gap-2 shrink-0 min-w-0 flex-1">
+                          <button
+                            type="button"
+                            data-task-id="${task.id}"
+                            data-subtask-id="${st.id}"
+                            class="subtask-toggle w-6 h-6 shrink-0 rounded-md border-2 flex items-center justify-center transition peer hover:cursor-pointer ${
+                              st.completed
+                                ? "bg-brand/80 border-brand/80 text-(--color-btn-primary-text) shadow-lg shadow-brand/20"
+                                : "border-border text-secondary hover:border-brand/80 hover:text-brand/80"
+                            }"
+                          >
+                            <i class="fa-regular ${st.completed ? "fa-check text-xs md:text-sm font-bold" : "fa-square text-[10px]"}"></i>
+                          </button>
+                          <span
+                            data-task-id="${task.id}"
+                            data-subtask-id="${st.id}"
+                            class="subtask-toggle text-sm text-primary truncate ${st.completed ? "line-through opacity-50" : ""}"
+                          >
+                            ${st.title}
+                          </span>
+                        </div>
+                        
+                        <button
+                          type="button"
+                          data-task-id="${task.id}"
+                          data-subtask-id="${st.id}"
+                          class="subtask-delete-btn w-6 h-6 rounded-sm bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer transition-all"
+                          title="Delete Subtask"
+                        >
+                          <i class="fa-regular fa-trash-can text-red-500/80 text-xs"></i>
+                        </button>
+                      </div>
+                    `,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `
+            : ""
+        }
+      </div>
+    `;
+  },
+};
