@@ -64,7 +64,7 @@ export const TaskController = {
     const filteredTasks = StateManager.getFilteredTasks();
 
     renderTaskList(filteredTasks, state.activeTab);
-    // AnalyticsController.dispatchRender(allTasks);
+    AnalyticsController.dispatchRender(allTasks);
     this.updateNavigationDOM();
   },
 
