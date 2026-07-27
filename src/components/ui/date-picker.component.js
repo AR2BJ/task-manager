@@ -47,6 +47,7 @@ export class DatePickerComponent {
     ];
 
     this._updatePosition = this._updatePosition.bind(this);
+    this._onScrollOrResize = this._handleScrollOrResize.bind(this);
   }
 
   render() {
@@ -82,7 +83,7 @@ export class DatePickerComponent {
     popover = document.createElement("div");
     popover.id = `${this.id}-popover`;
     popover.className =
-      "hidden fixed z-[9999] w-64 p-3 bg-surface border border-border rounded-xl shadow-xl backdrop-blur-md transition-opacity duration-200";
+      "hidden fixed z-100 w-64 p-3 bg-surface border border-border rounded-xl shadow-xl backdrop-blur-md transition-opacity duration-200";
 
     popover.innerHTML = `
       <div class="flex items-center justify-between mb-3 px-1">
@@ -132,10 +133,28 @@ export class DatePickerComponent {
     if (!input || !popover) return;
 
     const rect = input.getBoundingClientRect();
-    const popoverWidth = 256; // 16rem (w-64)
 
+    if (rect.width === 0 && rect.height === 0) return;
+
+    const popoverWidth = popover.offsetWidth || 256;
+
+    popover.style.position = "fixed";
     popover.style.top = `${rect.bottom + 6}px`;
     popover.style.left = `${rect.right - popoverWidth}px`;
+    popover.style.zIndex = "100";
+  }
+
+  _handleScrollOrResize(e) {
+    const popover = document.getElementById(`${this.id}-popover`);
+    if (e.target === popover || popover?.contains(e.target)) return;
+
+    const input = document.getElementById(this.id);
+    if (input) input.blur();
+
+    popover?.classList.add("hidden");
+    window.removeEventListener("scroll", this._onScrollOrResize, true);
+    window.removeEventListener("resize", this._onScrollOrResize);
+    this.isOpen = false;
   }
 
   bindEvents() {
@@ -181,15 +200,17 @@ export class DatePickerComponent {
       if (this.isOpen) {
         this.viewMode = "days";
         this.renderCalendar();
-        this._updatePosition();
         popover.classList.remove("hidden");
 
-        window.addEventListener("scroll", this._updatePosition, true);
-        window.addEventListener("resize", this._updatePosition);
+        this._updatePosition();
+
+        window.addEventListener("scroll", this._onScrollOrResize, true);
+        window.addEventListener("resize", this._onScrollOrResize);
       } else {
         popover.classList.add("hidden");
-        window.removeEventListener("scroll", this._updatePosition, true);
-        window.removeEventListener("resize", this._updatePosition);
+
+        window.removeEventListener("scroll", this._onScrollOrResize, true);
+        window.removeEventListener("resize", this._onScrollOrResize);
       }
     };
 
@@ -211,7 +232,6 @@ export class DatePickerComponent {
         this.viewMode = "days";
       }
       this.renderCalendar();
-      this._updatePosition();
     });
 
     prevBtn?.addEventListener("click", (e) => {
@@ -416,8 +436,8 @@ export class DatePickerComponent {
         const popover = document.getElementById(`${this.id}-popover`);
         if (popover) popover.classList.add("hidden");
 
-        window.removeEventListener("scroll", this._updatePosition, true);
-        window.removeEventListener("resize", this._updatePosition);
+        window.removeEventListener("scroll", this._onScrollOrResize, true);
+        window.removeEventListener("resize", this._onScrollOrResize);
         this.isOpen = false;
       });
     });

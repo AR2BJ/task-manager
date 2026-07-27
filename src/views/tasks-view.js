@@ -107,7 +107,7 @@ export const TasksView = {
                     for="task-title-input"
                     class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
                   >
-                    Task Title
+                    Title
                     <span class="text-red-700"> *</span>
                   </label>
                   <input
@@ -139,83 +139,74 @@ export const TasksView = {
                   id="task-desc-input"
                   rows="2"
                   placeholder="Add detailed acceptance criteria or execution notes..."
-                  class="w-full rounded-xl border border-border bg-surface-2 p-3 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none resize-none"
+                  class="w-full scrollbar-thin scrollbar-thumb-surface rounded-xl border border-border bg-surface-2 p-3 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none resize-none"
                 ></textarea>
               </div>
 
-              <div class="w-full grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div>
+              <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div class="w-full">
                   <label
                     for="task-priority-select"
                     class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
                   >
                     Priority Level
                   </label>
-                  <select
-                    id="task-priority-select"
-                    class="form-select h-11 w-full cursor-pointer rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
-                  >
-                    <option
-                      selected
-                      value="low"
-                    >
-                      Low Priority
-                    </option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
-                    <option value="urgent">Urgent Block&#8203;er</option>
-                  </select>
+                  <div
+                    id="create-priority-wrapper"
+                    class="w-full"
+                  ></div>
                 </div>
 
-                <div>
+                <div class="w-full">
                   <label
                     for="task-status-select"
                     class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
                   >
                     Task Status
                   </label>
-                  <select
-                    id="task-status-select"
-                    class="form-select h-11 w-full cursor-pointer rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
-                  >
-                    <option
-                      selected
-                      value="todo"
-                    >
-                      To Do
-                    </option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="done">Done</option>
-                    <option value="blocked">Blocked</option>
-                  </select>
+                  <div
+                    id="create-status-wrapper"
+                    class="w-full"
+                  ></div>
                 </div>
+              </div>
 
-                <div class="w-full relative">
-                  <label
-                    for="task-tags-input"
-                    class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
-                  >
-                    Tags
-                  </label>
-
+              <div class="w-full relative">
+                <label
+                  for="task-tags-input"
+                  class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                >
+                  Tags
+                </label>
+                <div class="relative flex items-center">
                   <div
                     id="task-tags-container"
-                    class="min-h-11 w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 ps-3 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
+                    class="max-h-16.5 overflow-y-auto scrollbar-thin scrollbar-thumb-surface w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
                   >
                     <input
                       id="task-tags-input"
                       type="text"
                       placeholder="Type tag and press Enter..."
-                      class="flex-1 min-w-27.5 bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none h-8 pb-1 cursor-text"
+                      class="flex-1 min-w-30 ps-2 pe-10 truncate bg-transparent text-sm text-primary  placeholder:text-secondary/70 outline-none h-7 pb-1 cursor-text focus:outline-none"
                       autocomplete="off"
                     />
                   </div>
-
-                  <div
-                    id="tags-autocomplete-dropdown"
-                    class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
-                  ></div>
+                  <button
+                    type="button"
+                    id="task-tags-input-chevron-btn"
+                    class="flex absolute right-3 text-secondary hover:text-primary transition duration-200 pointer-events-none"
+                    tabindex="-1"
+                  >
+                    <i
+                      id="task-tags-input-chevron-icon"
+                      class="fa-solid fa-chevron-down text-xs"
+                    ></i>
+                  </button>
                 </div>
+                <div
+                  id="tags-combobox-dropdown"
+                  class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
+                ></div>
               </div>
 
               <div

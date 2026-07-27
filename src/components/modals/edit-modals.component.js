@@ -47,7 +47,7 @@ export const EditModalsComponent = {
                   id="edit-task-title"
                   type="text"
                   placeholder="Task title..."
-                  class="h-10.5 w-full rounded-xl bg-surface-2 border border-border px-3.5 text-sm text-primary placeholder:text-secondary/70 outline-none focus:border-brand/80 transition"
+                  class="h-11 w-full rounded-xl bg-surface-2 border border-border px-3.5 text-sm text-primary placeholder:text-secondary/70 outline-none focus:border-brand/80 transition"
                 />
               </div>
 
@@ -70,59 +70,40 @@ export const EditModalsComponent = {
               </label>
               <textarea
                 id="edit-task-desc"
-                rows="3"
+                rows="2"
                 placeholder="Add detailed acceptance criteria or execution notes..."
-                class="w-full rounded-xl bg-surface-2 border border-border p-3 text-sm text-primary placeholder:text-secondary/70 outline-none focus:border-brand/80 transition resize-none"
+                class="w-full scrollbar-thin scrollbar-thumb-surface rounded-xl bg-surface-2 border border-border p-3 text-sm text-primary placeholder:text-secondary/70 outline-none focus:border-brand/80 transition resize-none"
               ></textarea>
             </div>
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
+              <div class="w-full">
                 <label
                   for="edit-task-priority"
                   class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
                 >
                   Priority
                 </label>
-                <select
-                  id="edit-task-priority"
-                  class="h-10.5 w-full bg-surface-2 cursor-pointer rounded-xl border border-border px-3 text-sm text-primary outline-none focus:border-brand/80 transition"
-                >
-                  <option
-                    selected
-                    value="low"
-                  >
-                    Low Priority
-                  </option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                  <option value="urgent">Urgent Blocker</option>
-                </select>
+                <div
+                  id="edit-priority-wrapper"
+                  class="w-full"
+                ></div>
               </div>
 
-              <div>
+              <div class="w-full">
                 <label
                   for="edit-task-status"
                   class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
                 >
                   Status
                 </label>
-                <select
-                  id="edit-task-status"
-                  class="h-10.5 w-full bg-surface-2 cursor-pointer rounded-xl border border-border px-3 text-sm text-primary outline-none focus:border-brand/80 transition"
-                >
-                  <option
-                    selected
-                    value="todo"
-                  >
-                    To Do
-                  </option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="done">Done</option>
-                  <option value="blocked">Blocked</option>
-                </select>
+                <div
+                  id="edit-status-wrapper"
+                  class="w-full"
+                ></div>
               </div>
             </div>
+
             <div class="relative w-full">
               <label
                 for="edit-task-tags-input"
@@ -130,26 +111,39 @@ export const EditModalsComponent = {
               >
                 Tags
               </label>
-              <div
-                id="edit-task-tags-container"
-                class="min-h-11 w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 ps-3 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
-              >
-                <input
-                  id="edit-task-tags-input"
-                  type="text"
-                  placeholder="Type tag and press Enter..."
-                  class="flex-1 min-w-27.5 bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none h-8 pb-1 cursor-text"
-                  autocomplete="off"
-                />
-              </div>
+              <div class="relative flex items-center">
+                <div
+                  id="edit-task-tags-container"
+                  class="max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-surface w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
+                >
+                  <input
+                    id="edit-task-tags-input"
+                    type="text"
+                    placeholder="Type tag and press Enter..."
+                    class="flex-1 min-w-30 pe-10 truncate bg-transparent text-sm text-primary  placeholder:text-secondary/70 outline-none h-7 pb-1 cursor-text focus:outline-none"
+                    autocomplete="off"
+                  />
+                </div>
 
+                <button
+                  type="button"
+                  id="edit-task-tags-chevron-btn"
+                  class="flex absolute right-3 text-secondary hover:text-primary transition duration-200 pointer-events-none"
+                  tabindex="-1"
+                >
+                  <i
+                    id="edit-task-tags-chevron-icon"
+                    class="fa-solid fa-chevron-down text-xs"
+                  ></i>
+                </button>
+              </div>
               <div
-                id="edit-tags-autocomplete-dropdown"
+                id="edit-tags-combobox-dropdown"
                 class="hidden max-h-40 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
               ></div>
             </div>
 
-            <div class="border-t border-border/80 pt-2"></div>
+            <div class="border-t border-border/80 pt-2 mb-1"></div>
 
             <div class="space-y-3">
               <div class="flex items-center justify-between">

@@ -75,10 +75,10 @@ export const InfoModalComponent = {
                 <h4
                   class="text-sm font-bold text-emerald-500/80 uppercase tracking-wide flex items-center gap-2"
                 >
-                  <i class="fa-regular fa-tags"></i> Dynamic Tags & Autocomplete
+                  <i class="fa-regular fa-tags"></i> Dynamic Tags & Combobox
                 </h4>
                 <p class="text-sm text-secondary mt-1 leading-relaxed">
-                  Organize tasks using tags. Press <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">Enter</kbd> or <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">,</kbd> to confirm a new tag, or select existing tags from the smart autocomplete dropdown.
+                  Organize tasks using tags. Press <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">Enter</kbd> or <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">,</kbd> to confirm a new tag, or select existing tags from the smart combobox dropdown.
                 </p>
               </div>
 

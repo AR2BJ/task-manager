@@ -9,7 +9,7 @@ function normalizeTask(task) {
     title: task.title || "Untitled Task",
     description: task.description || "",
     status: task.status || "todo",
-    priority: task.priority || "medium",
+    priority: task.priority || "low",
     dueDate: task.dueDate || null,
     createdAt: task.createdAt || formatDate(new Date()),
     updatedAt: task.updatedAt || formatDate(new Date()),

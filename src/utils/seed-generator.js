@@ -24,7 +24,7 @@ const TASK_DESCRIPTIONS = [
   "",
 ];
 
-const PRIORITIES = ["low", "medium", "high", "urgent"];
+const PRIORITIES = ["low", "medium", "high"];
 const STATUSES = ["todo", "in_progress", "done", "blocked"];
 const AVAILABLE_TAGS = [
   "dev",

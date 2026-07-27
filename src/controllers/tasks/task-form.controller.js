@@ -1,6 +1,7 @@
 import { generateId, todayISO } from "@/utils/helpers";
 
-import { Autocomplete } from "@/components/ui/autocomplete.component";
+import { AutocompleteComponent } from "@/components/ui/autocomplete.component";
+import { ComboboxComponent } from "@/components/ui/combobox.component";
 import { DatePickerComponent } from "@/components/ui/date-picker.component";
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
@@ -9,11 +10,61 @@ import { TaskService } from "@/services/task.service.js";
 
 let pendingDeleteId = null;
 let pendingEditId = null;
-let createTaskAutocomplete = null;
+
+// Combobox instances
+let createTaskCombobox = null;
+let editTaskCombobox = null;
+
+// DatePicker instances
 let createDatePicker = null;
-let editTaskAutocomplete = null;
 let editDatePicker = null;
+
+// Autocomplete instances (Create Form)
+let createPriorityAutocomplete = null;
+let createStatusAutocomplete = null;
+
+// Autocomplete instances (Edit Form)
+let editPriorityAutocomplete = null;
+let editStatusAutocomplete = null;
+
 let currentModalSubtasks = [];
+
+const PRIORITY_OPTIONS = [
+  {
+    value: "low",
+    label: "Low Priority",
+    icon: "fa-solid fa-flag text-emerald-400",
+  },
+  {
+    value: "medium",
+    label: "Medium Priority",
+    icon: "fa-solid fa-flag text-amber-400",
+  },
+  {
+    value: "high",
+    label: "High Priority",
+    icon: "fa-solid fa-flag text-red-500",
+  },
+];
+
+const STATUS_OPTIONS = [
+  { value: "todo", label: "To Do", icon: "fa-regular fa-square text-sky-500" },
+  {
+    value: "in_progress",
+    label: "In Progress",
+    icon: "fa-regular fa-arrow-progress text-amber-500",
+  },
+  {
+    value: "done",
+    label: "Done",
+    icon: "fa-regular fa-square-check text-emerald-500",
+  },
+  {
+    value: "blocked",
+    label: "Blocked",
+    icon: "fa-regular fa-ban text-red-500",
+  },
+];
 
 export function setPendingDeleteId(id) {
   pendingDeleteId = id;
@@ -30,22 +81,58 @@ export const TaskFormController = {
   init(mainController) {
     this.mainController = mainController;
 
-    createTaskAutocomplete = new Autocomplete({
+    createTaskCombobox = new ComboboxComponent({
       containerId: "task-tags-container",
       inputId: "task-tags-input",
-      dropdownId: "tags-autocomplete-dropdown",
+      dropdownId: "tags-combobox-dropdown",
+      chevronBtnId: "task-tags-input-chevron-btn",
+      iconClass: "fa-regular fa-tag",
+      itemTypeLabel: "Tag",
+      options: () => {
+        const tasks = StateManager.getTasks();
+        return Array.from(new Set(tasks.flatMap((t) => t.tags || []))).sort();
+      },
     });
 
     this.setupDatePicker("create");
+
+    this.setupCreateAutocompletes();
 
     this.bindFormEvents();
     this.bindSubtaskEvents();
   },
 
-  populateEditModal(taskId) {
-    if (editTaskAutocomplete) {
-      editTaskAutocomplete.destroy();
+  setupCreateAutocompletes() {
+    const priorityWrapper = document.getElementById("create-priority-wrapper");
+    const statusWrapper = document.getElementById("create-status-wrapper");
+
+    if (priorityWrapper) {
+      createPriorityAutocomplete = new AutocompleteComponent({
+        id: "task-priority-autocomplete",
+        placeholder: "Select Priority...",
+        value: "low",
+        options: PRIORITY_OPTIONS,
+      });
+      priorityWrapper.innerHTML = createPriorityAutocomplete.render();
+      createPriorityAutocomplete.bindEvents();
     }
+
+    if (statusWrapper) {
+      createStatusAutocomplete = new AutocompleteComponent({
+        id: "task-status-autocomplete",
+        placeholder: "Select Status...",
+        value: "todo",
+        options: STATUS_OPTIONS,
+      });
+      statusWrapper.innerHTML = createStatusAutocomplete.render();
+      createStatusAutocomplete.bindEvents();
+    }
+  },
+
+  populateEditModal(taskId) {
+    if (editTaskCombobox) editTaskCombobox.destroy();
+    if (editPriorityAutocomplete) editPriorityAutocomplete.destroy();
+    if (editStatusAutocomplete) editStatusAutocomplete.destroy();
 
     const tasks = StateManager.getTasks();
     const task = tasks.find((t) => t.id === taskId);
@@ -54,22 +141,52 @@ export const TaskFormController = {
 
     const titleInput = document.getElementById("edit-task-title");
     const descInput = document.getElementById("edit-task-desc");
-    const prioritySelect = document.getElementById("edit-task-priority");
-    const statusSelect = document.getElementById("edit-task-status");
 
     if (titleInput) titleInput.value = task.title || "";
     if (descInput) descInput.value = task.description || "";
-    if (prioritySelect) prioritySelect.value = task.priority || "medium";
-    if (statusSelect) statusSelect.value = task.status || "todo";
 
-    editTaskAutocomplete = new Autocomplete({
+    const priorityWrapper = document.getElementById("edit-priority-wrapper");
+    const statusWrapper = document.getElementById("edit-status-wrapper");
+
+    if (priorityWrapper) {
+      editPriorityAutocomplete = new AutocompleteComponent({
+        id: "edit-priority-autocomplete",
+        placeholder: "Select Priority...",
+        value: task.priority || "low",
+        options: PRIORITY_OPTIONS,
+      });
+      priorityWrapper.innerHTML = editPriorityAutocomplete.render();
+      editPriorityAutocomplete.bindEvents();
+    }
+
+    if (statusWrapper) {
+      editStatusAutocomplete = new AutocompleteComponent({
+        id: "edit-status-autocomplete",
+        placeholder: "Select Status...",
+        value: task.status || "todo",
+        options: STATUS_OPTIONS,
+      });
+      statusWrapper.innerHTML = editStatusAutocomplete.render();
+      editStatusAutocomplete.bindEvents();
+    }
+
+    editTaskCombobox = new ComboboxComponent({
       containerId: "edit-task-tags-container",
       inputId: "edit-task-tags-input",
-      dropdownId: "edit-tags-autocomplete-dropdown",
-      initialTags: Array.isArray(task.tags) ? [...task.tags] : [],
+      dropdownId: "edit-tags-combobox-dropdown",
+      chevronBtnId: "edit-task-tags-chevron-btn",
+      initialValues: Array.isArray(task.tags) ? [...task.tags] : [],
+      iconClass: "fa-regular fa-tag",
+      itemTypeLabel: "Tag",
+      options: () => {
+        const tasksList = StateManager.getTasks();
+        return Array.from(
+          new Set(tasksList.flatMap((t) => t.tags || [])),
+        ).sort();
+      },
     });
 
-    editTaskAutocomplete.bindEvents();
+    editTaskCombobox.bindEvents();
 
     this.setupDatePicker("edit", task.dueDate || "");
 
@@ -252,20 +369,21 @@ export const TaskFormController = {
   bindFormEvents() {
     const titleInput = document.getElementById("task-title-input");
     const descInput = document.getElementById("task-desc-input");
-    const prioritySelect = document.getElementById("task-priority-select");
-    const statusSelect = document.getElementById("task-status-select");
     const addBtn = document.getElementById("add-task-btn");
 
     const handleAddTask = () => {
       const title = titleInput?.value.trim();
       const description = descInput?.value.trim() || "";
-      const priority = prioritySelect?.value || "medium";
-      const status = statusSelect?.value || "todo";
 
+      const priority = createPriorityAutocomplete
+        ? createPriorityAutocomplete.getValue()
+        : "low";
+      const status = createStatusAutocomplete
+        ? createStatusAutocomplete.getValue()
+        : "todo";
       const dueDate = createDatePicker ? createDatePicker.value : null;
-
-      const tags = createTaskAutocomplete
-        ? createTaskAutocomplete.getTags()
+      const tags = createTaskCombobox
+        ? createTaskCombobox.getSelectedValues()
         : [];
 
       if (!title) {
@@ -305,10 +423,10 @@ export const TaskFormController = {
 
           if (titleInput) titleInput.value = "";
           if (descInput) descInput.value = "";
-          if (prioritySelect) prioritySelect.value = "low";
-          if (statusSelect) statusSelect.value = "todo";
 
-          createTaskAutocomplete?.reset();
+          createPriorityAutocomplete?.setValue("low");
+          createStatusAutocomplete?.setValue("todo");
+          createTaskCombobox?.reset();
           createDatePicker?.reset();
 
           this.mainController.refreshUI();
@@ -434,8 +552,6 @@ export const TaskFormController = {
   executeEdit() {
     const titleInput = document.getElementById("edit-task-title");
     const descInput = document.getElementById("edit-task-desc");
-    const prioritySelect = document.getElementById("edit-task-priority");
-    const statusSelect = document.getElementById("edit-task-status");
 
     if (!pendingEditId || !titleInput) return;
 
@@ -451,12 +567,19 @@ export const TaskFormController = {
     }
 
     const updatedDueDate = editDatePicker ? editDatePicker.value : null;
-
-    const updatedTags = editTaskAutocomplete
-      ? editTaskAutocomplete.getTags()
+    const updatedPriority = editPriorityAutocomplete
+      ? editPriorityAutocomplete.getValue()
+      : "low";
+    const updatedStatus = editStatusAutocomplete
+      ? editStatusAutocomplete.getValue()
+      : "todo";
+    const updatedTags = editTaskCombobox
+      ? editTaskCombobox.getSelectedValues()
       : [];
 
-    editTaskAutocomplete.destroy();
+    if (editTaskCombobox) editTaskCombobox.destroy();
+    if (editPriorityAutocomplete) editPriorityAutocomplete.destroy();
+    if (editStatusAutocomplete) editStatusAutocomplete.destroy();
 
     GlobalLoaderService.show("Updating task record...");
 
@@ -468,8 +591,8 @@ export const TaskFormController = {
           title: newTitle,
           description: descInput?.value.trim() || "",
           dueDate: updatedDueDate,
-          priority: prioritySelect?.value || "medium",
-          status: statusSelect?.value || "todo",
+          priority: updatedPriority,
+          status: updatedStatus,
           tags: updatedTags,
           subtasks: currentModalSubtasks,
         };
@@ -486,8 +609,10 @@ export const TaskFormController = {
         this.mainController.toggleModal("edit-modal", false);
 
         pendingEditId = null;
-        editTaskAutocomplete = null;
+        editTaskCombobox = null;
         editDatePicker = null;
+        editPriorityAutocomplete = null;
+        editStatusAutocomplete = null;
         currentModalSubtasks = [];
 
         this.mainController.refreshUI();
