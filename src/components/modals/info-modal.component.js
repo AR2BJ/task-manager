@@ -37,7 +37,7 @@ export const InfoModalComponent = {
               id="tab-help-safeguard"
               class="flex-1 text-center py-2 text-xs font-bold rounded-lg bg-surface text-primary border border-border/40 shadow-sm transition cursor-pointer"
             >
-              <i class="fa-regular fa-shield-halved me-1"></i> Safeguard Guide
+              <i class="fa-regular fa-list-check me-1"></i> Task Guide
             </button>
             <button
               id="tab-help-shortcuts"
@@ -51,25 +51,21 @@ export const InfoModalComponent = {
             class="overflow-y-auto pr-1 scroll-smooth scrollbar-thin scrollbar-thumb-surface-2"
             id="help-modal-content"
           >
+            <!-- Updated Task Guide Content -->
             <div
               id="content-help-safeguard"
               class="flex flex-col gap-3"
             >
               <div
-                class="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl"
+                class="p-3 bg-brand/5 border border-brand/10 rounded-xl"
               >
                 <h4
-                  class="text-sm font-bold text-amber-500/80 uppercase tracking-wide"
+                  class="text-sm font-bold text-brand uppercase tracking-wide flex items-center gap-2"
                 >
-                  <i class="fa-regular fa-lightbulb"></i> Core Feature: Skip Day
+                  <i class="fa-regular fa-layer-group"></i> Subtasks & Progress
                 </h4>
                 <p class="text-sm text-secondary mt-1 leading-relaxed">
-                  <strong>Double-click</strong> on today or yesterday inside any
-                  calendar cell to toggle a
-                  <span class="text-amber-500/80 font-semibold"
-                    >Skip Day (Leave)</span
-                  >. This colorizes the cell in amber and locks your streak
-                  state.
+                  Break complex tasks into actionable subtasks inside the Edit Modal. Track completion progress dynamically as subtasks are marked done.
                 </p>
               </div>
 
@@ -77,14 +73,25 @@ export const InfoModalComponent = {
                 class="p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl"
               >
                 <h4
-                  class="text-sm font-bold text-emerald-500/80 uppercase tracking-wide"
+                  class="text-sm font-bold text-emerald-500/80 uppercase tracking-wide flex items-center gap-2"
                 >
-                  <i class="fa-regular fa-bullseye-arrow"></i> Normal Check-In
+                  <i class="fa-regular fa-tags"></i> Dynamic Tags & Autocomplete
                 </h4>
                 <p class="text-sm text-secondary mt-1 leading-relaxed">
-                  A single <strong>Left-Click</strong> handles a standard
-                  success check-in, keeping the interface fluid and incredibly
-                  native.
+                  Organize tasks using tags. Press <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">Enter</kbd> or <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">,</kbd> to confirm a new tag, or select existing tags from the smart autocomplete dropdown.
+                </p>
+              </div>
+
+              <div
+                class="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl"
+              >
+                <h4
+                  class="text-sm font-bold text-amber-500/80 uppercase tracking-wide flex items-center gap-2"
+                >
+                  <i class="fa-regular fa-bolt"></i> Quick Modal Actions
+                </h4>
+                <p class="text-sm text-secondary mt-1 leading-relaxed">
+                  Inside open modals, press <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">Ctrl + Enter</kbd> to quickly execute save/delete actions, or <kbd class="px-1 py-0.5 text-[10px] bg-surface border border-border rounded font-mono">Esc</kbd> to dismiss.
                 </p>
               </div>
             </div>

@@ -35,8 +35,8 @@ export const EditModalsComponent = {
           </div>
 
           <div class="flex-1 pr-1 space-y-4 text-left overflow-y-auto">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div class="sm:col-span-2">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
                 <label
                   for="edit-task-title"
                   class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"

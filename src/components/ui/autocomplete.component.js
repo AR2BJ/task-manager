@@ -1,6 +1,6 @@
 import { StateManager } from "@/models/state.model.js";
 
-export class TagAutocomplete {
+export class Autocomplete {
   constructor({ containerId, inputId, dropdownId, initialTags = [] }) {
     this.container = document.getElementById(containerId);
     this.input = document.getElementById(inputId);

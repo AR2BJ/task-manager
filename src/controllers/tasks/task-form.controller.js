@@ -1,17 +1,17 @@
 import { generateId, todayISO } from "@/utils/helpers";
 
+import { Autocomplete } from "@/components/ui/autocomplete.component";
 import { DatePickerComponent } from "@/components/ui/date-picker.component";
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
 import { StateManager } from "@/models/state.model.js";
-import { TagAutocomplete } from "@/components/ui/tag-autocomplete.component";
 import { TaskService } from "@/services/task.service.js";
 
 let pendingDeleteId = null;
 let pendingEditId = null;
-let createTaskTagAutocomplete = null;
+let createTaskAutocomplete = null;
 let createDatePicker = null;
-let editTaskTagAutocomplete = null;
+let editTaskAutocomplete = null;
 let editDatePicker = null;
 let currentModalSubtasks = [];
 
@@ -30,7 +30,7 @@ export const TaskFormController = {
   init(mainController) {
     this.mainController = mainController;
 
-    createTaskTagAutocomplete = new TagAutocomplete({
+    createTaskAutocomplete = new Autocomplete({
       containerId: "task-tags-container",
       inputId: "task-tags-input",
       dropdownId: "tags-autocomplete-dropdown",
@@ -43,8 +43,8 @@ export const TaskFormController = {
   },
 
   populateEditModal(taskId) {
-    if (editTaskTagAutocomplete) {
-      editTaskTagAutocomplete.destroy();
+    if (editTaskAutocomplete) {
+      editTaskAutocomplete.destroy();
     }
 
     const tasks = StateManager.getTasks();
@@ -62,14 +62,14 @@ export const TaskFormController = {
     if (prioritySelect) prioritySelect.value = task.priority || "medium";
     if (statusSelect) statusSelect.value = task.status || "todo";
 
-    editTaskTagAutocomplete = new TagAutocomplete({
+    editTaskAutocomplete = new Autocomplete({
       containerId: "edit-task-tags-container",
       inputId: "edit-task-tags-input",
       dropdownId: "edit-tags-autocomplete-dropdown",
       initialTags: Array.isArray(task.tags) ? [...task.tags] : [],
     });
 
-    editTaskTagAutocomplete.bindEvents();
+    editTaskAutocomplete.bindEvents();
 
     this.setupDatePicker("edit", task.dueDate || "");
 
@@ -264,8 +264,8 @@ export const TaskFormController = {
 
       const dueDate = createDatePicker ? createDatePicker.value : null;
 
-      const tags = createTaskTagAutocomplete
-        ? createTaskTagAutocomplete.getTags()
+      const tags = createTaskAutocomplete
+        ? createTaskAutocomplete.getTags()
         : [];
 
       if (!title) {
@@ -308,7 +308,7 @@ export const TaskFormController = {
           if (prioritySelect) prioritySelect.value = "low";
           if (statusSelect) statusSelect.value = "todo";
 
-          createTaskTagAutocomplete?.reset();
+          createTaskAutocomplete?.reset();
           createDatePicker?.reset();
 
           this.mainController.refreshUI();
@@ -452,11 +452,11 @@ export const TaskFormController = {
 
     const updatedDueDate = editDatePicker ? editDatePicker.value : null;
 
-    const updatedTags = editTaskTagAutocomplete
-      ? editTaskTagAutocomplete.getTags()
+    const updatedTags = editTaskAutocomplete
+      ? editTaskAutocomplete.getTags()
       : [];
 
-    editTaskTagAutocomplete.destroy();
+    editTaskAutocomplete.destroy();
 
     GlobalLoaderService.show("Updating task record...");
 
@@ -486,8 +486,8 @@ export const TaskFormController = {
         this.mainController.toggleModal("edit-modal", false);
 
         pendingEditId = null;
-        editTaskTagAutocomplete = null;
-        editDatePicker = null
+        editTaskAutocomplete = null;
+        editDatePicker = null;
         currentModalSubtasks = [];
 
         this.mainController.refreshUI();
