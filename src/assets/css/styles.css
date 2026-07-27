@@ -168,7 +168,9 @@ body {
     border-color 0.3s ease;
 }
 
-select {
+select,
+#task-tags-input,
+#edit-task-tags-input {
   appearance: none;
   background-repeat: no-repeat;
   background-position: right 0.85rem center;
@@ -180,12 +182,20 @@ select {
   text-overflow: ellipsis;
 }
 
-.dark select {
-  background-image: url("../../../public/picture/chevron-down-solid-light.svg");
+.dark {
+  select,
+  #task-tags-input,
+  #edit-task-tags-input {
+    background-image: url("../../../public/picture/chevron-down-solid-light.svg");
+  }
 }
 
-.light select {
-  background-image: url("../../../public/picture/chevron-down-solid-dark.svg");
+.light {
+  select,
+  #task-tags-input,
+  #edit-task-tags-input {
+    background-image: url("../../../public/picture/chevron-down-solid-dark.svg");
+  }
 }
 
 .btn-primary {

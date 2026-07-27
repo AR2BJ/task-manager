@@ -15,6 +15,7 @@ import { TaskActionController } from "./tasks/task-action.controller.js";
 import { TaskFormController } from "./tasks/task-form.controller.js";
 import { TasksView } from "@/views/tasks-view.js";
 import { openSubtasksState } from "@/utils/helpers.js";
+import { renderTagFilterBar } from "@/views/tasks/tag-bar.renderer.js";
 import { renderTaskList } from "@/views/tasks/task-list.renderer.js";
 
 export const TaskController = {
@@ -66,6 +67,8 @@ export const TaskController = {
     renderTaskList(filteredTasks, state.activeTab);
     AnalyticsController.dispatchRender(allTasks);
     this.updateNavigationDOM();
+
+    renderTagFilterBar();
   },
 
   bindMenuToggle() {
@@ -119,6 +122,55 @@ export const TaskController = {
   },
 
   bindStaticEvents() {
+    const tagFilterBtn = document.getElementById("task-filter-scroll");
+
+    if (tagFilterBtn) {
+      tagFilterBtn.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tag-filter-btn");
+        if (!btn) return;
+
+        const selectedTag = btn.dataset.tag;
+        StateManager.setSelectedTag(selectedTag);
+        this.refreshUI();
+      });
+    }
+
+    const sortSelect = document.getElementById("task-sort-select");
+    if (sortSelect) {
+      sortSelect.value = state.sortBy || "priority";
+
+      sortSelect.addEventListener("change", (e) => {
+        GlobalLoaderService.show("Sorting tasks...");
+
+        setTimeout(() => {
+          try {
+            StateManager.setSortBy(e.target.value);
+            this.refreshUI();
+          } finally {
+            GlobalLoaderService.hide();
+          }
+        }, 10);
+      });
+    }
+
+    const dateFilterSelect = document.getElementById("task-date-filter-select");
+    if (dateFilterSelect) {
+      dateFilterSelect.value = state.dateFilter || "all";
+
+      dateFilterSelect.addEventListener("change", (e) => {
+        GlobalLoaderService.show("Filtering tasks by date...");
+
+        setTimeout(() => {
+          try {
+            StateManager.setDateFilter(e.target.value);
+            this.refreshUI();
+          } finally {
+            GlobalLoaderService.hide();
+          }
+        }, 10);
+      });
+    }
+
     const toggleFormBtn = document.getElementById("btn-toggle-task-form");
     const formContainer = document.getElementById("task-form-container");
     const formChevron = document.getElementById("form-chevron");

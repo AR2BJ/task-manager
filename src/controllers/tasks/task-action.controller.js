@@ -38,7 +38,7 @@ export const TaskActionController = {
               this.mainController.refreshUI();
 
               const updatedTask = updated.find((t) => t.id === id);
-              const isNowCompleted = updatedTask?.status === "completed";
+              const isNowCompleted = updatedTask?.status === "done";
 
               NotificationService.show({
                 type: isNowCompleted ? "success" : "info",
@@ -140,28 +140,8 @@ export const TaskActionController = {
       if (editBtn) {
         const id = editBtn.dataset.id;
         setPendingEditId(id);
-        const task = StateManager.getTasks().find((t) => t.id === id);
 
-        if (task) {
-          const editTitleInput = document.getElementById("edit-task-title");
-          const editDescInput = document.getElementById("edit-task-desc");
-          const editPrioritySelect =
-            document.getElementById("edit-task-priority");
-          const editDueDateInput = document.getElementById("edit-task-duedate");
-          const editTagsInput = document.getElementById("edit-task-tags");
-
-          if (editTitleInput) editTitleInput.value = task.title || "";
-          if (editDescInput) editDescInput.value = task.description || "";
-          if (editPrioritySelect)
-            editPrioritySelect.value = task.priority || "medium";
-          if (editDueDateInput) editDueDateInput.value = task.dueDate || "";
-          if (editTagsInput)
-            editTagsInput.value = Array.isArray(task.tags)
-              ? task.tags.join(", ")
-              : "";
-
-          this.mainController.toggleModal("edit-modal", true);
-        }
+        this.mainController.toggleModal("edit-modal", true);
         return;
       }
 

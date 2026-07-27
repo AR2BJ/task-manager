@@ -118,18 +118,13 @@ export const TasksView = {
                   />
                 </div>
 
-                <div class="w-full min-w-0">
+                <div class="w-full">
                   <label
-                    for="task-due-date"
+                    for="task-duedate-input"
                     class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                    >Due Date</label
                   >
-                    Due Date
-                  </label>
-                  <input
-                    id="task-due-date"
-                    type="date"
-                    class="h-11 w-full cursor-pointer rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
-                  />
+                  <div id="create-datepicker-container"></div>
                 </div>
               </div>
 
@@ -160,13 +155,13 @@ export const TasksView = {
                     id="task-priority-select"
                     class="form-select h-11 w-full cursor-pointer rounded-xl border border-border bg-surface-2 px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
                   >
-                    <option value="low">Low Priority</option>
                     <option
-                      value="medium"
                       selected
+                      value="low"
                     >
-                      Medium Priority
+                      Low Priority
                     </option>
+                    <option value="medium">Medium Priority</option>
                     <option value="high">High Priority</option>
                     <option value="urgent">Urgent Block&#8203;er</option>
                   </select>
@@ -195,19 +190,31 @@ export const TasksView = {
                   </select>
                 </div>
 
-                <div>
+                <div class="w-full relative">
                   <label
                     for="task-tags-input"
                     class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
                   >
-                    Tags (Comma Separated)
+                    Tags
                   </label>
-                  <input
-                    id="task-tags-input"
-                    type="text"
-                    placeholder="dev, backend, api"
-                    class="h-11 w-full rounded-xl border border-border bg-surface-2 px-4 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none"
-                  />
+
+                  <div
+                    id="task-tags-container"
+                    class="min-h-11 w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 ps-3 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
+                  >
+                    <input
+                      id="task-tags-input"
+                      type="text"
+                      placeholder="Type tag and press Enter..."
+                      class="flex-1 min-w-27.5 bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none h-8 pb-1 cursor-text"
+                      autocomplete="off"
+                    />
+                  </div>
+
+                  <div
+                    id="tags-autocomplete-dropdown"
+                    class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
+                  ></div>
                 </div>
               </div>
 
@@ -271,6 +278,23 @@ export const TasksView = {
             >
               <div class="flex items-center gap-2">
                 <label
+                  for="task-date-filter-select"
+                  class="text-xs text-secondary font-medium hidden sm:block"
+                  >Date:</label
+                >
+                <select
+                  id="task-date-filter-select"
+                  class="h-8 cursor-pointer rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
+                >
+                  <option value="all">All Dates</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="today">Today</option>
+                  <option value="this_week">This Week</option>
+                  <option value="no_date">No Due Date</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <label
                   for="task-sort-select"
                   class="text-xs text-secondary font-medium hidden sm:block"
                   >Sort:</label
@@ -279,8 +303,14 @@ export const TasksView = {
                   id="task-sort-select"
                   class="h-8 cursor-pointer rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
                 >
+                  <option
+                    selected
+                    value="priority"
+                  >
+                    Priority
+                  </option>
                   <option value="dueDate">Due Date</option>
-                  <option value="priority">Priority</option>
+                  <option value="status">Status</option>
                   <option value="createdAt">Date Created</option>
                   <option value="title">Title (A-Z)</option>
                 </select>

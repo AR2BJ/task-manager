@@ -267,8 +267,16 @@ export const TaskItemComponent = {
                 ${task.subtasks
                   .map(
                     (st) => `
-                      <div class="flex items-center justify-between gap-1 group/st rounded-lg p-2 hover:bg-surface-2/60 border border-transparent hover:border-border/50 transition cursor-pointer">
-                        <div class="relative flex flex-row justify-start items-center gap-2 shrink-0 min-w-0 flex-1">
+                      <div
+                        class="flex items-center justify-between gap-1 group/st rounded-lg p-2 hover:bg-surface-2/60 border border-transparent hover:border-border/50 transition cursor-pointer"
+                      >
+                        <div
+                          class="relative flex flex-row justify-start items-center gap-2 shrink-0 min-w-0 flex-1"
+                        >
+                          ${
+                            isArchived
+                              ? ""
+                              : `
                           <button
                             type="button"
                             data-task-id="${task.id}"
@@ -281,15 +289,24 @@ export const TaskItemComponent = {
                           >
                             <i class="fa-regular ${st.completed ? "fa-check text-xs md:text-sm font-bold" : "fa-square text-[10px]"}"></i>
                           </button>
+              `
+                          }
+
                           <span
                             data-task-id="${task.id}"
                             data-subtask-id="${st.id}"
-                            class="subtask-toggle text-sm text-primary truncate ${st.completed ? "line-through opacity-50" : ""}"
+                            class="subtask-toggle text-sm text-primary truncate ${
+                              st.completed ? "line-through opacity-50" : ""
+                            }"
                           >
                             ${st.title}
                           </span>
                         </div>
-                        
+
+                        ${
+                          isArchived
+                            ? ""
+                            : `
                         <button
                           type="button"
                           data-task-id="${task.id}"
@@ -297,8 +314,12 @@ export const TaskItemComponent = {
                           class="subtask-delete-btn w-6 h-6 rounded-sm bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer transition-all"
                           title="Delete Subtask"
                         >
-                          <i class="fa-regular fa-trash-can text-red-500/80 text-xs"></i>
+                          <i
+                            class="fa-regular fa-trash-can text-red-500/80 text-xs"
+                          ></i>
                         </button>
+                        `
+                        }
                       </div>
                     `,
                   )

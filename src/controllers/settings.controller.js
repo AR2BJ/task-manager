@@ -562,7 +562,7 @@ export const SettingsController = {
     const seedSpinner = document.getElementById("sett-seed-spinner");
     const seedText = document.getElementById("sett-seed-text");
 
-    const mockDataCount = Math.floor(Math.random() * 50) + 10;
+    const mockDataCount = Math.floor(Math.random() * 100);
 
     if (seedBtn) seedBtn.disabled = true;
     if (seedIcon) seedIcon.classList.replace("flex", "hidden");

@@ -1,12 +1,18 @@
 import { generateId, todayISO } from "@/utils/helpers";
 
+import { DatePickerComponent } from "@/components/ui/date-picker.component";
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
 import { StateManager } from "@/models/state.model.js";
+import { TagAutocomplete } from "@/components/ui/tag-autocomplete.component";
 import { TaskService } from "@/services/task.service.js";
 
 let pendingDeleteId = null;
 let pendingEditId = null;
+let createTaskTagAutocomplete = null;
+let createDatePicker = null;
+let editTaskTagAutocomplete = null;
+let editDatePicker = null;
 let currentModalSubtasks = [];
 
 export function setPendingDeleteId(id) {
@@ -23,11 +29,24 @@ export function setPendingEditId(id) {
 export const TaskFormController = {
   init(mainController) {
     this.mainController = mainController;
+
+    createTaskTagAutocomplete = new TagAutocomplete({
+      containerId: "task-tags-container",
+      inputId: "task-tags-input",
+      dropdownId: "tags-autocomplete-dropdown",
+    });
+
+    this.setupDatePicker("create");
+
     this.bindFormEvents();
     this.bindSubtaskEvents();
   },
 
   populateEditModal(taskId) {
+    if (editTaskTagAutocomplete) {
+      editTaskTagAutocomplete.destroy();
+    }
+
     const tasks = StateManager.getTasks();
     const task = tasks.find((t) => t.id === taskId);
 
@@ -35,18 +54,24 @@ export const TaskFormController = {
 
     const titleInput = document.getElementById("edit-task-title");
     const descInput = document.getElementById("edit-task-desc");
-    const dueDateInput = document.getElementById("edit-task-due-date");
     const prioritySelect = document.getElementById("edit-task-priority");
     const statusSelect = document.getElementById("edit-task-status");
-    const tagsInput = document.getElementById("edit-task-tags");
 
     if (titleInput) titleInput.value = task.title || "";
     if (descInput) descInput.value = task.description || "";
-    if (dueDateInput) dueDateInput.value = task.dueDate || "";
     if (prioritySelect) prioritySelect.value = task.priority || "medium";
     if (statusSelect) statusSelect.value = task.status || "todo";
-    if (tagsInput)
-      tagsInput.value = Array.isArray(task.tags) ? task.tags.join(", ") : "";
+
+    editTaskTagAutocomplete = new TagAutocomplete({
+      containerId: "edit-task-tags-container",
+      inputId: "edit-task-tags-input",
+      dropdownId: "edit-tags-autocomplete-dropdown",
+      initialTags: Array.isArray(task.tags) ? [...task.tags] : [],
+    });
+
+    editTaskTagAutocomplete.bindEvents();
+
+    this.setupDatePicker("edit", task.dueDate || "");
 
     currentModalSubtasks = task.subtasks
       ? JSON.parse(JSON.stringify(task.subtasks))
@@ -72,13 +97,13 @@ export const TaskFormController = {
     if (total === 0) {
       container.innerHTML = `
         <div
-          class="w-full min-h-25 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-dashed border-border rounded-lg p-2 text-center"
+          class="w-full min-h-20 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-dashed border-border rounded-lg p-2 text-center"
         >
-          <div class="h-25 flex flex-col justify-center items-center">
-            <div class="text-3xl mb-1">
+          <div class="h-20 flex flex-col justify-center items-center">
+            <div class="text-2xl">
               <i class="fa-regular fa-list-check text-brand/80"></i>
             </div>
-            <p class="mt-2 text-secondary max-w-sm mx-auto text-sm">
+            <p class="mt-2 text-secondary max-w-sm mx-auto text-xs">
               No subtasks defined yet.
             </p>
           </div>
@@ -89,7 +114,7 @@ export const TaskFormController = {
 
     container.innerHTML = `
       <div
-        class="w-full max-h-25 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-border rounded-lg p-2 flex flex-col justify-start gap-1"
+        class="w-full max-h-20 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-border rounded-lg p-2 flex flex-col justify-start gap-1"
       >
         ${currentModalSubtasks
           .map(
@@ -227,24 +252,21 @@ export const TaskFormController = {
   bindFormEvents() {
     const titleInput = document.getElementById("task-title-input");
     const descInput = document.getElementById("task-desc-input");
-    const dueDateInput = document.getElementById("task-due-date");
     const prioritySelect = document.getElementById("task-priority-select");
     const statusSelect = document.getElementById("task-status-select");
-    const tagsInput = document.getElementById("task-tags-input");
     const addBtn = document.getElementById("add-task-btn");
 
     const handleAddTask = () => {
       const title = titleInput?.value.trim();
       const description = descInput?.value.trim() || "";
-      const dueDate = dueDateInput?.value || null;
       const priority = prioritySelect?.value || "medium";
       const status = statusSelect?.value || "todo";
 
-      const rawTags = tagsInput?.value || "";
-      const tags = rawTags
-        .split(",")
-        .map((tag) => tag.trim().replace(/^#/, ""))
-        .filter((tag) => tag.length > 0);
+      const dueDate = createDatePicker ? createDatePicker.value : null;
+
+      const tags = createTaskTagAutocomplete
+        ? createTaskTagAutocomplete.getTags()
+        : [];
 
       if (!title) {
         NotificationService.show({
@@ -283,10 +305,11 @@ export const TaskFormController = {
 
           if (titleInput) titleInput.value = "";
           if (descInput) descInput.value = "";
-          if (dueDateInput) dueDateInput.value = "";
-          if (prioritySelect) prioritySelect.value = "medium";
+          if (prioritySelect) prioritySelect.value = "low";
           if (statusSelect) statusSelect.value = "todo";
-          if (tagsInput) tagsInput.value = "";
+
+          createTaskTagAutocomplete?.reset();
+          createDatePicker?.reset();
 
           this.mainController.refreshUI();
 
@@ -411,20 +434,10 @@ export const TaskFormController = {
   executeEdit() {
     const titleInput = document.getElementById("edit-task-title");
     const descInput = document.getElementById("edit-task-desc");
-    const dueDateInput = document.getElementById("edit-task-due-date");
     const prioritySelect = document.getElementById("edit-task-priority");
     const statusSelect = document.getElementById("edit-task-status");
-    const tagsInput = document.getElementById("edit-task-tags");
 
-    if (!pendingEditId || !titleInput) {
-      NotificationService.show({
-        type: "error",
-        message: "Unable to edit task. Please try again.",
-        icon: "fa-triangle-exclamation",
-        duration: 4000,
-      });
-      return;
-    }
+    if (!pendingEditId || !titleInput) return;
 
     const newTitle = titleInput.value.trim();
     if (!newTitle) {
@@ -437,11 +450,13 @@ export const TaskFormController = {
       return;
     }
 
-    const rawTags = tagsInput?.value || "";
-    const updatedTags = rawTags
-      .split(",")
-      .map((t) => t.trim().replace(/^#/, ""))
-      .filter((t) => t.length > 0);
+    const updatedDueDate = editDatePicker ? editDatePicker.value : null;
+
+    const updatedTags = editTaskTagAutocomplete
+      ? editTaskTagAutocomplete.getTags()
+      : [];
+
+    editTaskTagAutocomplete.destroy();
 
     GlobalLoaderService.show("Updating task record...");
 
@@ -452,7 +467,7 @@ export const TaskFormController = {
         const updatedTaskData = {
           title: newTitle,
           description: descInput?.value.trim() || "",
-          dueDate: dueDateInput?.value || null,
+          dueDate: updatedDueDate,
           priority: prioritySelect?.value || "medium",
           status: statusSelect?.value || "todo",
           tags: updatedTags,
@@ -469,8 +484,12 @@ export const TaskFormController = {
 
         StateManager.save(updated);
         this.mainController.toggleModal("edit-modal", false);
+
         pendingEditId = null;
+        editTaskTagAutocomplete = null;
+        editDatePicker = null
         currentModalSubtasks = [];
+
         this.mainController.refreshUI();
 
         NotificationService.show({
@@ -490,5 +509,33 @@ export const TaskFormController = {
         GlobalLoaderService.hide();
       }
     }, 30);
+  },
+
+  setupDatePicker(action, initialValue = "") {
+    if (action === "create") {
+      const container = document.getElementById("create-datepicker-container");
+      if (!container) return;
+
+      createDatePicker = new DatePickerComponent({
+        id: "task-duedate-input",
+        value: initialValue,
+        placeholder: "YYYY-MM-DD",
+      });
+
+      container.innerHTML = createDatePicker.render();
+      createDatePicker.bindEvents();
+    } else {
+      const container = document.getElementById("edit-datepicker-container");
+      if (!container) return;
+
+      editDatePicker = new DatePickerComponent({
+        id: "edit-task-duedate",
+        value: initialValue,
+        placeholder: "YYYY-MM-DD",
+      });
+
+      container.innerHTML = editDatePicker.render();
+      editDatePicker.bindEvents();
+    }
   },
 };

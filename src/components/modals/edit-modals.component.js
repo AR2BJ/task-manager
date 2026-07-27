@@ -34,7 +34,7 @@ export const EditModalsComponent = {
             </button>
           </div>
 
-          <div class="flex-1 pr-1 space-y-4 text-left">
+          <div class="flex-1 pr-1 space-y-4 text-left overflow-y-auto">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div class="sm:col-span-2">
                 <label
@@ -53,16 +53,11 @@ export const EditModalsComponent = {
 
               <div>
                 <label
-                  for="edit-task-due-date"
+                  for="edit-task-duedate"
                   class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                  >Due Date</label
                 >
-                  Due Date
-                </label>
-                <input
-                  id="edit-task-due-date"
-                  type="date"
-                  class="h-10.5 w-full cursor-pointer bg-surface-2 rounded-xl border border-border px-3 text-sm text-primary outline-none focus:border-brand/80 transition"
-                />
+                <div id="edit-datepicker-container"></div>
               </div>
             </div>
 
@@ -81,7 +76,7 @@ export const EditModalsComponent = {
               ></textarea>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label
                   for="edit-task-priority"
@@ -93,7 +88,12 @@ export const EditModalsComponent = {
                   id="edit-task-priority"
                   class="h-10.5 w-full bg-surface-2 cursor-pointer rounded-xl border border-border px-3 text-sm text-primary outline-none focus:border-brand/80 transition"
                 >
-                  <option value="low">Low Priority</option>
+                  <option
+                    selected
+                    value="low"
+                  >
+                    Low Priority
+                  </option>
                   <option value="medium">Medium Priority</option>
                   <option value="high">High Priority</option>
                   <option value="urgent">Urgent Blocker</option>
@@ -111,27 +111,42 @@ export const EditModalsComponent = {
                   id="edit-task-status"
                   class="h-10.5 w-full bg-surface-2 cursor-pointer rounded-xl border border-border px-3 text-sm text-primary outline-none focus:border-brand/80 transition"
                 >
-                  <option value="todo">To Do</option>
+                  <option
+                    selected
+                    value="todo"
+                  >
+                    To Do
+                  </option>
                   <option value="in_progress">In Progress</option>
                   <option value="done">Done</option>
                   <option value="blocked">Blocked</option>
                 </select>
               </div>
-
-              <div>
-                <label
-                  for="edit-task-tags"
-                  class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
-                >
-                  Tags (Comma Separated)
-                </label>
+            </div>
+            <div class="relative w-full">
+              <label
+                for="edit-task-tags-input"
+                class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+              >
+                Tags
+              </label>
+              <div
+                id="edit-task-tags-container"
+                class="min-h-11 w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 ps-3 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
+              >
                 <input
-                  id="edit-task-tags"
+                  id="edit-task-tags-input"
                   type="text"
-                  placeholder="dev, api, UI"
-                  class="h-10.5 w-full rounded-xl bg-surface-2 border border-border px-3.5 text-sm text-primary placeholder:text-secondary/70 outline-none focus:border-brand/80 transition"
+                  placeholder="Type tag and press Enter..."
+                  class="flex-1 min-w-27.5 bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none h-8 pb-1 cursor-text"
+                  autocomplete="off"
                 />
               </div>
+
+              <div
+                id="edit-tags-autocomplete-dropdown"
+                class="hidden max-h-40 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
+              ></div>
             </div>
 
             <div class="border-t border-border/80 pt-2"></div>
@@ -175,10 +190,10 @@ export const EditModalsComponent = {
                 class="flex"
               >
                 <div
-                  class="w-full min-h-25 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-dashed border-border rounded-lg p-2 text-center"
+                  class="w-full min-h-20 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-dashed border-border rounded-lg p-2 text-center"
                 >
-                  <div class="h-25 flex flex-col justify-center items-center">
-                    <div class="text-3xl mb-1">
+                  <div class="h-20 flex flex-col justify-center items-center">
+                    <div class="text-3xl">
                       <i class="fa-regular fa-list-check text-brand/80"></i>
                     </div>
                     <p class="mt-2 text-secondary max-w-sm mx-auto text-sm">

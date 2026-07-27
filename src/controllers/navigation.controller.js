@@ -150,16 +150,16 @@ export class NavigationController {
       }
 
       if (event.shiftKey) {
-        if (["h", "a", "s"].includes(key)) {
+        if (["t", "a", "s"].includes(key)) {
           event.preventDefault();
 
           const viewNames = {
-            h: "Tasks Dashboard",
+            t: "Tasks Dashboard",
             a: "Analytical Metrics",
             s: "System Settings",
           };
           const targetTab =
-            key === "h" ? "tasks" : key === "a" ? "analytics" : "settings";
+            key === "t" ? "tasks" : key === "a" ? "analytics" : "settings";
 
           GlobalLoaderService.show(`Navigating to ${viewNames[key]}...`);
 

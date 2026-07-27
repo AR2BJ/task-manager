@@ -116,7 +116,7 @@ export const InfoModalComponent = {
                   <span class="text-[10px] text-muted">+</span>
                   <kbd
                     class="px-2 py-1 text-[10px] font-mono font-bold text-primary bg-surface border border-border shadow-sm rounded-md"
-                    >H</kbd
+                    >T</kbd
                   >
                 </div>
               </div>

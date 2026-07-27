@@ -1,0 +1,50 @@
+import { StateManager, state } from "@/models/state.model.js";
+
+export function renderTagFilterBar() {
+  const scrollContainer = document.getElementById("task-filter-scroll");
+  if (!scrollContainer) return;
+
+  const tasks = StateManager.getTasks();
+
+  // Extract all unique tags across tasks
+  const uniqueTags = Array.from(
+    new Set(tasks.flatMap((t) => t.tags || [])),
+  ).sort();
+
+  const selectedTag = state.selectedTag || "all";
+
+  // Build HTMl for "All Tasks" + each unique tag button
+  let html = `
+    <button
+      data-tag="all"
+      class="tag-filter-btn h-8 shrink-0 whitespace-nowrap rounded-lg px-3.5 text-xs font-semibold transition cursor-pointer ${
+        selectedTag === "all"
+          ? "bg-brand/80 text-white shadow-brand/10 shadow-sm"
+          : "bg-surface border border-border text-secondary hover:text-primary hover:bg-surface-2"
+      }"
+    >
+      All Tasks
+    </button>
+  `;
+
+  uniqueTags.forEach((tag) => {
+    const isSelected = selectedTag === tag;
+    html += `
+      <button
+        data-tag="${tag}"
+        class="tag-filter-btn h-8 shrink-0 whitespace-nowrap rounded-lg px-3.5 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+          isSelected
+            ? "bg-brand/80 text-white shadow-brand/10 shadow-sm"
+            : "bg-surface border border-border text-secondary hover:text-primary hover:bg-surface-2"
+        }"
+      >
+        <span class="flex flex-row justify-center items-center gap-1">
+          <i class="fa-regular fa-tag ${isSelected ? "text-white" : "text-brand/70"} text-xs"></i>
+          ${tag}
+        </span>
+      </button>
+    `;
+  });
+
+  scrollContainer.innerHTML = html;
+}

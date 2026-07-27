@@ -52,14 +52,39 @@ export const TaskService = {
     return currentTasks.map((task) => {
       if (task.id !== id) return task;
 
+      if (task.archived) return task;
+
       const isCompleted = task.status === "done";
       const newStatus = isCompleted ? "todo" : "done";
+
+      let updatedSubtasks = [];
+      let savedSubtaskIds = task.completedSubtaskIdsBeforeDone || [];
+
+      if (newStatus === "done") {
+        savedSubtaskIds = (task.subtasks || [])
+          .filter((st) => st.completed)
+          .map((st) => st.id);
+
+        updatedSubtasks = (task.subtasks || []).map((st) => ({
+          ...st,
+          completed: true,
+          updatedAt: today,
+        }));
+      } else {
+        updatedSubtasks = (task.subtasks || []).map((st) => ({
+          ...st,
+          completed: savedSubtaskIds.includes(st.id),
+          updatedAt: today,
+        }));
+      }
 
       return {
         ...task,
         status: newStatus,
         completedAt: newStatus === "done" ? today : null,
         updatedAt: today,
+        subtasks: updatedSubtasks,
+        completedSubtaskIdsBeforeDone: savedSubtaskIds,
       };
     });
   },
@@ -120,18 +145,53 @@ export const TaskService = {
   },
 
   toggleSubtask(currentTasks, taskId, subtaskId) {
+    const today = todayISO();
+
     return currentTasks.map((task) => {
       if (task.id !== taskId) return task;
 
       const updatedSubtasks = (task.subtasks || []).map((st) => {
         if (st.id !== subtaskId) return st;
-        return { ...st, completed: !st.completed };
+        return { ...st, completed: !st.completed, updatedAt: today };
       });
+
+      if (task.archived) {
+        return {
+          ...task,
+          subtasks: updatedSubtasks,
+          updatedAt: today,
+        };
+      }
+
+      const hasSubtasks = updatedSubtasks.length > 0;
+      const allCompleted =
+        hasSubtasks && updatedSubtasks.every((st) => st.completed);
+
+      let newStatus = task.status;
+      let completedAt = task.completedAt;
+      let savedSubtaskIds = task.completedSubtaskIdsBeforeDone || [];
+
+      if (allCompleted) {
+        newStatus = "done";
+        completedAt = today;
+      } else if (task.status === "done" && !allCompleted) {
+        newStatus = "in_progress";
+        completedAt = null;
+      }
+
+      if (newStatus !== "done") {
+        savedSubtaskIds = updatedSubtasks
+          .filter((st) => st.completed)
+          .map((st) => st.id);
+      }
 
       return {
         ...task,
+        status: newStatus,
+        completedAt: completedAt,
         subtasks: updatedSubtasks,
-        updatedAt: todayISO(),
+        updatedAt: today,
+        completedSubtaskIdsBeforeDone: savedSubtaskIds,
       };
     });
   },

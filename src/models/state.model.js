@@ -8,7 +8,8 @@ export const state = {
   selectedTag: "all",
   currentPriority: "low",
   currentStatus: "todo",
-  sortBy: "dueDate",
+  dateFilter: "all",
+  sortBy: "priority",
   searchQuery: "",
 };
 
@@ -48,6 +49,39 @@ export const StateManager = {
       list = list.filter((task) => task.priority === state.currentPriority);
     }
 
+    if (state.dateFilter && state.dateFilter !== "all") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const todayStr = today.toISOString().split("T")[0];
+
+      list = list.filter((task) => {
+        if (state.dateFilter === "no_date") {
+          return !task.dueDate;
+        }
+
+        if (!task.dueDate) return false;
+
+        const taskDate = new Date(task.dueDate + "T00:00:00");
+
+        if (state.dateFilter === "today") {
+          return task.dueDate === todayStr;
+        }
+
+        if (state.dateFilter === "overdue") {
+          return taskDate < today && task.status !== "done";
+        }
+
+        if (state.dateFilter === "this_week") {
+          const nextWeek = new Date(today);
+          nextWeek.setDate(today.getDate() + 7);
+          return taskDate >= today && taskDate <= nextWeek;
+        }
+
+        return true;
+      });
+    }
+
     if (state.searchQuery) {
       const query = state.searchQuery.toLowerCase().trim();
       list = list.filter((task) => {
@@ -69,12 +103,24 @@ export const StateManager = {
   sortTasks(tasks, sortBy) {
     const priorityWeight = { urgent: 4, high: 3, medium: 2, low: 1 };
 
+    const statusWeight = {
+      blocked: 4,
+      in_progress: 3,
+      todo: 2,
+      done: 1,
+    };
+
     return [...tasks].sort((a, b) => {
       if (sortBy === "priority") {
         return (
           (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0)
         );
       }
+
+      if (sortBy === "status") {
+        return (statusWeight[b.status] || 0) - (statusWeight[a.status] || 0);
+      }
+
       if (sortBy === "dueDate") {
         if (!a.dueDate) return 1;
         if (!b.dueDate) return -1;
@@ -85,6 +131,10 @@ export const StateManager = {
       }
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
+  },
+
+  setDateFilter(filter) {
+    state.dateFilter = filter;
   },
 
   setSelectedTag(tag) {

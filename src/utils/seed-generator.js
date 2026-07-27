@@ -34,6 +34,19 @@ const AVAILABLE_TAGS = [
   "architecture",
   "ops",
   "docs",
+  "feature",
+  "enhancement",
+  "testing",
+  "security",
+  "performance",
+  "ux",
+  "ui",
+  "database",
+  "api",
+  "deployment",
+  "monitoring",
+  "refactor",
+  "dependencies",
 ];
 
 const SUBTASK_TEMPLATES = [
