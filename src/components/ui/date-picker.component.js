@@ -5,17 +5,28 @@ export class DatePickerComponent {
     this.placeholder = placeholder;
     this.onChange = onChange;
 
+    const today = new Date();
+    this.minYear = today.getFullYear();
+    this.yearsPerPage = 12;
+    this.totalPages = 4;
+    this.maxYear = this.minYear + this.yearsPerPage * this.totalPages - 1;
+
     const initialDate = value ? new Date(value) : new Date();
-    this.currentYear = isNaN(initialDate.getTime())
-      ? new Date().getFullYear()
+    let parsedYear = isNaN(initialDate.getTime())
+      ? this.minYear
       : initialDate.getFullYear();
+
+    if (parsedYear < this.minYear) parsedYear = this.minYear;
+    if (parsedYear > this.maxYear) parsedYear = this.maxYear;
+
+    this.currentYear = parsedYear;
     this.currentMonth = isNaN(initialDate.getTime())
-      ? new Date().getMonth()
+      ? today.getMonth()
       : initialDate.getMonth();
 
     this.isOpen = false;
     this.viewMode = "days";
-    this.yearRangeStart = Math.floor(this.currentYear / 12) * 12;
+    this.yearRangeStart = this.minYear;
 
     this.monthNames = [
       "January",
@@ -104,13 +115,13 @@ export class DatePickerComponent {
       </div>
 
       <div id="${this.id}-weekdays-header" class="grid grid-cols-7 gap-1 mb-1 text-center">
+      <span class="text-[10px] font-semibold text-secondary">Sa</span>
         <span class="text-[10px] font-semibold text-secondary">Su</span>
         <span class="text-[10px] font-semibold text-secondary">Mo</span>
         <span class="text-[10px] font-semibold text-secondary">Tu</span>
         <span class="text-[10px] font-semibold text-secondary">We</span>
         <span class="text-[10px] font-semibold text-secondary">Th</span>
-        <span class="text-[10px] font-semibold text-secondary">Fr</span>
-        <span class="text-[10px] font-semibold text-secondary">Sa</span>
+        <span class="text-[10px] font-semibold text-rose-400">Fr</span>
       </div>
 
       <div id="${this.id}-view-container"></div>
@@ -157,6 +168,58 @@ export class DatePickerComponent {
     this.isOpen = false;
   }
 
+  _updateNavButtonsState() {
+    const prevBtn = document.getElementById(`${this.id}-prev-btn`);
+    const nextBtn = document.getElementById(`${this.id}-next-btn`);
+
+    if (!prevBtn || !nextBtn) return;
+
+    let isPrevDisabled = false;
+    let isNextDisabled = false;
+
+    if (this.viewMode === "days") {
+      isPrevDisabled =
+        this.currentYear === this.minYear && this.currentMonth === 0;
+      isNextDisabled =
+        this.currentYear === this.maxYear && this.currentMonth === 11;
+    } else if (this.viewMode === "months") {
+      isPrevDisabled = this.currentYear <= this.minYear;
+      isNextDisabled = this.currentYear >= this.maxYear;
+    } else if (this.viewMode === "years") {
+      isPrevDisabled = this.yearRangeStart <= this.minYear;
+      isNextDisabled = this.yearRangeStart + this.yearsPerPage > this.maxYear;
+    }
+
+    const setDisabledState = (btn, disabled) => {
+      if (disabled) {
+        btn.classList.add(
+          "opacity-20",
+          "cursor-not-allowed",
+          "pointer-events-none",
+        );
+        btn.classList.remove(
+          "hover:bg-surface-2",
+          "hover:text-primary",
+          "cursor-pointer",
+        );
+      } else {
+        btn.classList.remove(
+          "opacity-20",
+          "cursor-not-allowed",
+          "pointer-events-none",
+        );
+        btn.classList.add(
+          "hover:bg-surface-2",
+          "hover:text-primary",
+          "cursor-pointer",
+        );
+      }
+    };
+
+    setDisabledState(prevBtn, isPrevDisabled);
+    setDisabledState(nextBtn, isNextDisabled);
+  }
+
   bindEvents() {
     const input = document.getElementById(this.id);
     const calendarBtn = document.getElementById(`${this.id}-calendar-btn`);
@@ -186,10 +249,12 @@ export class DatePickerComponent {
 
       if (formatted.length === 10 && this.isValidDate(formatted)) {
         const [y, m] = formatted.split("-").map(Number);
-        this.currentYear = y;
-        this.currentMonth = m - 1;
-        this.renderCalendar();
-        if (this.onChange) this.onChange(formatted);
+        if (y >= this.minYear && y <= this.maxYear) {
+          this.currentYear = y;
+          this.currentMonth = m - 1;
+          this.renderCalendar();
+          if (this.onChange) this.onChange(formatted);
+        }
       } else if (formatted === "") {
         if (this.onChange) this.onChange("");
       }
@@ -227,7 +292,10 @@ export class DatePickerComponent {
         this.viewMode = "months";
       } else if (this.viewMode === "months") {
         this.viewMode = "years";
-        this.yearRangeStart = Math.floor(this.currentYear / 12) * 12;
+        const offset =
+          Math.floor((this.currentYear - this.minYear) / this.yearsPerPage) *
+          this.yearsPerPage;
+        this.yearRangeStart = this.minYear + offset;
       } else {
         this.viewMode = "days";
       }
@@ -237,15 +305,21 @@ export class DatePickerComponent {
     prevBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
       if (this.viewMode === "days") {
+        if (this.currentYear === this.minYear && this.currentMonth === 0)
+          return;
         this.currentMonth--;
         if (this.currentMonth < 0) {
           this.currentMonth = 11;
           this.currentYear--;
         }
       } else if (this.viewMode === "months") {
+        if (this.currentYear <= this.minYear) return;
         this.currentYear--;
       } else if (this.viewMode === "years") {
-        this.yearRangeStart -= 12;
+        if (this.yearRangeStart <= this.minYear) return;
+        this.yearRangeStart -= this.yearsPerPage;
+        if (this.yearRangeStart < this.minYear)
+          this.yearRangeStart = this.minYear;
       }
       this.renderCalendar();
     });
@@ -253,15 +327,19 @@ export class DatePickerComponent {
     nextBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
       if (this.viewMode === "days") {
+        if (this.currentYear === this.maxYear && this.currentMonth === 11)
+          return;
         this.currentMonth++;
         if (this.currentMonth > 11) {
           this.currentMonth = 0;
           this.currentYear++;
         }
       } else if (this.viewMode === "months") {
+        if (this.currentYear >= this.maxYear) return;
         this.currentYear++;
       } else if (this.viewMode === "years") {
-        this.yearRangeStart += 12;
+        if (this.yearRangeStart + this.yearsPerPage > this.maxYear) return;
+        this.yearRangeStart += this.yearsPerPage;
       }
       this.renderCalendar();
     });
@@ -315,22 +393,26 @@ export class DatePickerComponent {
       this.renderDaysView(viewContainer);
     } else if (this.viewMode === "months") {
       weekdaysHeader?.classList.add("hidden");
-      monthYearBtn.textContent = `${this.currentYear} (Select Month)`;
+      monthYearBtn.textContent = `${this.currentYear} - ${this.maxYear}`;
       this.renderMonthsView(viewContainer);
     } else if (this.viewMode === "years") {
       weekdaysHeader?.classList.add("hidden");
-      const endYear = this.yearRangeStart + 11;
+      const endYear = this.yearRangeStart + this.yearsPerPage - 1;
       monthYearBtn.textContent = `${this.yearRangeStart} - ${endYear}`;
       this.renderYearsView(viewContainer);
     }
+
+    this._updateNavButtonsState();
   }
 
   renderDaysView(container) {
-    const firstDayIndex = new Date(
+    const nativeFirstDay = new Date(
       this.currentYear,
       this.currentMonth,
       1,
     ).getDay();
+    const firstDayIndex = (nativeFirstDay + 1) % 7;
+
     const totalDays = new Date(
       this.currentYear,
       this.currentMonth + 1,
@@ -347,30 +429,20 @@ export class DatePickerComponent {
 
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const day = prevMonthTotalDays - i;
-      let prevM = this.currentMonth - 1;
-      let prevY = this.currentYear;
-      if (prevM < 0) {
-        prevM = 11;
-        prevY--;
-      }
-      const mStr = String(prevM + 1).padStart(2, "0");
-      const dStr = String(day).padStart(2, "0");
-      const dateStr = `${prevY}-${mStr}-${dStr}`;
-
-      gridHTML += `
-        <div 
-          class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg cursor-pointer transition-all text-secondary/40 hover:bg-surface-2 hover:text-primary"
-          data-date="${dateStr}"
-        >
-          ${day}
-        </div>
-      `;
+      gridHTML += `<div class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg text-secondary/30 pointer-events-none">${day}</div>`;
     }
 
     for (let day = 1; day <= totalDays; day++) {
       const mStr = String(this.currentMonth + 1).padStart(2, "0");
       const dStr = String(day).padStart(2, "0");
       const dateStr = `${this.currentYear}-${mStr}-${dStr}`;
+
+      const dayOfWeek = new Date(
+        this.currentYear,
+        this.currentMonth,
+        day,
+      ).getDay();
+      const isFriday = dayOfWeek === 5;
 
       const isSelected = this.value === dateStr;
       const isToday = todayStr === dateStr;
@@ -383,6 +455,8 @@ export class DatePickerComponent {
       } else if (isToday) {
         classNames +=
           "border border-brand text-brand font-semibold hover:bg-brand/10";
+      } else if (isFriday) {
+        classNames += "text-rose-400 font-medium hover:bg-rose-500/10";
       } else {
         classNames += "text-primary hover:bg-surface-2";
       }
@@ -395,24 +469,7 @@ export class DatePickerComponent {
       (42 - totalFilled) % 7 === 0 && totalFilled > 35 ? 0 : 42 - totalFilled;
 
     for (let day = 1; day <= nextDaysNeeded; day++) {
-      let nextM = this.currentMonth + 1;
-      let nextY = this.currentYear;
-      if (nextM > 11) {
-        nextM = 0;
-        nextY++;
-      }
-      const mStr = String(nextM + 1).padStart(2, "0");
-      const dStr = String(day).padStart(2, "0");
-      const dateStr = `${nextY}-${mStr}-${dStr}`;
-
-      gridHTML += `
-        <div 
-          class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg cursor-pointer transition-all text-secondary/40 hover:bg-surface-2 hover:text-primary"
-          data-date="${dateStr}"
-        >
-          ${day}
-        </div>
-      `;
+      gridHTML += `<div class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg text-secondary/30 pointer-events-none">${day}</div>`;
     }
 
     gridHTML += `</div>`;
@@ -457,11 +514,7 @@ export class DatePickerComponent {
         classNames += "text-primary hover:bg-surface-2";
       }
 
-      html += `
-        <div class="${classNames}" data-month="${idx}">
-          ${month}
-        </div>
-      `;
+      html += `<div class="${classNames}" data-month="${idx}">${month}</div>`;
     });
 
     html += `</div>`;
@@ -480,9 +533,10 @@ export class DatePickerComponent {
   renderYearsView(container) {
     let html = `<div class="grid grid-cols-3 gap-2 py-1">`;
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < this.yearsPerPage; i++) {
       const year = this.yearRangeStart + i;
       const isCurrentYear = year === this.currentYear;
+
       let classNames =
         "py-2 text-center text-xs rounded-xl cursor-pointer font-medium transition-all ";
 
@@ -492,11 +546,7 @@ export class DatePickerComponent {
         classNames += "text-primary hover:bg-surface-2";
       }
 
-      html += `
-        <div class="${classNames}" data-year="${year}">
-          ${year}
-        </div>
-      `;
+      html += `<div class="${classNames}" data-year="${year}">${year}</div>`;
     }
 
     html += `</div>`;
@@ -525,9 +575,7 @@ export class DatePickerComponent {
     this.value = "";
 
     const input = document.getElementById(this.id);
-    if (input) {
-      input.value = "";
-    }
+    if (input) input.value = "";
 
     const now = new Date();
     this.currentYear = now.getFullYear();
