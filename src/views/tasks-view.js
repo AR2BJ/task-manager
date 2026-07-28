@@ -261,7 +261,7 @@ export const TasksView = {
                 <button
                   id="btn-scroll-right"
                   type="button"
-                  class="absolute right-0 z-20 h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface/95 backdrop-blur-xl shadow-2xl text-secondary hover:text-primary hover:border-brand/50 transition-all cursor-pointer"
+                  class="absolute right-0 z-20 flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface/95 backdrop-blur-xl shadow-2xl text-secondary hover:text-primary hover:border-brand/50 transition-all cursor-pointer"
                 >
                   <i class="fa-regular fa-chevron-right text-xs"></i>
                 </button>
@@ -269,7 +269,7 @@ export const TasksView = {
             </div>
 
             <div
-              class="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0"
+              class="flex items-center justify-between md:justify-end gap-3 shrink-0"
             >
               <div class="flex items-center col-span-1 gap-2">
                 <label
@@ -321,20 +321,27 @@ function setupTaskFiltersDragScroll() {
 
   const scrollStep = 180;
 
-  function updateScrollState() {
+  const updateScrollState = () => {
+    const hasOverflow =
+      scrollContainer.scrollWidth - scrollContainer.clientWidth > 1;
     const atStart = scrollContainer.scrollLeft <= 2;
     const atEnd =
       scrollContainer.scrollLeft + scrollContainer.clientWidth >=
       scrollContainer.scrollWidth - 2;
 
-    btnLeft.classList.toggle("hidden", atStart);
-    btnLeft.classList.toggle("flex", !atStart);
+    btnLeft.classList.toggle("hidden", atStart || !hasOverflow);
+    btnLeft.classList.toggle("flex", !atStart && hasOverflow);
 
-    btnRight.classList.toggle("hidden", atEnd);
-    btnRight.classList.toggle("flex", !atEnd);
+    btnRight.classList.toggle("hidden", !hasOverflow || atEnd);
+    btnRight.classList.toggle("flex", hasOverflow && !atEnd);
+
+    if (!hasOverflow) {
+      scrollContainer.style.webkitMaskImage = "none";
+      scrollContainer.style.maskImage = "none";
+      return;
+    }
 
     let maskImage = "";
-
     const fadeWidth = "100px";
 
     if (atStart && atEnd) {
@@ -349,11 +356,36 @@ function setupTaskFiltersDragScroll() {
 
     scrollContainer.style.webkitMaskImage = maskImage;
     scrollContainer.style.maskImage = maskImage;
+  };
+
+  const scheduleUpdate = () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(updateScrollState);
+    });
+  };
+
+  scrollContainer.addEventListener("scroll", updateScrollState);
+
+  if (typeof ResizeObserver !== "undefined") {
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleUpdate();
+    });
+
+    resizeObserver.observe(scrollContainer);
+
+    if (scrollContainer.parentElement) {
+      resizeObserver.observe(scrollContainer.parentElement);
+    }
   }
 
-  ["scroll", "mouseenter"].forEach((event) =>
-    scrollContainer.addEventListener(event, updateScrollState),
-  );
+  const mutationObserver = new MutationObserver(() => {
+    scheduleUpdate();
+  });
+
+  mutationObserver.observe(scrollContainer, {
+    childList: true,
+    subtree: true,
+  });
 
   btnLeft.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -365,9 +397,10 @@ function setupTaskFiltersDragScroll() {
     scrollContainer.scrollLeft += scrollStep;
   });
 
-  window.addEventListener("resize", updateScrollState);
+  window.addEventListener("resize", scheduleUpdate);
+  window.addEventListener("load", scheduleUpdate);
 
-  updateScrollState();
+  scheduleUpdate();
 }
 
 if (typeof window !== "undefined") {
