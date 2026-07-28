@@ -228,7 +228,7 @@ export const TasksView = {
 
           <div
             id="task-filters-bar"
-            class="mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 border-b border-border pb-4 w-full"
+            class="mb-6 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 border-b border-border pb-4 w-full"
           >
             <div class="relative flex flex-1 items-center gap-2 min-w-0 group">
               <p
@@ -269,33 +269,36 @@ export const TasksView = {
             </div>
 
             <div
-              class="flex items-center justify-between md:justify-end gap-3 shrink-0"
+              class="flex flex-col sm:flex-row items-center justify-between sm:justify-end gap-3"
             >
-              <div class="flex items-center col-span-1 gap-2">
+
+            <div class="w-full flex flex-col xs:flex-row items-center gap-3">
+              <div class="w-full flex items-center gap-2">
                 <label
                   class="text-xs text-secondary font-medium hidden sm:block"
                   >Date:</label
                 >
                 <div
                   id="date-filter-autocomplete-wrapper"
-                  class="w-36"
+                  class="w-full lg:w-36"
                 ></div>
               </div>
 
-              <div class="flex items-center col-span-1 gap-2">
+              <div class="w-full flex items-center gap-2">
                 <label
                   class="text-xs text-secondary font-medium hidden sm:block"
                   >Sort:</label
                 >
                 <div
                   id="sort-autocomplete-wrapper"
-                  class="w-36"
+                  class="w-full lg:w-36"
                 ></div>
+              </div>
               </div>
 
               <div
                 id="task-count-badge"
-                class="shrink-0 flex items-center gap-1.5 px-3 py-1 bg-(--color-surface-3) rounded-lg text-xs font-bold text-primary select-none"
+                class="shrink-0 flex justify-center items-center gap-1.5 px-3 py-1 bg-(--color-surface-3) rounded-lg text-xs font-bold text-primary select-none w-full md:w-36 lg:w-auto"
               >
                 0 Tasks
               </div>
