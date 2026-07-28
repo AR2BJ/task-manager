@@ -80,8 +80,15 @@ function getRandomSubtasks() {
 }
 
 function getRandomTags() {
-  const count = getRandomInt(1, 3);
-  const shuffled = [...AVAILABLE_TAGS].sort(() => 0.5 - Math.random());
+  const maxCount = Math.min(3, AVAILABLE_TAGS.length);
+  const count = getRandomInt(1, maxCount);
+  const shuffled = [...AVAILABLE_TAGS];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
   return shuffled.slice(0, count);
 }
 
