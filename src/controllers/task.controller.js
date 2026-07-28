@@ -2,6 +2,7 @@ import { StateManager, state } from "@/models/state.model.js";
 
 import { AnalyticsController } from "./analytics.controller.js";
 import { AnalyticsView } from "@/views/analytics-view.js";
+import { AutocompleteComponent } from "@/components/ui/autocomplete.component.js";
 import { DeleteModalsComponent } from "@/components/modals/delete-modals.component.js";
 import { DesktopNavComponent } from "@/components/layout/desktop-nav.component.js";
 import { EditModalsComponent } from "@/components/modals/edit-modals.component.js";
@@ -22,6 +23,9 @@ export const TaskController = {
   init() {
     StateManager.init();
     this.renderComponent();
+
+    this.initFilterAutocompletes();
+
     this.refreshUI();
 
     TaskFormController.init(this);
@@ -37,6 +41,113 @@ export const TaskController = {
     requestAnimationFrame(() => {
       this.updateTabStyles(state.activeTab);
     });
+  },
+
+  initFilterAutocompletes() {
+    const dateWrapper = document.getElementById(
+      "date-filter-autocomplete-wrapper",
+    );
+    const sortWrapper = document.getElementById("sort-autocomplete-wrapper");
+
+    if (dateWrapper) {
+      this.dateFilterAutocomplete = new AutocompleteComponent({
+        id: "task-date-filter-autocomplete",
+        placeholder: "Select Date...",
+        value: state.dateFilter || "all",
+        height: "8",
+        options: [
+          {
+            value: "all",
+            label: "All Dates",
+            icon: "fa-regular fa-calendar text-emerald-400",
+          },
+          {
+            value: "overdue",
+            label: "Overdue",
+            icon: "fa-regular fa-clock text-rose-400",
+          },
+          {
+            value: "today",
+            label: "Today",
+            icon: "fa-regular fa-calendar-day text-brand",
+          },
+          {
+            value: "this_week",
+            label: "This Week",
+            icon: "fa-regular fa-calendar-week text-amber-400",
+          },
+          {
+            value: "no_date",
+            label: "No Due Date",
+            icon: "fa-regular fa-calendar-xmark text-slate-400",
+          },
+        ],
+        onChange: (selectedVal) => {
+          GlobalLoaderService.show("Filtering tasks by date...");
+          setTimeout(() => {
+            try {
+              StateManager.setDateFilter(selectedVal);
+              this.refreshUI();
+            } finally {
+              GlobalLoaderService.hide();
+            }
+          }, 10);
+        },
+      });
+
+      dateWrapper.innerHTML = this.dateFilterAutocomplete.render();
+      this.dateFilterAutocomplete.bindEvents();
+    }
+
+    if (sortWrapper) {
+      this.sortAutocomplete = new AutocompleteComponent({
+        id: "task-sort-autocomplete",
+        placeholder: "Sort By...",
+        value: state.sortBy || "priority",
+        height: "8",
+        options: [
+          {
+            value: "priority",
+            label: "Priority",
+            icon: "fa-regular fa-arrow-down-short-wide text-brand",
+          },
+          {
+            value: "dueDate",
+            label: "Due Date",
+            icon: "fa-regular fa-calendar text-emerald-400",
+          },
+          {
+            value: "status",
+            label: "Status",
+            icon: "fa-regular fa-arrow-progress text-amber-400",
+          },
+          {
+            value: "createdAt",
+            label: "Date Created",
+            icon: "fa-regular fa-clock text-rose-400",
+          },
+          {
+            value: "title",
+            label: "Title (A-Z)",
+            icon: "fa-regular fa-arrow-down-a-z text-indigo-400",
+          },
+        ],
+        onChange: (selectedVal) => {
+          GlobalLoaderService.show("Sorting tasks...");
+          setTimeout(() => {
+            try {
+              StateManager.setSortBy(selectedVal);
+              this.refreshUI();
+            } finally {
+              GlobalLoaderService.hide();
+            }
+          }, 10);
+        },
+      });
+
+      sortWrapper.innerHTML = this.sortAutocomplete.render();
+      this.sortAutocomplete.bindEvents();
+    }
   },
 
   renderComponent() {

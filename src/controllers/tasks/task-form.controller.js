@@ -100,6 +100,7 @@ export const TaskFormController = {
 
     this.bindFormEvents();
     this.bindSubtaskEvents();
+    this.bindAccordionEvents();
   },
 
   setupCreateAutocompletes() {
@@ -134,6 +135,8 @@ export const TaskFormController = {
     if (editPriorityAutocomplete) editPriorityAutocomplete.destroy();
     if (editStatusAutocomplete) editStatusAutocomplete.destroy();
 
+    this.resetAccordionToFirstItem();
+
     const tasks = StateManager.getTasks();
     const task = tasks.find((t) => t.id === taskId);
 
@@ -153,6 +156,7 @@ export const TaskFormController = {
         id: "edit-priority-autocomplete",
         placeholder: "Select Priority...",
         value: task.priority || "low",
+        background: "surface",
         options: PRIORITY_OPTIONS,
       });
       priorityWrapper.innerHTML = editPriorityAutocomplete.render();
@@ -164,6 +168,7 @@ export const TaskFormController = {
         id: "edit-status-autocomplete",
         placeholder: "Select Status...",
         value: task.status || "todo",
+        background: "surface",
         options: STATUS_OPTIONS,
       });
       statusWrapper.innerHTML = editStatusAutocomplete.render();
@@ -190,9 +195,12 @@ export const TaskFormController = {
 
     this.setupDatePicker("edit", task.dueDate || "");
 
-    currentModalSubtasks = task.subtasks
-      ? JSON.parse(JSON.stringify(task.subtasks))
-      : [];
+    currentModalSubtasks = (
+      task.subtasks ? JSON.parse(JSON.stringify(task.subtasks)) : []
+    ).map((subtask) => ({
+      ...subtask,
+      isEditing: false,
+    }));
     this.renderModalSubtasks();
   },
 
@@ -213,71 +221,73 @@ export const TaskFormController = {
 
     if (total === 0) {
       container.innerHTML = `
-        <div
-          class="w-full min-h-20 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-dashed border-border rounded-lg p-2 text-center"
-        >
-          <div class="h-20 flex flex-col justify-center items-center">
-            <div class="text-2xl">
-              <i class="fa-regular fa-list-check text-brand/80"></i>
-            </div>
-            <p class="mt-2 text-secondary max-w-sm mx-auto text-xs">
-              No subtasks defined yet.
-            </p>
+      <div
+        class="w-full h-full min-h-70 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface rounded-2xl border border-dashed border-border/70 p-4 text-center"
+      >
+        <div class="h-full flex flex-col justify-center items-center">
+          <div class="text-3xl">
+            <i class="fa-regular fa-list-check text-brand/80"></i>
           </div>
+          <p class="mt-3 text-secondary max-w-sm mx-auto text-sm">
+            No subtasks defined yet.
+          </p>
         </div>
-      `;
+      </div>
+    `;
       return;
     }
 
     container.innerHTML = `
-      <div
-        class="w-full max-h-20 overflow-y-auto scrollbar-thumb-surface scrollbar-thin bg-surface-2 border border-border rounded-lg p-2 flex flex-col justify-start gap-1"
-      >
-        ${currentModalSubtasks
-          .map(
-            (subtask) => `
-                <div
-                  data-subtask-id="${subtask.id}"
-                  class="subtask-item flex items-center justify-between gap-2 p-2 rounded-lg bg-surface border border-border/70 group hover:border-brand/40 transition"
+    <div
+      class="w-full h-full max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin  bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
+    >
+      ${currentModalSubtasks
+        .map(
+          (subtask) => `
+            <div
+              data-subtask-id="${subtask.id}"
+              class="subtask-item flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-surface-2 p-1 shadow-sm transition"
+            >
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <input
+                  type="text"
+                  data-action="edit-text"
+                  value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
+                  class="subtask-title-input text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 ${
+                    subtask.isEditing ? "border-brand/50" : "border-transparent"
+                  } ${subtask.completed ? "line-through text-muted" : ""}"
+                  ${subtask.isEditing ? "" : "readonly"}
+                />
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                <button
+                  data-action="edit"
+                  class="edit-btn flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
+                  title="${subtask.isEditing ? "Save changes" : "Edit subtask"}"
                 >
-                  <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                    <button
-                      data-action="toggle"
-                      class="subtask-toggle w-6 h-6 shrink-0 rounded-md border-2 flex items-center justify-center transition peer hover:cursor-pointer ${
-                        subtask.completed
-                          ? "bg-brand/80 border-brand/80 text-(--color-btn-primary-text) shadow-lg shadow-brand/20"
-                          : "border-border text-secondary hover:border-brand/80 hover:text-brand/80"
-                      }"
-                    >
-                      <i
-                        class="fa-regular ${
-                          subtask.completed
-                            ? "fa-check text-xs md:text-sm font-bold"
-                            : "fa-square text-[10px]"
-                        }"
-                      ></i>
-                    </button>
-                    <input
-                      type="text"
-                      data-action="edit-text"
-                      value="${subtask.title.replace(/"/g, "&quot;")}"
-                      class="subtask-title-input text-xs text-primary bg-transparent outline-none w-full border-b border-transparent focus:border-brand/50 ${
-                        subtask.completed ? "line-through text-muted" : ""
-                      }"
-                    />
-                  </div>
-                  <button
-                    data-action="delete"
-                    class="delete-btn w-6 h-6 rounded-sm bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer transition"
-                  >
-                    <i class="fa-regular fa-trash-can text-red-500/80 text-xs"></i>
-                  </button>
-                </div>
-              `,
-          )
-          .join("")}
-      </div>
-    `;
+                  <i
+                    class="fa-regular ${
+                      subtask.isEditing ? "fa-floppy-disk" : "fa-pen-to-square"
+                    } text-blue-500/80 text-base"
+                  ></i>
+                </button>
+
+                <button
+                  data-action="delete"
+                  class="delete-btn flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
+                >
+                  <i
+                    class="fa-regular fa-trash-can text-red-500/80 text-base"
+                  ></i>
+                </button>
+              </div>
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
   },
 
   bindSubtaskEvents() {
@@ -343,6 +353,22 @@ export const TaskFormController = {
             }, 30);
           },
         });
+      } else if (action === "edit") {
+        const subtask = currentModalSubtasks.find((s) => s.id === subtaskId);
+        if (subtask) {
+          subtask.isEditing = !subtask.isEditing;
+          this.renderModalSubtasks();
+
+          if (subtask.isEditing) {
+            requestAnimationFrame(() => {
+              const input = container?.querySelector(
+                `[data-subtask-id="${subtaskId}"] .subtask-title-input`,
+              );
+              input?.focus();
+              input?.select();
+            });
+          }
+        }
       } else if (action === "toggle") {
         const subtask = currentModalSubtasks.find((s) => s.id === subtaskId);
         if (subtask) {
@@ -503,6 +529,75 @@ export const TaskFormController = {
     );
   },
 
+  bindAccordionEvents() {
+    const accordionGroup = document.getElementById("edit-accordion-group");
+    if (!accordionGroup) return;
+
+    accordionGroup.addEventListener("click", (e) => {
+      const header = e.target.closest(".accordion-header");
+      if (!header) return;
+
+      const currentItem = header.closest(".accordion-item");
+      const currentContent = currentItem.querySelector(".accordion-content");
+
+      if (!currentContent.classList.contains("hidden")) return;
+
+      const allItems = accordionGroup.querySelectorAll(".accordion-item");
+      const currentIndex = Array.from(allItems).indexOf(currentItem);
+
+      allItems.forEach((item, index) => {
+        const content = item.querySelector(".accordion-content");
+        const icon = item.querySelector(".accordion-icon");
+        const itemHeader = item.querySelector(".accordion-header");
+
+        if (index === currentIndex) {
+          content.classList.remove("hidden");
+
+          if (index === 2) {
+            content.classList.add("flex");
+          } else {
+            content.classList.remove("flex");
+          }
+        } else {
+          content.classList.add("hidden");
+          content.classList.remove("flex");
+        }
+
+        itemHeader?.classList.toggle("border-b", index === currentIndex);
+        icon?.classList.toggle("fa-chevron-up", index === currentIndex);
+        icon?.classList.toggle("fa-chevron-down", index !== currentIndex);
+      });
+    });
+  },
+
+  resetAccordionToFirstItem() {
+    const accordionGroup = document.getElementById("edit-accordion-group");
+    if (!accordionGroup) return;
+
+    const items = accordionGroup.querySelectorAll(".accordion-item");
+    items.forEach((item, index) => {
+      const header = item.querySelector(".accordion-header");
+      const content = item.querySelector(".accordion-content");
+      const icon = item.querySelector(".accordion-icon");
+
+      if (index === 0) {
+        content.classList.remove("hidden");
+        header.classList.add("border-b");
+        if (icon) {
+          icon.classList.remove("fa-chevron-down");
+          icon.classList.add("fa-chevron-up");
+        }
+      } else {
+        content.classList.add("hidden");
+        header.classList.remove("border-b");
+        if (icon) {
+          icon.classList.remove("fa-chevron-up");
+          icon.classList.add("fa-chevron-down");
+        }
+      }
+    });
+  },
+
   executeDelete() {
     const id = pendingDeleteId;
     if (!id) return;
@@ -645,6 +740,7 @@ export const TaskFormController = {
         id: "task-duedate-input",
         value: initialValue,
         placeholder: "YYYY-MM-DD",
+        background: "surface",
       });
 
       container.innerHTML = createDatePicker.render();
@@ -657,6 +753,7 @@ export const TaskFormController = {
         id: "edit-task-duedate",
         value: initialValue,
         placeholder: "YYYY-MM-DD",
+        background: "surface",
       });
 
       container.innerHTML = editDatePicker.render();

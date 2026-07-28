@@ -3,12 +3,16 @@ export class AutocompleteComponent {
     id,
     options = [],
     value = "",
+    height = "11",
+    background = "surface-2",
     placeholder = "Select option...",
     onChange,
   }) {
     this.id = id;
     this.options = options;
     this.value = value;
+    this.height = height;
+    this.background = background;
     this.placeholder = placeholder;
     this.onChange = onChange;
 
@@ -17,6 +21,41 @@ export class AutocompleteComponent {
 
     this._onOutsideClick = this._handleOutsideClick.bind(this);
     this._onScrollOrResize = this._handleScrollOrResize.bind(this);
+  }
+
+  _getInputElement() {
+    return document.getElementById(this.id);
+  }
+
+  _getDropdownElement() {
+    return document.getElementById(`${this.id}-dropdown`);
+  }
+
+  _getContainerElement() {
+    return document.getElementById(`${this.id}-container`);
+  }
+
+  _getChevronButtonElement() {
+    return document.getElementById(`${this.id}-chevron-btn`);
+  }
+
+  _roundedValue(height) {
+    const h = Number(height);
+
+    switch (true) {
+      case h >= 10:
+        return "xl";
+      case h >= 8:
+        return "lg";
+      case h >= 6:
+        return "md";
+      case h >= 4:
+        return "sm";
+      case h >= 2:
+        return "xs";
+      default:
+        return "xl";
+    }
   }
 
   render() {
@@ -32,7 +71,7 @@ export class AutocompleteComponent {
             value="${initialLabel}"
             placeholder="${this.placeholder}"
             autocomplete="off"
-            class="h-11 w-full rounded-xl border border-border bg-surface-2 pl-4 pr-10 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none cursor-pointer"
+            class="h-${this.height} w-full rounded-${this._roundedValue(this.height)} border border-border bg-${this.background} pl-4 pr-10 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none cursor-pointer"
           />
           <button
             type="button"
@@ -48,13 +87,12 @@ export class AutocompleteComponent {
   }
 
   _createDropdownInBody() {
-    let dropdown = document.getElementById(`${this.id}-dropdown`);
+    let dropdown = this._getDropdownElement();
     if (dropdown) return dropdown;
 
     dropdown = document.createElement("div");
     dropdown.id = `${this.id}-dropdown`;
-    dropdown.className =
-      "hidden fixed z-100 p-1.5 bg-surface border border-border rounded-xl shadow-xl backdrop-blur-md max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 transition-opacity duration-200";
+    dropdown.className = `hidden fixed z-100 p-1.5 bg-surface border border-border rounded-${this._roundedValue(this.height)} shadow-xl backdrop-blur-md max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 transition-opacity duration-200`;
 
     document.body.appendChild(dropdown);
     return dropdown;
@@ -62,8 +100,9 @@ export class AutocompleteComponent {
 
   _updatePosition() {
     if (!this.isOpen) return;
-    const input = document.getElementById(this.id);
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
+
+    const input = this._getInputElement();
+    const dropdown = this._getDropdownElement();
 
     if (!input || !dropdown) return;
 
@@ -79,7 +118,7 @@ export class AutocompleteComponent {
   }
 
   bindEvents() {
-    const input = document.getElementById(this.id);
+    const input = this._getInputElement();
     const dropdown = this._createDropdownInBody();
 
     if (!input || !dropdown) return;
@@ -91,7 +130,7 @@ export class AutocompleteComponent {
     });
 
     input.addEventListener("focus", () => {
-      this.renderDropdown(input.value.trim().toLowerCase());
+      this.renderDropdown("");
       this.showDropdown();
     });
 
@@ -102,45 +141,65 @@ export class AutocompleteComponent {
       }
     });
 
-    input.addEventListener("keydown", (e) => {
-      const items = dropdown.querySelectorAll(".autocomplete-item");
+    input.addEventListener("keydown", (e) => this._handleKeyDown(e, dropdown));
 
-      if (e.key === "ArrowDown") {
+    dropdown.addEventListener("mousedown", (e) => {
+      const item = e.target.closest(".autocomplete-item");
+      if (!item) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      this._selectItem(item);
+    });
+
+    document.addEventListener("mousedown", this._onOutsideClick);
+  }
+
+  _handleKeyDown(e, dropdown) {
+    const items = dropdown.querySelectorAll(".autocomplete-item");
+    if (!items.length) return;
+
+    switch (e.key) {
+      case "ArrowDown":
         e.preventDefault();
+
         if (!this.isOpen) {
           this.showDropdown();
           return;
         }
+
         this.focusedIndex = (this.focusedIndex + 1) % items.length;
         this._highlightItem(items);
-      } else if (e.key === "ArrowUp") {
+        break;
+
+      case "ArrowUp":
         e.preventDefault();
+
         if (!this.isOpen) return;
+
         this.focusedIndex =
           (this.focusedIndex - 1 + items.length) % items.length;
         this._highlightItem(items);
-      } else if (e.key === "Enter") {
+        break;
+
+      case "Enter":
         e.preventDefault();
-        if (this.focusedIndex >= 0 && items[this.focusedIndex]) {
-          items[this.focusedIndex].click();
+
+        if (!this.isOpen) {
+          this.showDropdown();
+          return;
         }
-      } else if (e.key === "Escape") {
+
+        const index = this.focusedIndex >= 0 ? this.focusedIndex : 0;
+        this.focusedIndex = index;
+        this._highlightItem(items);
+        this._selectItem(items[index]);
+        break;
+
+      case "Escape":
         this.hideDropdown();
-      }
-    });
-
-    dropdown.addEventListener("mousedown", (e) => {
-      const item = e.target.closest(".autocomplete-item");
-      if (item) {
-        e.preventDefault();
-        e.stopPropagation();
-        const val = item.dataset.value;
-        const label = item.dataset.label;
-        this.selectOption(val, label);
-      }
-    });
-
-    document.addEventListener("mousedown", this._onOutsideClick);
+        break;
+    }
   }
 
   _highlightItem(items) {
@@ -154,8 +213,16 @@ export class AutocompleteComponent {
     });
   }
 
+  _selectItem(item) {
+    if (!item) return;
+
+    const value = item.dataset.value;
+    const label = item.dataset.label;
+    this.selectOption(value, label);
+  }
+
   renderDropdown(query = "") {
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
+    const dropdown = this._getDropdownElement();
     if (!dropdown) return;
 
     const filtered = this.options.filter((opt) =>
@@ -164,8 +231,11 @@ export class AutocompleteComponent {
 
     if (filtered.length === 0) {
       dropdown.innerHTML = `
-        <div class="px-3.5 py-2.5 text-xs text-secondary/60 text-center select-none">
-          No matches found
+        <div
+          class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none"
+        >
+          <i class="fa-regular fa-circle-info text-brand/70"></i>
+          <span>No matching items found for "${query}"</span>
         </div>
       `;
       return;
@@ -182,7 +252,7 @@ export class AutocompleteComponent {
         <div
           data-value="${opt.value}"
           data-label="${opt.label}"
-          class="autocomplete-item px-3.5 py-2 rounded-lg text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition ${
+          class="autocomplete-item px-3.5 py-2 rounded-${this._roundedValue(String(Number(this.height) - 2))} text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition ${
             isSelected ? "bg-brand/10 text-brand font-bold" : ""
           }"
         >
@@ -199,14 +269,15 @@ export class AutocompleteComponent {
   }
 
   showDropdown() {
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
-    const chevronBtn = document.getElementById(`${this.id}-chevron-btn`);
+    const dropdown = this._getDropdownElement();
+    const chevronBtn = this._getChevronButtonElement();
 
     if (!dropdown) return;
 
     this.isOpen = true;
     dropdown.classList.remove("hidden");
     chevronBtn?.classList.add("rotate-180");
+
     this._updatePosition();
 
     window.addEventListener("scroll", this._onScrollOrResize, true);
@@ -214,9 +285,9 @@ export class AutocompleteComponent {
   }
 
   hideDropdown() {
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
-    const chevronBtn = document.getElementById(`${this.id}-chevron-btn`);
-    const input = document.getElementById(this.id);
+    const dropdown = this._getDropdownElement();
+    const chevronBtn = this._getChevronButtonElement();
+    const input = this._getInputElement();
 
     if (!dropdown) return;
 
@@ -238,7 +309,8 @@ export class AutocompleteComponent {
 
   selectOption(val, label) {
     this.value = val;
-    const input = document.getElementById(this.id);
+    const input = this._getInputElement();
+
     if (input) input.value = label;
 
     if (this.onChange) {
@@ -249,14 +321,14 @@ export class AutocompleteComponent {
   }
 
   _handleScrollOrResize(e) {
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
+    const dropdown = this._getDropdownElement();
     if (e.target === dropdown) return;
     this.hideDropdown();
   }
 
   _handleOutsideClick(e) {
-    const container = document.getElementById(`${this.id}-container`);
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
+    const container = this._getContainerElement();
+    const dropdown = this._getDropdownElement();
 
     if (
       container &&
@@ -275,7 +347,8 @@ export class AutocompleteComponent {
   setValue(val) {
     this.value = val;
     const selected = this.options.find((opt) => opt.value === val);
-    const input = document.getElementById(this.id);
+    const input = this._getInputElement();
+
     if (input) {
       input.value = selected ? selected.label : "";
     }
@@ -283,13 +356,14 @@ export class AutocompleteComponent {
 
   reset() {
     this.value = "";
-    const input = document.getElementById(this.id);
+    const input = this._getInputElement();
+
     if (input) input.value = "";
     this.hideDropdown();
   }
 
   destroy() {
-    const dropdown = document.getElementById(`${this.id}-dropdown`);
+    const dropdown = this._getDropdownElement();
     if (dropdown) dropdown.remove();
 
     document.removeEventListener("mousedown", this._onOutsideClick);

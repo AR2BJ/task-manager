@@ -228,7 +228,7 @@ export const TasksView = {
 
           <div
             id="task-filters-bar"
-            class="mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border-b border-border pb-4 w-full"
+            class="mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 border-b border-border pb-4 w-full"
           >
             <div class="relative flex flex-1 items-center gap-2 min-w-0 group">
               <p
@@ -237,74 +237,60 @@ export const TasksView = {
                 Tags:
               </p>
 
-              <button
-                id="btn-scroll-left"
-                class="absolute left-10 z-20 hidden h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface text-secondary hover:text-primary shadow-xs transition-opacity cursor-pointer"
-              >
-                <i class="fa-regular fa-chevron-left text-xs"></i>
-              </button>
-
-              <div
-                id="task-filter-scroll"
-                class="flex flex-1 min-w-0 flex-row items-center gap-2 overflow-x-auto pr-2 scrollbar-none scroll-smooth"
-              >
+              <div class="relative flex-1 min-w-0 flex items-center">
                 <button
-                  data-tag="all"
-                  class="tag-filter-btn h-8 shrink-0 whitespace-nowrap rounded-lg bg-brand/80 shadow-brand/10 px-3.5 text-xs font-semibold text-white transition cursor-pointer"
+                  id="btn-scroll-left"
+                  type="button"
+                  class="absolute left-0 z-20 hidden h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface/95 backdrop-blur-xl shadow-2xl text-secondary hover:text-primary hover:border-brand/50 transition-all cursor-pointer"
                 >
-                  All Tasks
+                  <i class="fa-regular fa-chevron-left text-xs"></i>
+                </button>
+
+                <div
+                  id="task-filter-scroll"
+                  class="flex flex-1 min-w-0 flex-row items-center gap-2 overflow-x-auto px-1 scrollbar-none scroll-smooth transition-all duration-300"
+                >
+                  <button
+                    data-tag="all"
+                    class="tag-filter-btn h-8 shrink-0 whitespace-nowrap rounded-lg bg-brand/80 shadow-brand/10 px-3.5 text-xs font-semibold text-white transition cursor-pointer"
+                  >
+                    All Tasks
+                  </button>
+                </div>
+
+                <button
+                  id="btn-scroll-right"
+                  type="button"
+                  class="absolute right-0 z-20 h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface/95 backdrop-blur-xl shadow-2xl text-secondary hover:text-primary hover:border-brand/50 transition-all cursor-pointer"
+                >
+                  <i class="fa-regular fa-chevron-right text-xs"></i>
                 </button>
               </div>
-
-              <button
-                id="btn-scroll-right"
-                class="absolute right-0 z-20 hidden h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface text-secondary hover:text-primary shadow-xs transition-opacity cursor-pointer"
-              >
-                <i class="fa-regular fa-chevron-right text-xs"></i>
-              </button>
             </div>
 
             <div
-              class="flex items-center justify-between md:justify-end gap-3 shrink-0"
+              class="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0"
             >
-              <div class="flex items-center gap-2">
+              <div class="flex items-center col-span-1 gap-2">
                 <label
-                  for="task-date-filter-select"
                   class="text-xs text-secondary font-medium hidden sm:block"
                   >Date:</label
                 >
-                <select
-                  id="task-date-filter-select"
-                  class="h-8 cursor-pointer rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
-                >
-                  <option value="all">All Dates</option>
-                  <option value="overdue">Overdue</option>
-                  <option value="today">Today</option>
-                  <option value="this_week">This Week</option>
-                  <option value="no_date">No Due Date</option>
-                </select>
+                <div
+                  id="date-filter-autocomplete-wrapper"
+                  class="w-36"
+                ></div>
               </div>
-              <div class="flex items-center gap-2">
+
+              <div class="flex items-center col-span-1 gap-2">
                 <label
-                  for="task-sort-select"
                   class="text-xs text-secondary font-medium hidden sm:block"
                   >Sort:</label
                 >
-                <select
-                  id="task-sort-select"
-                  class="h-8 cursor-pointer rounded-lg border border-border bg-surface px-3 text-sm text-primary focus:border-brand/80 focus:outline-none"
-                >
-                  <option
-                    selected
-                    value="priority"
-                  >
-                    Priority
-                  </option>
-                  <option value="dueDate">Due Date</option>
-                  <option value="status">Status</option>
-                  <option value="createdAt">Date Created</option>
-                  <option value="title">Title (A-Z)</option>
-                </select>
+                <div
+                  id="sort-autocomplete-wrapper"
+                  class="w-36"
+                ></div>
               </div>
 
               <div
@@ -335,20 +321,38 @@ function setupTaskFiltersDragScroll() {
 
   const scrollStep = 180;
 
-  function updateScrollButtons() {
-    const atStart = scrollContainer.scrollLeft <= 0;
+  function updateScrollState() {
+    const atStart = scrollContainer.scrollLeft <= 2;
     const atEnd =
       scrollContainer.scrollLeft + scrollContainer.clientWidth >=
-      scrollContainer.scrollWidth - 1;
+      scrollContainer.scrollWidth - 2;
 
     btnLeft.classList.toggle("hidden", atStart);
     btnLeft.classList.toggle("flex", !atStart);
+
     btnRight.classList.toggle("hidden", atEnd);
     btnRight.classList.toggle("flex", !atEnd);
+
+    let maskImage = "";
+
+    const fadeWidth = "100px";
+
+    if (atStart && atEnd) {
+      maskImage = "none";
+    } else if (atStart) {
+      maskImage = `linear-gradient(to right, black 0%, black calc(100% - ${fadeWidth}), transparent 100%)`;
+    } else if (atEnd) {
+      maskImage = `linear-gradient(to right, transparent 0%, black ${fadeWidth}, black 100%)`;
+    } else {
+      maskImage = `linear-gradient(to right, transparent 0%, black ${fadeWidth}, black calc(100% - ${fadeWidth}), transparent 100%)`;
+    }
+
+    scrollContainer.style.webkitMaskImage = maskImage;
+    scrollContainer.style.maskImage = maskImage;
   }
 
   ["scroll", "mouseenter"].forEach((event) =>
-    scrollContainer.addEventListener(event, updateScrollButtons),
+    scrollContainer.addEventListener(event, updateScrollState),
   );
 
   btnLeft.addEventListener("click", (e) => {
@@ -361,7 +365,9 @@ function setupTaskFiltersDragScroll() {
     scrollContainer.scrollLeft += scrollStep;
   });
 
-  updateScrollButtons();
+  window.addEventListener("resize", updateScrollState);
+
+  updateScrollState();
 }
 
 if (typeof window !== "undefined") {

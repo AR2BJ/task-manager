@@ -177,7 +177,14 @@ export class ComboboxComponent {
     this.values = this.values.filter((v) => v !== val);
     this.renderBadges();
 
-    this.updateDropdownPosition();
+    if (
+      !this.dropdown.classList.contains("hidden") ||
+      document.activeElement === this.input
+    ) {
+      this.handleInput();
+    } else {
+      this.updateDropdownPosition();
+    }
 
     if (this.onChange) this.onChange(this.values);
   }
@@ -272,7 +279,7 @@ export class ComboboxComponent {
 
   renderEmptyState(message) {
     this.dropdown.innerHTML = `
-      <div class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-2 select-none">
+      <div class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none">
         <i class="fa-regular fa-circle-info text-brand/70"></i>
         <span>${message}</span>
       </div>

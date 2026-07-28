@@ -238,7 +238,7 @@ export const TaskItemComponent = {
               <button
                 type="button"
                 data-task-id="${task.id}"
-                class="toggle-subtasks-btn w-full flex items-center justify-between p-2 rounded-xl hover:bg-surface-2/50 transition cursor-pointer group/sub-hdr text-left"
+                class="toggle-subtasks-btn w-full flex items-center justify-between p-2 rounded-md hover:bg-(--color-surface-3)/40 transition cursor-pointer group/sub-hdr text-left"
               >
                 <div class="flex items-center gap-2">
                   <i class="fa-regular fa-list-check text-brand/80"></i> 
@@ -302,24 +302,6 @@ export const TaskItemComponent = {
                             ${st.title}
                           </span>
                         </div>
-
-                        ${
-                          isArchived
-                            ? ""
-                            : `
-                        <button
-                          type="button"
-                          data-task-id="${task.id}"
-                          data-subtask-id="${st.id}"
-                          class="subtask-delete-btn w-6 h-6 rounded-sm bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer transition-all"
-                          title="Delete Subtask"
-                        >
-                          <i
-                            class="fa-regular fa-trash-can text-red-500/80 text-xs"
-                          ></i>
-                        </button>
-                        `
-                        }
                       </div>
                     `,
                   )

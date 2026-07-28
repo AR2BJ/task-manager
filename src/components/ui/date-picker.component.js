@@ -1,8 +1,15 @@
 export class DatePickerComponent {
-  constructor({ id, value = "", placeholder = "YYYY-MM-DD", onChange }) {
+  constructor({
+    id,
+    value = "",
+    placeholder = "YYYY-MM-DD",
+    background = "surface-2",
+    onChange,
+  }) {
     this.id = id;
     this.value = value;
     this.placeholder = placeholder;
+    this.background = background;
     this.onChange = onChange;
 
     const today = new Date();
@@ -72,7 +79,7 @@ export class DatePickerComponent {
             placeholder="${this.placeholder}"
             maxlength="10"
             autocomplete="off"
-            class="h-11 w-full rounded-xl border border-border bg-surface-2 px-4 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none"
+            class="h-11 w-full rounded-xl border border-border bg-${this.background} px-4 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none"
           />
           <button
             type="button"
