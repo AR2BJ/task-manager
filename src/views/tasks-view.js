@@ -48,7 +48,7 @@ export const TasksView = {
               type="text"
               id="search-tasks"
               placeholder="Search tasks, tags, description, priority or status...."
-              class="w-full pl-10 pr-10 py-2.5 truncate text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
+              class="w-full pl-10 pr-20 py-2.5 truncate text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
             />
 
             <div
@@ -64,8 +64,8 @@ export const TasksView = {
 
               <kbd class="flex items-center pointer-events-none">
                 <span
-                  class="px-1.5 py-0.5 text-[10px] font-mono bg-surface-2 border border-border text-muted rounded-md shadow-2xs"
-                  >/</span
+                  class="px-1.25 py-1 text-[9px] font-mono bg-surface-2 border border-border text-muted rounded-md shadow-2xs flex flex-row justify-center items-center"
+                  ><i class="fa-regular fa-slash-forward"></i></span
                 >
               </kbd>
             </div>

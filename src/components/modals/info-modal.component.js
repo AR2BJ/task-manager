@@ -1,4 +1,145 @@
+export const HELP_SHORTCUTS = [
+  {
+    category: "Navigation",
+    items: [
+      {
+        label: "Go to Tasks View",
+        icon: "fa-rectangle-history",
+        keys: [["Shift"], ["T"]],
+      },
+      {
+        label: "Go to Analytics Dashboard",
+        icon: "fa-chart-mixed",
+        keys: [["Shift"], ["A"]],
+      },
+      {
+        label: "Go to App Settings",
+        icon: "fa-sliders",
+        keys: [["Shift"], ["S"]],
+      },
+    ],
+  },
+  {
+    category: "Quick Actions",
+    items: [
+      {
+        label: "Scrolling To Top",
+        icon: "fa-chevron-square-up",
+        keys: [["Alt"], ["B"]],
+      },
+      {
+        label: "Collapse / Expand Task Form",
+        icon: "fa-square-minus",
+        keys: [["Alt"], ["C"]],
+      },
+      {
+        label: "Toggle Dark/Light Theme",
+        icon: "fa-circle-half-stroke",
+        keys: [["Alt"], ["T"]],
+      },
+      {
+        label: "Toggle Navigation Menu",
+        icon: "fa-bars",
+        keys: [["Alt"], ["N"]],
+      },
+      {
+        label: "Open Reset Data Modal",
+        icon: "fa-arrow-rotate-left",
+        keys: [["Alt"], ["R"]],
+      },
+      {
+        label: "Close Active Modal / Blur Input",
+        icon: "fa-xmark",
+        keys: [["Esc"]],
+      },
+    ],
+  },
+  {
+    category: "Filters & Global",
+    items: [
+      {
+        label: "Quick Search / Filter",
+        icon: "fa-magnifying-glass",
+        keys: [["/"]],
+      },
+      {
+        label: "Switch Tab View (Active / Completed / Archived)",
+        icon: "fa-eye",
+        keys: [["Alt"], ["A", "D", "X"]],
+      },
+      {
+        label: "Switch Chart View (Weekly / Monthly / Yearly)",
+        icon: "fa-chart-line",
+        keys: [["Alt"], ["1 - 3"]],
+      },
+      {
+        label: "Quick Tags Select (Tasks View)",
+        icon: "fa-filter",
+        keys: [["0 - ∞"]],
+      },
+      {
+        label: "Toggle This Help Center",
+        icon: "fa-circle-question",
+        keys: [["?"]],
+      },
+    ],
+  },
+];
+
 export const InfoModalComponent = {
+  renderShortcutsData() {
+    return Object.entries(HELP_SHORTCUTS)
+      .map(
+        ([_, group]) => `
+      <div class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 first:mt-0 mb-1.5 pl-1">
+        ${group.category}
+      </div>
+      ${group.items
+        .map(
+          (item) => `
+            <div
+              class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
+            >
+              <span
+                data-tooltip-title="${item.label}"
+                class="text-xs sm:text-sm font-semibold text-secondary block md:hidden items-center gap-2 truncate cursor-pointer"
+              >
+                <i class="fa-regular ${item.icon} text-muted"></i> ${item.label}
+              </span>
+              <span
+                class="text-xs sm:text-sm font-semibold text-secondary hidden md:flex items-center gap-2"
+              >
+                <i class="fa-regular ${item.icon} text-muted"></i> ${item.label}
+              </span>
+              <div class="flex items-center gap-1 shrink-0">
+                ${item.keys
+                  .map(
+                    (keyGroup) => `
+                      <div class="flex items-center gap-0.5">
+                        ${keyGroup
+                          .map(
+                            (key) =>
+                              `<kbd class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md">${key}</kbd>`,
+                          )
+                          .join(
+                            '<span class="text-[9px] font-bold text-muted/60"><i class="fa-regular fa-slash-forward"></i></span>',
+                          )}
+                      </div>
+                    `,
+                  )
+                  .join(
+                    '<span class="text-[9px] font-bold text-muted/60"><i class="fa-regular fa-plus"></i></span>',
+                  )}
+              </div>
+            </div>
+          `,
+        )
+        .join("")}
+    `,
+      )
+      .join("");
+  },
+
   render() {
     return `
       <div
@@ -26,12 +167,13 @@ export const InfoModalComponent = {
                 <h3 class="text-sm sm:text-base font-bold text-primary">
                   Task Manager Help Center
                 </h3>
-                <p class="text-[11px] sm:text-xs text-secondary max-w-50 sm:max-w-none">
+                <p
+                  class="text-[11px] sm:text-xs text-secondary max-w-50 sm:max-w-none"
+                >
                   Task editing tips and shortcuts.
                 </p>
               </div>
             </div>
-
             <button
               id="close-help-modal"
               class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg lg:rounded-xl bg-surface-2 hover:bg-red-600/10 border border-border text-secondary hover:text-primary flex items-center justify-center transition cursor-pointer shrink-0"
@@ -65,7 +207,9 @@ export const InfoModalComponent = {
               id="content-help-safeguard"
               class="flex flex-col gap-3 sm:gap-3.5"
             >
-              <div class="p-3.5 sm:p-4 bg-brand/5 border border-brand/10 rounded-xl sm:rounded-2xl">
+              <div
+                class="p-3.5 sm:p-4 bg-brand/5 border border-brand/10 rounded-xl sm:rounded-2xl"
+              >
                 <h4
                   class="text-xs sm:text-sm font-bold text-brand uppercase tracking-wide flex items-center gap-2"
                 >
@@ -136,323 +280,17 @@ export const InfoModalComponent = {
               id="content-help-shortcuts"
               class="hidden space-y-2.5 sm:space-y-3 overflow-y-auto pr-1"
             >
-              <div
-                class="text-xs font-bold text-brand/80 uppercase tracking-wider mb-1.5 pl-1"
-              >
-                Navigation
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-rectangle-history text-muted"></i> Go
-                  to Tasks View
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Shift</kbd
-                  >
-                  <span class="text-[10px] text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >T</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-chart-mixed text-muted"></i> Go to
-                  Analytics Dashboard
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Shift</kbd
-                  >
-                  <span class="text-[10px] text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >A</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-sliders text-muted"></i> Go to App
-                  Settings
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Shift</kbd
-                  >
-                  <span class="text-[10px] text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >S</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 mb-1.5 pl-1"
-              >
-                Quick Actions
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-chevron-square-up text-muted"></i>
-                  Scrolling To Top
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >B</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-square-minus text-muted"></i> Collapse
-                  / Expand Task Form
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >C</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-circle-half-stroke text-muted"></i>
-                  Toggle Dark/Light Theme
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >T</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-bars text-muted"></i>
-                  Toggle Navigation Menu
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >N</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-arrow-rotate-left text-muted"></i>
-                  Open Reset Data Modal
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >R</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-xmark text-muted"></i> Close Active
-                  Modal / Blur Input
-                </span>
-                <kbd
-                  class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md shrink-0"
-                  >Esc</kbd
-                >
-              </div>
-
-              <div
-                class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 mb-1.5 pl-1"
-              >
-                Filters & Global
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-magnifying-glass text-muted"></i>
-                  Quick Search / Filter
-                </span>
-                <kbd
-                  class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md shrink-0"
-                  >/</kbd
-                >
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-eye text-muted"></i> Switch Tab View
-                  (Active / Completed / Archived)
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >A</kbd
-                  >
-                  <span class="text-[10px] text-muted">/</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >D</kbd
-                  >
-                  <span class="text-[10px] text-muted">/</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >X</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-chart-line text-muted"></i> Switch
-                  Chart View (Weekly / Monthly / Yearly)
-                </span>
-                <div class="flex items-center gap-1 shrink-0">
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >Alt</kbd
-                  >
-                  <span class="text-xs text-muted">+</span>
-                  <kbd
-                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
-                    >1 - 3</kbd
-                  >
-                </div>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-filter text-muted"></i> Quick Tags
-                  Select (Tasks View)
-                </span>
-                <kbd
-                  class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md shrink-0"
-                  >0 - <span class="text-sm">∞</span></kbd
-                >
-              </div>
-
-              <div
-                class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-              >
-                <span
-                  class="text-xs sm:text-sm font-semibold text-secondary flex items-center gap-2"
-                >
-                  <i class="fa-regular fa-circle-question text-muted"></i>
-                  Toggle This Help Center
-                </span>
-                <kbd
-                  class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md shrink-0"
-                  >?</kbd
-                >
-              </div>
+              ${InfoModalComponent.renderShortcutsData()}
             </div>
-          </div>
-
-          <div
+            </div>
+            
+            <div
             class="flex justify-end mt-3 sm:mt-4 shrink-0 border-t border-border pt-3 sm:pt-4"
-          >
+            >
             <button
               id="btn-close-help"
               class="w-full sm:w-auto px-6 py-2.5 text-xs sm:text-sm rounded-lg lg:rounded-xl bg-brand/80 text-white font-semibold hover:bg-(--color-brand-hover) transition cursor-pointer shadow-lg shadow-brand/10"
-            >
+              >
               Got it, Thanks!
             </button>
           </div>

@@ -153,7 +153,7 @@ export const TaskItemComponent = {
               </div>
 
               <h2
-                class="text-base lg:text-lg font-bold mt-2 text-primary tracking-tight leading-snug wrap-break-word ${
+                class="text-sm lg:text-base font-bold mt-2 text-primary tracking-tight leading-snug wrap-break-word ${
                   isCompleted ? "line-through opacity-60" : ""
                 }"
               >
@@ -162,7 +162,7 @@ export const TaskItemComponent = {
 
               ${
                 task.description
-                  ? `<p class="text-sm lg:text-base text-secondary/90 leading-relaxed wrap-break-word">${task.description}</p>`
+                  ? `<p class="text-xs lg:text-sm text-secondary/90 leading-relaxed wrap-break-word">${task.description}</p>`
                   : ""
               }
 

@@ -15,11 +15,14 @@ export class ComboboxComponent {
     this.dropdown = document.getElementById(dropdownId);
     this.chevronBtn = document.getElementById(chevronBtnId);
 
+    this.clearBtn = this._createClearButton();
+
     this.options = options;
     this.iconClass = iconClass;
     this.itemTypeLabel = itemTypeLabel;
     this.onChange = onChange;
 
+    this.isRefreshingFocus = false;
     this.isLoading = false;
     this.activeDropdownIndex = -1;
 
@@ -34,12 +37,28 @@ export class ComboboxComponent {
     this._onOutsideClick = this._handleOutsideClick.bind(this);
     this._onScrollOrResize = this._handleScrollOrResize.bind(this);
 
-    this._handleFocus = () => this.handleInput();
-    this._handleClick = () => this.handleInput();
-    this._handleInput = () => this.handleInput();
+    this._handleFocus = () => {
+      if (this.isRefreshingFocus) return;
+      this.handleInput();
+    };
+
+    this._handleClick = () => {
+      if (this.isRefreshingFocus) return;
+      this.handleInput();
+    };
+
+    this._handleInput = () => {
+      if (this.isRefreshingFocus) return;
+      this.toggleClearButtonVisibility?.();
+      this.handleInput();
+    };
     this._handleKeyDown = (e) => this.handleKeyDown(e);
     this._handleContainerClick = (e) => {
-      if (e.target !== this.input && !e.target.closest(".remove-item-btn")) {
+      if (
+        e.target !== this.input &&
+        !e.target.closest(".remove-item-btn") &&
+        !e.target.closest(".combobox-clear-btn")
+      ) {
         this.input.focus();
         this.handleInput();
       }
@@ -64,10 +83,38 @@ export class ComboboxComponent {
     }
   }
 
+  _createClearButton() {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className =
+      "combobox-clear-btn bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 flex items-center justify-center cursor-pointer ml-auto mr-1 hidden";
+    btn.innerHTML = `<i class="fa-solid fa-xmark-large text-[8px]"></i>`;
+    btn.setAttribute("title", "Clear all");
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.clearAll();
+    });
+
+    return btn;
+  }
+
   init() {
     this.unbindEvents();
 
+    if (this.container && !this.container.classList.contains("group")) {
+      this.container.classList.add("group");
+    }
+
+    if (this.chevronBtn && this.chevronBtn.parentNode === this.container) {
+      this.container.insertBefore(this.clearBtn, this.chevronBtn);
+    } else {
+      this.container.appendChild(this.clearBtn);
+    }
+
     this.renderBadges();
+    this.toggleClearButtonVisibility();
 
     this.input.addEventListener("focus", this._handleFocus);
     this.input.addEventListener("click", this._handleClick);
@@ -77,6 +124,26 @@ export class ComboboxComponent {
     this.dropdown.addEventListener("mousedown", this._handleDropdownMouseDown);
 
     document.addEventListener("mousedown", this._onOutsideClick);
+  }
+
+  toggleClearButtonVisibility() {
+    const hasContent = this.values.length > 0 || this.input.value.trim() !== "";
+    if (hasContent) {
+      this.clearBtn.classList.remove("hidden");
+    } else {
+      this.clearBtn.classList.add("hidden");
+    }
+  }
+
+  clearAll() {
+    this.values = [];
+    this.input.value = "";
+    this.renderBadges();
+    this.toggleClearButtonVisibility();
+    this.hideDropdown();
+    this.input.focus();
+
+    if (this.onChange) this.onChange(this.values);
   }
 
   unbindEvents() {
@@ -267,6 +334,7 @@ export class ComboboxComponent {
     if (cleanVal && !this.values.includes(cleanVal)) {
       this.values = [...this.values, cleanVal];
       this.renderBadges();
+      this.toggleClearButtonVisibility();
 
       this.updateDropdownPosition();
 
@@ -277,6 +345,7 @@ export class ComboboxComponent {
   removeValue(val) {
     this.values = this.values.filter((v) => v !== val);
     this.renderBadges();
+    this.toggleClearButtonVisibility();
 
     if (
       !this.dropdown.classList.contains("hidden") ||
@@ -432,9 +501,8 @@ export class ComboboxComponent {
     this.dropdown.classList.remove("hidden");
     this.chevronBtn?.classList.add("rotate-180");
 
-    this._forceFocusRefresh();
-
     this.updateDropdownPosition();
+    this._forceFocusRefresh();
 
     window.addEventListener("scroll", this._onScrollOrResize, true);
     window.addEventListener("resize", this._onScrollOrResize);
@@ -442,14 +510,20 @@ export class ComboboxComponent {
 
   _forceFocusRefresh() {
     if (document.activeElement === this.input) {
+      this.isRefreshingFocus = true;
+
       this.input.blur();
+      this.input.focus();
+
+      this.isRefreshingFocus = false;
     }
-    this.input.focus();
+
+    this.updateDropdownPosition();
   }
 
   hideDropdown() {
     this.dropdown.classList.add("hidden");
-    this.chevronBtn.classList.remove("rotate-180");
+    this.chevronBtn?.classList.remove("rotate-180");
     this.clearDropdownHighlight();
 
     this.input.blur();
@@ -481,14 +555,12 @@ export class ComboboxComponent {
   }
 
   reset() {
-    this.values = [];
-    this.renderBadges();
-    this.input.value = "";
-    this.hideDropdown();
+    this.clearAll();
   }
 
   destroy() {
     this.unbindEvents();
+    this.clearBtn?.remove();
     this.hideDropdown();
   }
 }

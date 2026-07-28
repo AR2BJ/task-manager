@@ -537,6 +537,8 @@ export const TaskController = {
         );
         btnShortcuts.dataset.bound = "true";
       }
+
+      document.body.classList.add("overflow-hidden");
     };
 
     const closeHelp = () => {
