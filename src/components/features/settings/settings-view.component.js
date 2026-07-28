@@ -60,9 +60,7 @@ export const SettingsViewComponent = {
 
               <button
                 id="sett-theme-light"
-                class="relative z-10 w-full py-2.5 text-xs xs:text-sm font-medium rounded-lg transition cursor-pointer flex items-center justify-center gap-1 xs:w-1/2 ${
-                  !isDark ? "text-(--color-btn-primary-text)" : "text-secondary"
-                }"
+                class="relative z-10 w-full py-2.5 text-xs xs:text-sm font-medium rounded-lg transition cursor-pointer flex items-center justify-center gap-1 xs:w-1/2 text-white"
               >
                 <i class="fa-regular fa-sun text-base"></i>
                 <span>Light Mode</span>
@@ -70,9 +68,7 @@ export const SettingsViewComponent = {
 
               <button
                 id="sett-theme-dark"
-                class="relative z-10 w-full py-2.5 text-xs xs:text-sm font-medium rounded-lg transition cursor-pointer flex items-center justify-center gap-1 xs:w-1/2 ${
-                  isDark ? "text-(--color-btn-primary-text)" : "text-secondary"
-                }"
+                class="relative z-10 w-full py-2.5 text-xs xs:text-sm font-medium rounded-lg transition cursor-pointer flex items-center justify-center gap-1 xs:w-1/2 text-secondary"
               >
                 <i class="fa-regular fa-moon text-base"></i>
                 <span>Dark Mode</span>
@@ -112,7 +108,7 @@ export const SettingsViewComponent = {
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
                   id="sett-export-btn"
-                  class="w-full px-3 py-2.5 bg-surface-2 hover:bg-(--color-surface-3) border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
+                  class="w-full px-3 py-2.5 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
                 >
                   <i
                     class="fa-regular fa-file-code text-amber-500/80 text-sm group-hover:scale-105 transition"
@@ -122,7 +118,7 @@ export const SettingsViewComponent = {
 
                 <button
                   id="sett-export-md-btn"
-                  class="w-full px-3 py-2.5 bg-surface-2 hover:bg-(--color-surface-3) border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
+                  class="w-full px-3 py-2.5 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
                 >
                   <i
                     class="fa-brands fa-markdown text-indigo-500/80 text-sm group-hover:scale-105 transition"
@@ -132,7 +128,7 @@ export const SettingsViewComponent = {
 
                 <button
                   id="sett-export-notion-btn"
-                  class="w-full px-3 py-2.5 bg-surface-2 hover:bg-(--color-surface-3) border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
+                  class="w-full px-3 py-2.5 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
                 >
                   <i
                     class="fa-regular fa-table text-emerald-500/80 text-sm group-hover:scale-105 transition"

@@ -22,7 +22,7 @@ export const DeleteModalsComponent = {
           <div class="grid grid-cols-2 gap-3 mt-2">
             <button
               id="cancel-delete"
-              class="px-4 py-2.5 rounded-xl bg-(--color-surface-3) hover:border-primary  text-secondary hover:text-primary! font-medium text-sm transition border border-border cursor-pointer"
+              class="px-4 py-2.5 rounded-xl bg-surface-3 hover:border-primary  text-secondary hover:text-primary! font-medium text-sm transition border border-border cursor-pointer"
             >
               Cancel
             </button>

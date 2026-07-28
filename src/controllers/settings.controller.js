@@ -111,7 +111,7 @@ export const SettingsController = {
       }
 
       btnDark.classList.replace("text-secondary", "text-primary");
-      btnLight.classList.replace("text-primary", "text-secondary");
+      btnLight.classList.replace("text-white", "text-secondary");
     } else {
       if (isDesktop) {
         indicator.classList.add("xs:translate-x-0");
@@ -119,7 +119,7 @@ export const SettingsController = {
         indicator.classList.add("translate-y-0");
       }
 
-      btnLight.classList.replace("text-secondary", "text-primary");
+      btnLight.classList.replace("text-secondary", "text-white");
       btnDark.classList.replace("text-primary", "text-secondary");
     }
   },

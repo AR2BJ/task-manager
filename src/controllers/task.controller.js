@@ -687,13 +687,29 @@ export const TaskController = {
       targetBtn.offsetWidth || targetBtn.getBoundingClientRect().width;
     if (!buttonWidth) return;
 
-    let offsetLeft = 4;
-    for (let i = 0; i < activeIndex; i++) {
-      offsetLeft += buttons[i].offsetWidth;
-    }
+    const isWide = window.matchMedia("(min-width: 375px)").matches;
 
-    indicator.style.width = `${buttonWidth}px`;
-    indicator.style.left = `${offsetLeft}px`;
+    if (isWide) {
+      let offsetLeft = 4;
+      for (let i = 0; i < activeIndex; i++) {
+        offsetLeft += buttons[i].offsetWidth;
+      }
+
+      indicator.style.width = `${buttonWidth}px`;
+      indicator.style.left = `${offsetLeft}px`;
+      indicator.style.top = `4px`;
+      indicator.style.height = `${targetBtn.offsetHeight}px`;
+    } else {
+      let offsetTop = 4;
+      for (let i = 0; i < activeIndex; i++) {
+        offsetTop += buttons[i].offsetHeight;
+      }
+
+      indicator.style.height = `${targetBtn.offsetHeight}px`;
+      indicator.style.top = `${offsetTop}px`;
+      indicator.style.left = `4px`;
+      indicator.style.width = `${buttonWidth}px`;
+    }
 
     buttons.forEach((btn, idx) => {
       if (idx === activeIndex) {

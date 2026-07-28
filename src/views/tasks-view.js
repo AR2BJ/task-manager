@@ -9,30 +9,30 @@ export const TasksView = {
           class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center w-full"
         >
           <div
-            class="relative flex w-full justify-center rounded-xl border border-border bg-surface-2 p-1 sm:w-fit sm:justify-start"
+            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row xs:w-fit xs:justify-start"
           >
             <div
               id="tab-indicator"
-              class="absolute top-1 left-1 h-[calc(100%-8px)] w-24 rounded-lg bg-brand/80 transition-all duration-300 translate-x-0"
+              class="absolute top-1 left-1 h-12 w-[calc(100%-8px)] rounded-lg bg-brand/80 transition-all duration-300 xs:h-[calc(100%-8px)] xs:w-24"
             ></div>
 
             <button
               id="tab-active"
-              class="relative z-10 flex-1 w-27 rounded-l-xl py-2 text-sm font-medium text-(--color-btn-primary-text) transition cursor-pointer text-center"
+              class="relative z-10 flex-1 w-full rounded-t-xl py-2 text-sm font-medium text-(--color-btn-primary-text) transition cursor-pointer text-center xs:w-27 xs:rounded-l-xl xs:rounded-tr-none"
             >
               Active
             </button>
 
             <button
               id="tab-completed"
-              class="relative z-10 flex-1 w-27 py-2 text-sm font-medium text-secondary transition cursor-pointer text-center"
+              class="relative z-10 flex-1 w-full rounded-none py-2 text-sm font-medium text-secondary transition cursor-pointer text-center xs:w-27"
             >
               Completed
             </button>
 
             <button
               id="tab-archived"
-              class="relative z-10 flex-1 w-27 rounded-r-xl py-2 text-sm font-medium text-secondary transition cursor-pointer text-center"
+              class="relative z-10 flex-1 w-full rounded-b-xl py-2 text-sm font-medium text-secondary transition cursor-pointer text-center xs:w-27 xs:rounded-r-xl xs:rounded-t-none"
             >
               Archived
             </button>
@@ -48,7 +48,7 @@ export const TasksView = {
               type="text"
               id="search-tasks"
               placeholder="Search tasks, tags, or description..."
-              class="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
+              class="w-full pl-10 pr-10 py-2.5 truncate text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
             />
 
             <div
@@ -56,7 +56,7 @@ export const TasksView = {
             >
               <button
                 id="clear-search-btn"
-                class="hidden opacity-0 scale-75 h-5 w-5 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-2 hover:bg-(--color-surface-4) text-secondary hover:text-primary transition-all duration-200 ease-out"
+                class="hidden opacity-0 scale-75 h-5 w-5 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-2 hover:bg-surface-4 text-secondary hover:text-primary transition-all duration-200 ease-out"
                 title="Clear Search"
               >
                 <i class="fa-solid fa-xmark text-[10px]"></i>
@@ -271,34 +271,33 @@ export const TasksView = {
             <div
               class="flex flex-col sm:flex-row items-center justify-between sm:justify-end gap-3"
             >
+              <div class="w-full flex flex-col xs:flex-row items-center gap-3">
+                <div class="w-full flex items-center gap-2">
+                  <label
+                    class="text-xs text-secondary font-medium hidden sm:block"
+                    >Date:</label
+                  >
+                  <div
+                    id="date-filter-autocomplete-wrapper"
+                    class="w-full lg:w-36"
+                  ></div>
+                </div>
 
-            <div class="w-full flex flex-col xs:flex-row items-center gap-3">
-              <div class="w-full flex items-center gap-2">
-                <label
-                  class="text-xs text-secondary font-medium hidden sm:block"
-                  >Date:</label
-                >
-                <div
-                  id="date-filter-autocomplete-wrapper"
-                  class="w-full lg:w-36"
-                ></div>
-              </div>
-
-              <div class="w-full flex items-center gap-2">
-                <label
-                  class="text-xs text-secondary font-medium hidden sm:block"
-                  >Sort:</label
-                >
-                <div
-                  id="sort-autocomplete-wrapper"
-                  class="w-full lg:w-36"
-                ></div>
-              </div>
+                <div class="w-full flex items-center gap-2">
+                  <label
+                    class="text-xs text-secondary font-medium hidden sm:block"
+                    >Sort:</label
+                  >
+                  <div
+                    id="sort-autocomplete-wrapper"
+                    class="w-full lg:w-36"
+                  ></div>
+                </div>
               </div>
 
               <div
                 id="task-count-badge"
-                class="shrink-0 flex justify-center items-center gap-1.5 px-3 py-1 bg-(--color-surface-3) rounded-lg text-xs font-bold text-primary select-none w-full md:w-36 lg:w-auto"
+                class="shrink-0 flex justify-center items-center gap-1.5 px-3 py-1 bg-surface-3 rounded-lg text-xs font-bold text-primary select-none w-full md:w-36 lg:w-auto"
               >
                 0 Tasks
               </div>

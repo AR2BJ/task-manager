@@ -740,7 +740,6 @@ export const TaskFormController = {
         id: "task-duedate-input",
         value: initialValue,
         placeholder: "YYYY-MM-DD",
-        background: "surface",
       });
 
       container.innerHTML = createDatePicker.render();

@@ -238,7 +238,7 @@ export const TaskItemComponent = {
               <button
                 type="button"
                 data-task-id="${task.id}"
-                class="toggle-subtasks-btn w-full flex items-center justify-between p-2 rounded-md hover:bg-(--color-surface-3)/40 transition cursor-pointer group/sub-hdr text-left"
+                class="toggle-subtasks-btn w-full flex items-center justify-between p-2 rounded-md hover:bg-surface-3/40 transition cursor-pointer group/sub-hdr text-left"
               >
                 <div class="flex items-center gap-2">
                   <i class="fa-regular fa-list-check text-brand/80"></i> 

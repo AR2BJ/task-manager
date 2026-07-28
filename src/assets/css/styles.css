@@ -8,8 +8,12 @@
   --color-bg: #030712;
   --color-surface: #111827;
   --color-surface-2: #1f2937;
+  --color-surface-3: #2e3f5e;
+  --color-surface-4: #40567e;
   --color-primary: #ffffff;
   --color-secondary: #9ca3af;
+  --color-tertiary: #64748b;
+  --color-inverse: #ffffff;
   --color-border: #374151;
   --color-brand: #00a6f4;
   --breakpoint-xs: 23.4375rem;
