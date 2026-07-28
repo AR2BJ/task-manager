@@ -21,6 +21,7 @@ export class ComboboxComponent {
     this.onChange = onChange;
 
     this.isLoading = false;
+    this.activeDropdownIndex = -1;
 
     this.values = Array.isArray(initialValues)
       ? Array.from(
@@ -105,8 +106,75 @@ export class ComboboxComponent {
     return Array.isArray(this.options) ? this.options : [];
   }
 
+  clearDropdownHighlight() {
+    const items = Array.from(
+      this.dropdown?.querySelectorAll(".combobox-item") || [],
+    );
+    items.forEach((item) => {
+      item.classList.remove("bg-brand/15", "border-brand/20", "text-brand");
+    });
+    this.activeDropdownIndex = -1;
+  }
+
+  highlightDropdownItem(index) {
+    const items = Array.from(
+      this.dropdown?.querySelectorAll(".combobox-item") || [],
+    );
+    if (items.length === 0) {
+      this.activeDropdownIndex = -1;
+      return null;
+    }
+
+    const normalizedIndex =
+      index < 0 ? items.length - 1 : index >= items.length ? 0 : index;
+
+    this.clearDropdownHighlight();
+    const item = items[normalizedIndex];
+    item?.classList.add("bg-brand/15", "border-brand/20", "text-brand");
+    this.activeDropdownIndex = normalizedIndex;
+    item?.scrollIntoView({ block: "nearest" });
+
+    return item;
+  }
+
+  moveDropdownSelection(direction) {
+    const items = Array.from(
+      this.dropdown?.querySelectorAll(".combobox-item") || [],
+    );
+    if (items.length === 0) return null;
+
+    const currentIndex =
+      this.activeDropdownIndex >= 0 && this.activeDropdownIndex < items.length
+        ? this.activeDropdownIndex
+        : -1;
+
+    const nextIndex =
+      direction > 0
+        ? (currentIndex + 1) % items.length
+        : currentIndex < 0
+          ? items.length - 1
+          : (currentIndex - 1 + items.length) % items.length;
+
+    return this.highlightDropdownItem(nextIndex);
+  }
+
+  getActiveDropdownItem() {
+    const items = Array.from(
+      this.dropdown?.querySelectorAll(".combobox-item") || [],
+    );
+    if (
+      this.activeDropdownIndex >= 0 &&
+      this.activeDropdownIndex < items.length
+    ) {
+      return items[this.activeDropdownIndex];
+    }
+    return null;
+  }
+
   handleInput() {
     if (this.isLoading) return;
+
+    this.activeDropdownIndex = -1;
 
     const query = this.input.value.trim().toLowerCase().replace(/^#/, "");
     const allOptions = this.getAvailableOptions();
@@ -136,6 +204,18 @@ export class ComboboxComponent {
       e.preventDefault();
       e.stopPropagation();
 
+      const activeItem = this.getActiveDropdownItem();
+      if (activeItem) {
+        const value = activeItem.dataset.value;
+        if (value) {
+          this.addValue(value);
+          this.input.value = "";
+          this.hideDropdown();
+          this.input.focus();
+          return false;
+        }
+      }
+
       const val = this.input.value
         .trim()
         .toLowerCase()
@@ -146,7 +226,28 @@ export class ComboboxComponent {
         this.addValue(val);
         this.input.value = "";
         this.hideDropdown();
+        this.input.focus();
       }
+      return false;
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (this.dropdown.classList.contains("hidden")) {
+        this.handleInput();
+      }
+
+      this.moveDropdownSelection(1);
+      return false;
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (this.dropdown.classList.contains("hidden")) {
+        this.handleInput();
+      }
+
+      this.moveDropdownSelection(-1);
       return false;
     } else if (
       e.key === "Backspace" &&
@@ -182,6 +283,7 @@ export class ComboboxComponent {
       document.activeElement === this.input
     ) {
       this.handleInput();
+      this.input.focus();
     } else {
       this.updateDropdownPosition();
     }
@@ -224,6 +326,9 @@ export class ComboboxComponent {
 
   renderDropdown(items, query, isAlreadySelected) {
     let html = "";
+
+    this.activeDropdownIndex = -1;
+    this.clearDropdownHighlight();
 
     if (items.length > 0) {
       html += items
@@ -278,6 +383,8 @@ export class ComboboxComponent {
   }
 
   renderEmptyState(message) {
+    this.activeDropdownIndex = -1;
+    this.clearDropdownHighlight();
     this.dropdown.innerHTML = `
       <div class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none">
         <i class="fa-regular fa-circle-info text-brand/70"></i>
@@ -334,6 +441,7 @@ export class ComboboxComponent {
   hideDropdown() {
     this.dropdown.classList.add("hidden");
     this.chevronBtn.classList.remove("rotate-180");
+    this.clearDropdownHighlight();
 
     this.input.blur();
 
