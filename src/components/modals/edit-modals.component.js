@@ -289,7 +289,7 @@ export const EditModalsComponent = {
               <button
                 id="cancel-edit-mobile"
                 type="button"
-                class="h-10 lg:h-11 rounded-xl bg-surface-2 hover:border-primary text-secondary hover:text-primary font-medium text-xs lg:text-sm transition border border-border cursor-pointer flex items-center justify-center"
+                class="h-10 lg:h-11 rounded-lg lg:rounded-xl bg-surface-2 hover:border-primary text-secondary hover:text-primary font-medium text-xs lg:text-sm transition border border-border cursor-pointer flex items-center justify-center"
               >
                 Cancel
               </button>
@@ -297,7 +297,7 @@ export const EditModalsComponent = {
               <button
                 id="confirm-edit-mobile"
                 type="button"
-                class="h-10 lg:h-11 rounded-xl bg-brand/80 hover:bg-brand text-white font-medium text-xs lg:text-sm transition shadow-md shadow-brand/10 cursor-pointer flex items-center justify-center gap-2"
+                class="h-10 lg:h-11 rounded-lg lg:rounded-xl bg-brand/80 hover:bg-brand text-white font-medium text-xs lg:text-sm transition shadow-md shadow-brand/10 cursor-pointer flex items-center justify-center gap-2"
               >
                 <i class="fa-regular fa-check"></i> Save Changes
               </button>
@@ -310,7 +310,7 @@ export const EditModalsComponent = {
             <button
               id="cancel-edit"
               type="button"
-              class="h-10 lg:h-11 rounded-xl bg-surface-2 hover:border-primary text-secondary hover:text-primary font-medium text-xs lg:text-sm transition border border-border cursor-pointer flex items-center justify-center"
+              class="h-10 lg:h-11 rounded-lg lg:rounded-xl bg-surface-2 hover:border-primary text-secondary hover:text-primary font-medium text-xs lg:text-sm transition border border-border cursor-pointer flex items-center justify-center"
             >
               Cancel
             </button>
@@ -318,7 +318,7 @@ export const EditModalsComponent = {
             <button
               id="confirm-edit"
               type="button"
-              class="h-10 lg:h-11 rounded-xl bg-brand/80 hover:bg-brand text-white font-medium text-xs lg:text-sm transition shadow-md shadow-brand/10 cursor-pointer flex items-center justify-center gap-2"
+              class="h-10 lg:h-11 rounded-lg lg:rounded-xl bg-brand/80 hover:bg-brand text-white font-medium text-xs lg:text-sm transition shadow-md shadow-brand/10 cursor-pointer flex items-center justify-center gap-2"
             >
               <i class="fa-regular fa-check"></i> Save Changes
             </button>

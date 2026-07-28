@@ -468,73 +468,74 @@ export const TaskController = {
     const btnCloseHelp = document.getElementById("btn-close-help");
     const helpBackdrop = document.getElementById("help-modal-backdrop");
 
-    const openHelp = () => {
-      if (helpModal) helpModal.classList.replace("hidden", "flex");
-      document.body.classList.add("overflow-hidden");
+    const openHelp = (defaultTab = "safeguard") => {
+      const helpModal = document.getElementById("help-modal");
+      if (!helpModal) return;
 
-      const tabSafeguard = document.getElementById("tab-help-safeguard");
-      const tabShortcuts = document.getElementById("tab-help-shortcuts");
-      const contentSafeguard = document.getElementById(
-        "content-help-safeguard",
-      );
-      const contentShortcuts = document.getElementById(
-        "content-help-shortcuts",
-      );
+      helpModal.classList.remove("hidden");
+      helpModal.classList.add("flex");
 
-      if (
-        tabSafeguard &&
-        tabShortcuts &&
-        contentSafeguard &&
-        contentShortcuts
-      ) {
-        const resetTabs = (type) => {
-          tabSafeguard.classList.remove(
-            "bg-brand/30",
-            "text-primary",
-            "border",
-            "border-brand/40",
-          );
+      // Function to switch tabs inside the help modal
+      const switchHelpTab = (tabName) => {
+        const btnSafeguard = document.getElementById("tab-help-safeguard");
+        const btnShortcuts = document.getElementById("tab-help-shortcuts");
+        const contentSafeguard = document.getElementById(
+          "content-help-safeguard",
+        );
+        const contentShortcuts = document.getElementById(
+          "content-help-shortcuts",
+        );
 
-          tabShortcuts.classList.remove(
-            "bg-brand/30",
-            "text-primary",
-            "border",
-            "border-brand/40",
-          );
+        if (
+          !btnSafeguard ||
+          !btnShortcuts ||
+          !contentSafeguard ||
+          !contentShortcuts
+        )
+          return;
 
-          if (type === "Safeguard") {
-            tabSafeguard.classList.remove("text-secondary");
-            tabShortcuts.classList.add("text-secondary");
-          } else {
-            tabShortcuts.classList.remove("text-secondary");
-            tabSafeguard.classList.add("text-secondary");
-          }
+        if (tabName === "safeguard") {
+          // Safeguard Active State
+          btnSafeguard.className =
+            "w-full md:flex-1 text-center py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-brand/30 text-primary border border-brand/40 transition cursor-pointer";
+          btnShortcuts.className =
+            "w-full md:flex-1 text-center py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg text-secondary hover:text-primary border border-transparent transition cursor-pointer";
 
-          contentSafeguard.classList.add("hidden");
-          contentShortcuts.classList.add("hidden");
-        };
-
-        tabSafeguard.addEventListener("click", () => {
-          resetTabs("Safeguard");
-          tabSafeguard.classList.add(
-            "bg-brand/30",
-            "text-primary",
-            "border",
-            "border-brand/40",
-          );
           contentSafeguard.classList.remove("hidden");
-        });
+          contentSafeguard.classList.add("flex");
+          contentShortcuts.classList.add("hidden");
+        } else if (tabName === "shortcuts") {
+          // Shortcuts Active State
+          btnShortcuts.className =
+            "w-full md:flex-1 text-center py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg bg-brand/30 text-primary border border-brand/40 transition cursor-pointer";
+          btnSafeguard.className =
+            "w-full md:flex-1 text-center py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg text-secondary hover:text-primary border border-transparent transition cursor-pointer";
 
-        tabShortcuts.addEventListener("click", () => {
-          resetTabs("Shortcuts");
-          tabShortcuts.classList.add(
-            "bg-brand/30",
-            "text-primary",
-            "border",
-            "border-brand/40",
-          );
           contentShortcuts.classList.remove("hidden");
-        });
+          contentSafeguard.classList.add("hidden");
+          contentSafeguard.classList.remove("flex");
+        }
+      };
+
+      // Set initial tab state upon opening
+      switchHelpTab(defaultTab);
+
+      // Bind click listeners for help modal tabs
+      const btnSafeguard = document.getElementById("tab-help-safeguard");
+      const btnShortcuts = document.getElementById("tab-help-shortcuts");
+
+      if (btnSafeguard && !btnSafeguard.dataset.bound) {
+        btnSafeguard.addEventListener("click", () =>
+          switchHelpTab("safeguard"),
+        );
+        btnSafeguard.dataset.bound = "true";
+      }
+
+      if (btnShortcuts && !btnShortcuts.dataset.bound) {
+        btnShortcuts.addEventListener("click", () =>
+          switchHelpTab("shortcuts"),
+        );
+        btnShortcuts.dataset.bound = "true";
       }
     };
 
