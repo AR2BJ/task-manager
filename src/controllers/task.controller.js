@@ -487,50 +487,54 @@ export const TaskController = {
         contentSafeguard &&
         contentShortcuts
       ) {
-        const resetTabs = () => {
+        const resetTabs = (type) => {
           tabSafeguard.classList.remove(
-            "bg-surface",
+            "bg-brand/30",
             "text-primary",
             "border",
-            "border-border/40",
-            "shadow-sm",
+            "border-brand/40",
           );
-          tabSafeguard.classList.add("text-secondary");
+
           tabShortcuts.classList.remove(
-            "bg-surface",
+            "bg-brand/30",
             "text-primary",
             "border",
-            "border-border/40",
-            "shadow-sm",
+            "border-brand/40",
           );
-          tabShortcuts.classList.add("text-secondary");
+
+          if (type === "Safeguard") {
+            tabSafeguard.classList.remove("text-secondary");
+            tabShortcuts.classList.add("text-secondary");
+          } else {
+            tabShortcuts.classList.remove("text-secondary");
+            tabSafeguard.classList.add("text-secondary");
+          }
+
           contentSafeguard.classList.add("hidden");
           contentShortcuts.classList.add("hidden");
         };
 
-        tabSafeguard.onclick = () => {
-          resetTabs();
+        tabSafeguard.addEventListener("click", () => {
+          resetTabs("Safeguard");
           tabSafeguard.classList.add(
-            "bg-surface",
+            "bg-brand/30",
             "text-primary",
             "border",
-            "border-border/40",
-            "shadow-sm",
+            "border-brand/40",
           );
           contentSafeguard.classList.remove("hidden");
-        };
+        });
 
-        tabShortcuts.onclick = () => {
-          resetTabs();
+        tabShortcuts.addEventListener("click", () => {
+          resetTabs("Shortcuts");
           tabShortcuts.classList.add(
-            "bg-surface",
+            "bg-brand/30",
             "text-primary",
             "border",
-            "border-border/40",
-            "shadow-sm",
+            "border-brand/40",
           );
           contentShortcuts.classList.remove("hidden");
-        };
+        });
       }
     };
 

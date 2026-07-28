@@ -12,7 +12,7 @@ function normalizeTask(task) {
     priority: task.priority || "low",
     dueDate: task.dueDate || null,
     createdAt: task.createdAt || formatDate(new Date()),
-    updatedAt: task.updatedAt || formatDate(new Date()),
+    updatedAt: task.updatedAt || formatDate(new Date()) || null,
     completedAt: task.completedAt || null,
     estimatedMinutes: Number(task.estimatedMinutes) || 0,
     archived: Boolean(task.archived),
@@ -23,7 +23,7 @@ function normalizeTask(task) {
           title: st.title || "",
           completed: Boolean(st.completed),
           createdAt: task.createdAt || formatDate(new Date()),
-          updatedAt: task.updatedAt || formatDate(new Date()),
+          updatedAt: task.updatedAt || formatDate(new Date()) || null,
         }))
       : [],
   };

@@ -87,12 +87,18 @@ export const StateManager = {
       list = list.filter((task) => {
         const title = (task.title || "").toLowerCase();
         const description = (task.description || "").toLowerCase();
+        const priority = (task.priority || "").toLowerCase();
+        const status = (task.status || "").toLowerCase();
         const tagsMatch = task.tags?.some((tag) =>
           tag.toLowerCase().includes(query),
         );
 
         return (
-          title.includes(query) || description.includes(query) || tagsMatch
+          title.includes(query) ||
+          description.includes(query) ||
+          priority.includes(query) ||
+          status.includes(query) ||
+          tagsMatch
         );
       });
     }

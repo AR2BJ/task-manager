@@ -9,7 +9,7 @@ export const SettingsResetComponent = {
           class="bg-surface rounded-2xl p-6 max-w-sm w-full shadow-xl flex flex-col gap-4"
         >
           <div
-            class="w-12 h-12 rounded-full bg-red-500/10 text-red-500/80 flex items-center justify-center text-xl mx-auto"
+            class="w-11 h-11 rounded-xl bg-red-500/10 text-red-500/80 flex items-center justify-center text-xl mx-auto"
           >
             <i class="fa-regular fa-triangle-exclamation"></i>
           </div>

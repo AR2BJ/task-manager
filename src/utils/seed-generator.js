@@ -142,7 +142,7 @@ export function generateDynamicMockData(count = 20) {
       priority,
       dueDate,
       createdAt: formatDate(createdAtDate),
-      updatedAt: formatDate(createdAtDate),
+      updatedAt: null,
       completedAt,
       archived,
       tags,

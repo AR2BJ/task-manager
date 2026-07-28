@@ -222,7 +222,7 @@ export const TaskFormController = {
     if (total === 0) {
       container.innerHTML = `
       <div
-        class="w-full h-full min-h-70 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface rounded-2xl border border-dashed border-border/70 p-4 text-center"
+        class="w-full h-full min-h-55 sm:min-h-50 lg:min-h-45 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface rounded-2xl border border-dashed border-border/70 p-4 text-center flex flex-col justify-center items-center"
       >
         <div class="h-full flex flex-col justify-center items-center">
           <div class="text-3xl">
@@ -239,7 +239,7 @@ export const TaskFormController = {
 
     container.innerHTML = `
     <div
-      class="w-full h-full max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin  bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
+      class="w-full h-full max-h-55 sm:max-h-50 lg:max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin  bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
     >
       ${currentModalSubtasks
         .map(
@@ -252,8 +252,18 @@ export const TaskFormController = {
                 <input
                   type="text"
                   data-action="edit-text"
+                  data-tooltip-title="${subtask.title}"
                   value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
-                  class="subtask-title-input text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 ${
+                  class="subtask-title-input flex sm:hidden truncate text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 cursor-pointer ${
+                    subtask.isEditing ? "border-brand/50" : "border-transparent"
+                  } ${subtask.completed ? "line-through text-muted" : ""}"
+                  ${subtask.isEditing ? "" : "readonly"}
+                />
+                <input
+                  type="text"
+                  data-action="edit-text"
+                  value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
+                  class="subtask-title-input hidden sm:flex text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 ${
                     subtask.isEditing ? "border-brand/50" : "border-transparent"
                   } ${subtask.completed ? "line-through text-muted" : ""}"
                   ${subtask.isEditing ? "" : "readonly"}
@@ -263,7 +273,7 @@ export const TaskFormController = {
               <div class="flex items-center gap-1 shrink-0">
                 <button
                   data-action="edit"
-                  class="edit-btn flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
+                  class="edit-btn flex h-8 w-8 sm:w-10 sm:h-10 items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
                   title="${subtask.isEditing ? "Save changes" : "Edit subtask"}"
                 >
                   <i
@@ -275,7 +285,7 @@ export const TaskFormController = {
 
                 <button
                   data-action="delete"
-                  class="delete-btn flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
+                  class="delete-btn flex h-8 w-8 sm:w-10 sm:h-10 items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
                 >
                   <i
                     class="fa-regular fa-trash-can text-red-500/80 text-base"
@@ -522,6 +532,12 @@ export const TaskFormController = {
     // Modal Edit Actions
     addClick("confirm-edit", () => this.executeEdit());
     addClick("cancel-edit", () =>
+      this.mainController.toggleModal("edit-modal", false),
+    );
+
+    // Modal Mobile Edit Actions
+    addClick("confirm-edit-mobile", () => this.executeEdit());
+    addClick("cancel-edit-mobile", () =>
       this.mainController.toggleModal("edit-modal", false),
     );
     addClick("cancel-edit-modal", () =>

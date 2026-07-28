@@ -38,7 +38,7 @@ export const TasksView = {
             </button>
           </div>
 
-          <div class="relative w-full sm:w-100 group/search">
+          <div class="relative w-full sm:w-120 group/search">
             <span
               class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted"
             >
@@ -47,7 +47,7 @@ export const TasksView = {
             <input
               type="text"
               id="search-tasks"
-              placeholder="Search tasks, tags, or description..."
+              placeholder="Search tasks, tags, description, priority or status...."
               class="w-full pl-10 pr-10 py-2.5 truncate text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
             />
 
@@ -105,7 +105,7 @@ export const TasksView = {
                 <div class="w-full min-w-0 lg:col-span-2">
                   <label
                     for="task-title-input"
-                    class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
                   >
                     Title
                     <span class="text-red-700"> *</span>
@@ -121,7 +121,7 @@ export const TasksView = {
                 <div class="w-full">
                   <label
                     for="task-duedate-input"
-                    class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
                     >Due Date</label
                   >
                   <div id="create-datepicker-container"></div>
@@ -131,7 +131,7 @@ export const TasksView = {
               <div class="w-full">
                 <label
                   for="task-desc-input"
-                  class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                  class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
                 >
                   Description
                 </label>
@@ -147,7 +147,7 @@ export const TasksView = {
                 <div class="w-full">
                   <label
                     for="task-priority-select"
-                    class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
                   >
                     Priority Level
                   </label>
@@ -160,7 +160,7 @@ export const TasksView = {
                 <div class="w-full">
                   <label
                     for="task-status-select"
-                    class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
                   >
                     Task Status
                   </label>
@@ -174,7 +174,7 @@ export const TasksView = {
               <div class="w-full relative">
                 <label
                   for="task-tags-input"
-                  class="mb-1.5 block ps-1 text-xs font-semibold text-secondary"
+                  class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
                 >
                   Tags
                 </label>
@@ -297,7 +297,7 @@ export const TasksView = {
 
               <div
                 id="task-count-badge"
-                class="shrink-0 flex justify-center items-center gap-1.5 px-3 py-1 bg-surface-3 rounded-lg text-xs font-bold text-primary select-none w-full md:w-36 lg:w-auto"
+                class="shrink-0 flex justify-center items-center gap-1.5 px-3 py-1 bg-surface-3 rounded-lg text-xs font-bold text-primary select-none w-full sm:w-36 lg:w-auto"
               >
                 0 Tasks
               </div>

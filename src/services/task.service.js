@@ -36,7 +36,7 @@ export const TaskService = {
       priority: taskData.priority || "medium",
       dueDate: taskData.dueDate || null,
       createdAt: todayISO(),
-      updatedAt: todayISO(),
+      updatedAt: null,
       completedAt: taskData.status === "done" ? todayISO() : null,
       archived: false,
       tags: parsedTags,
@@ -68,13 +68,11 @@ export const TaskService = {
         updatedSubtasks = (task.subtasks || []).map((st) => ({
           ...st,
           completed: true,
-          updatedAt: today,
         }));
       } else {
         updatedSubtasks = (task.subtasks || []).map((st) => ({
           ...st,
           completed: savedSubtaskIds.includes(st.id),
-          updatedAt: today,
         }));
       }
 
@@ -82,7 +80,6 @@ export const TaskService = {
         ...task,
         status: newStatus,
         completedAt: newStatus === "done" ? today : null,
-        updatedAt: today,
         subtasks: updatedSubtasks,
         completedSubtaskIdsBeforeDone: savedSubtaskIds,
       };
@@ -152,14 +149,13 @@ export const TaskService = {
 
       const updatedSubtasks = (task.subtasks || []).map((st) => {
         if (st.id !== subtaskId) return st;
-        return { ...st, completed: !st.completed, updatedAt: today };
+        return { ...st, completed: !st.completed };
       });
 
       if (task.archived) {
         return {
           ...task,
           subtasks: updatedSubtasks,
-          updatedAt: today,
         };
       }
 
@@ -190,7 +186,6 @@ export const TaskService = {
         status: newStatus,
         completedAt: completedAt,
         subtasks: updatedSubtasks,
-        updatedAt: today,
         completedSubtaskIdsBeforeDone: savedSubtaskIds,
       };
     });
@@ -208,7 +203,7 @@ export const TaskService = {
         title: cleaned,
         completed: false,
         createdAt: todayISO(),
-        updatedAt: todayISO(),
+        updatedAt: null,
       };
 
       return {
@@ -237,17 +232,13 @@ export const TaskService = {
 
   archiveTask(currentTasks, id) {
     return currentTasks.map((task) =>
-      task.id === id
-        ? { ...task, archived: true, updatedAt: todayISO() }
-        : task,
+      task.id === id ? { ...task, archived: true } : task,
     );
   },
 
   restoreTask(currentTasks, id) {
     return currentTasks.map((task) =>
-      task.id === id
-        ? { ...task, archived: false, updatedAt: todayISO() }
-        : task,
+      task.id === id ? { ...task, archived: false } : task,
     );
   },
 };

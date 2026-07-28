@@ -153,7 +153,7 @@ export const TaskItemComponent = {
               </div>
 
               <h2
-                class="text-base font-bold text-primary tracking-tight leading-snug wrap-break-word ${
+                class="text-base lg:text-lg font-bold mt-2 text-primary tracking-tight leading-snug wrap-break-word ${
                   isCompleted ? "line-through opacity-60" : ""
                 }"
               >
@@ -162,11 +162,11 @@ export const TaskItemComponent = {
 
               ${
                 task.description
-                  ? `<p class="text-xs text-secondary/90 leading-relaxed wrap-break-word">${task.description}</p>`
+                  ? `<p class="text-sm lg:text-base text-secondary/90 leading-relaxed wrap-break-word">${task.description}</p>`
                   : ""
               }
 
-              <div class="flex items-center gap-3 mt-1 text-[11px] text-muted">
+              <div class="flex items-center gap-3 mt-2 text-[11px] lg:text-xs text-muted">
                 <span
                   ><i class="fa-regular fa-clock me-1"></i>Created
                   ${task.createdAt}</span
@@ -177,55 +177,114 @@ export const TaskItemComponent = {
                     : ""
                 }
               </div>
+
+              ${
+                task.updatedAt
+                  ? `<div
+                      class="flex items-center gap-3 mt-1 text-[11px] lg:text-xs italic text-secondary"
+                    >
+                      <span
+                        ><i class="fa-regular fa-calendar-lines-pen  me-1"></i
+                        >Updated ${task.updatedAt}</span
+                      >
+                    </div>`
+                  : ""
+              }
             </div>
           </div>
 
           <div
-            class="flex flex-row items-center justify-end self-start gap-2 shrink-0 border-t md:border-t-0 border-border pt-3 md:pt-0"
+            class="absolute top-3 right-3 md:static flex self-start md:top-auto md:right-auto z-20 shrink-0"
           >
-            <div class="relative">
-              <button
-                data-id="${task.id}"
-                class="${actionButtonClass} w-9 h-9 rounded-lg bg-surface-2 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
-              >
-                <i class="fa-regular ${actionIcon} text-base"></i>
-              </button>
-              <div
-                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
-              >
-                ${actionTooltip}
+            <div class="hidden md:flex items-center gap-2">
+              <div class="relative">
+                <button
+                  data-id="${task.id}"
+                  class="${actionButtonClass} w-9 h-9 rounded-lg bg-surface-2 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+                >
+                  <i class="fa-regular ${actionIcon} text-base"></i>
+                </button>
+                <div
+                  class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10"
+                >
+                  ${actionTooltip}
+                </div>
+              </div>
+
+              <div class="relative">
+                <button
+                  data-id="${task.id}"
+                  class="edit-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-blue-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+                >
+                  <i
+                    class="fa-regular fa-pen-to-square text-blue-500/80 text-base"
+                  ></i>
+                </button>
+                <div
+                  class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+                >
+                  Edit
+                </div>
+              </div>
+
+              <div class="relative">
+                <button
+                  data-id="${task.id}"
+                  class="delete-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+                >
+                  <i
+                    class="fa-regular fa-trash-can text-red-500/80 text-base"
+                  ></i>
+                </button>
+                <div
+                  class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+                >
+                  Delete
+                </div>
               </div>
             </div>
 
-            <div class="relative">
+            <div class="flex md:hidden relative dropdown-container">
               <button
                 data-id="${task.id}"
-                class="edit-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-blue-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
+                class="dropdown-toggle-btn h-9 w-9 rounded-lg border border-border text-secondary hover:text-primary hover:bg-surface flex items-center justify-center transition shadow-sm cursor-pointer"
               >
-                <i
-                  class="fa-regular fa-pen-to-square text-blue-500/80 text-base"
-                ></i>
+                <i class="fa-regular fa-ellipsis-vertical text-lg"></i>
               </button>
-              <div
-                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
-              >
-                Edit
-              </div>
-            </div>
 
-            <div class="relative">
-              <button
-                data-id="${task.id}"
-                class="delete-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-red-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
-              >
-                <i
-                  class="fa-regular fa-trash-can text-red-500/80 text-base"
-                ></i>
-              </button>
               <div
-                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
+                data-id="${task.id}"
+                class="dropdown-menu absolute right-0 mt-1.5 w-45 rounded-xl border border-border bg-surface p-1 shadow-xl hidden z-30 flex-col gap-0.5"
               >
-                Delete
+                <button
+                  data-id="${task.id}"
+                  class="${
+                    isArchived ? "restore-btn" : "archive-btn"
+                  } flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium border-0 bg-transparent text-secondary hover:text-primary hover:bg-surface-2 transition cursor-pointer"
+                >
+                  <i class="fa-regular ${actionIcon} text-xs"></i>
+                  <span>${isArchived ? "Restore Task" : "Archive Task"}</span>
+                </button>
+
+                <button
+                  data-id="${task.id}"
+                  class="edit-btn flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium border-0 bg-transparent text-secondary hover:text-primary hover:bg-surface-2 transition cursor-pointer"
+                >
+                  <i
+                    class="fa-regular fa-pen-to-square text-xs text-blue-500/80"
+                  ></i>
+                  <span>Edit Title</span>
+                </button>
+
+                <div class="my-0.5 border-t border-border/40"></div>
+
+                <button
+                  data-id="${task.id}"
+                  class="delete-btn flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium border-0 bg-transparent text-red-500/80 hover:bg-red-500/5 transition cursor-pointer"
+                >
+                  <i class="fa-regular fa-trash-can text-xs"></i>
+                  <span>Delete Permanently</span>
+                </button>
               </div>
             </div>
           </div>
@@ -238,17 +297,17 @@ export const TaskItemComponent = {
               <button
                 type="button"
                 data-task-id="${task.id}"
-                class="toggle-subtasks-btn w-full flex items-center justify-between p-2 rounded-md hover:bg-surface-3/40 transition cursor-pointer group/sub-hdr text-left"
+                class="toggle-subtasks-btn w-full flex flex-col sm:flex-row items-center justify-between gap-5 p-2 rounded-md hover:bg-surface-3/40 transition cursor-pointer group/sub-hdr text-left"
               >
-                <div class="flex items-center gap-2">
+                <div class="w-full sm:w-fit flex justify-center xs:justify-start items-center gap-2">
                   <i class="fa-regular fa-list-check text-brand/80"></i> 
-                  <span class="text-xs font-bold text-secondary group-hover/sub-hdr:text-primary transition">
+                  <span class="text-[11px] sm:text-xs font-bold text-secondary group-hover/sub-hdr:text-primary transition">
                     Subtasks (${subtaskProgress.completedCount}/${subtaskProgress.totalCount})
                   </span>
                 </div>
 
-                <div class="flex items-center gap-3">
-                  <div class="w-24 md:w-32 h-1.5 rounded-full bg-surface-2 overflow-hidden">
+                <div class="w-full sm:w-fit flex items-center gap-3">
+                  <div class="w-full sm:w-32 h-1.5 rounded-full bg-surface-2 overflow-hidden">
                     <div class="h-full ${subtaskProgressColor} transition-all duration-300" style="width: ${subtaskProgress.percentage}%"></div>
                   </div>
                   

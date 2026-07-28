@@ -154,14 +154,14 @@ function bindAnalyticsControls(tasks) {
   const switcher = document.getElementById("chart-view-switcher");
   if (switcher) {
     switcher.querySelectorAll("[data-view]").forEach((btn) => {
-      btn.onclick = (e) => {
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const view = e.currentTarget.dataset.view;
         if (view && view !== activeHeatmapTab) {
           updateTabStyles(view);
           updateHeatmapChart(tasks, view);
         }
-      };
+      });
     });
   }
 
@@ -171,10 +171,10 @@ function bindAnalyticsControls(tasks) {
   if (mobileToggle && mobileMenu) {
     syncMobileMenuSelection(activeHeatmapTab);
 
-    mobileToggle.onclick = (event) => {
+    mobileToggle.addEventListener("click", (event) => {
       event.stopPropagation();
       mobileMenu.classList.toggle("hidden");
-    };
+    });
 
     document.addEventListener("click", (e) => {
       if (!mobileMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
@@ -183,7 +183,7 @@ function bindAnalyticsControls(tasks) {
     });
 
     mobileMenu.querySelectorAll("[data-view]").forEach((btn) => {
-      btn.onclick = (event) => {
+      btn.addEventListener("click", (event) => {
         event.stopPropagation();
         const view = event.currentTarget.dataset.view;
         if (view && view !== activeHeatmapTab) {
@@ -191,7 +191,7 @@ function bindAnalyticsControls(tasks) {
           updateHeatmapChart(tasks, view);
         }
         mobileMenu.classList.add("hidden");
-      };
+      });
     });
   }
 }

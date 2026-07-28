@@ -430,12 +430,21 @@ export class ComboboxComponent {
 
   showDropdown() {
     this.dropdown.classList.remove("hidden");
-    this.chevronBtn.classList.add("rotate-180");
+    this.chevronBtn?.classList.add("rotate-180");
+
+    this._forceFocusRefresh();
 
     this.updateDropdownPosition();
 
     window.addEventListener("scroll", this._onScrollOrResize, true);
     window.addEventListener("resize", this._onScrollOrResize);
+  }
+
+  _forceFocusRefresh() {
+    if (document.activeElement === this.input) {
+      this.input.blur();
+    }
+    this.input.focus();
   }
 
   hideDropdown() {

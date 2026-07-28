@@ -240,19 +240,87 @@ export class DatePickerComponent {
 
     if (!input || !popover) return;
 
-    input.addEventListener("input", (e) => {
-      let val = e.target.value.replace(/\D/g, "");
-      if (val.length > 8) val = val.substring(0, 8);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
 
-      let formatted = val;
-      if (val.length >= 5) {
-        formatted = `${val.substring(0, 4)}-${val.substring(4, 6)}-${val.substring(6, 8)}`;
-      } else if (val.length > 4) {
-        formatted = `${val.substring(0, 4)}-${val.substring(4)}`;
+        const formatted = input.value;
+
+        if (formatted.length === 10 && this.isValidDate(formatted)) {
+          const [y, m] = formatted.split("-").map(Number);
+          if (y >= this.minYear && y <= this.maxYear) {
+            this.currentYear = y;
+            this.currentMonth = m - 1;
+            this.renderCalendar();
+            if (this.onChange) this.onChange(formatted);
+          }
+        }
+
+        togglePopover(false);
+        input.blur();
+        return;
+      }
+
+      if (e.key === "Backspace") {
+        const val = input.value;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        if (start === end && start > 0) {
+          if (val[start - 1] === "-") {
+            e.preventDefault();
+
+            const newVal = val.slice(0, start - 2) + val.slice(start);
+            input.value = newVal;
+
+            const newCursorPos = start - 2;
+            input.setSelectionRange(newCursorPos, newCursorPos);
+
+            input.dispatchEvent(new Event("input"));
+          }
+        }
+      }
+    });
+
+    input.addEventListener("input", (e) => {
+      const rawValue = input.value;
+      const digits = rawValue.replace(/\D/g, "").slice(0, 8);
+      const len = digits.length;
+
+      let formatted = "";
+      let newCursorPos = input.selectionStart;
+
+      if (len === 0) {
+        formatted = "";
+        newCursorPos = 0;
+      } else if (len <= 4) {
+        formatted = digits;
+        if (len === 4 && e.inputType !== "deleteContentBackward") {
+          formatted += "-";
+          newCursorPos = 5;
+        }
+      } else if (len <= 6) {
+        const year = digits.slice(0, 4);
+        const month = digits.slice(4);
+        formatted = `${year}-${month}`;
+
+        if (len === 6 && e.inputType !== "deleteContentBackward") {
+          formatted += "-";
+          newCursorPos = 8;
+        }
+      } else {
+        const year = digits.slice(0, 4);
+        const month = digits.slice(4, 6);
+        const day = digits.slice(6);
+        formatted = `${year}-${month}-${day}`;
       }
 
       input.value = formatted;
       this.value = formatted;
+
+      if (document.activeElement === input && newCursorPos !== null) {
+        input.setSelectionRange(newCursorPos, newCursorPos);
+      }
 
       if (formatted.length === 10 && this.isValidDate(formatted)) {
         const [y, m] = formatted.split("-").map(Number);
