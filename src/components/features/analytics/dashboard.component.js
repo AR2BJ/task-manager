@@ -144,9 +144,9 @@ export const DashboardComponent = {
             <div class="text-3xl font-black text-primary tracking-tight">
               ${totalTasksCount}
             </div>
-            <div
-              class="flex items-center gap-3 text-[11px] text-secondary/80 font-medium mt-1"
-            ></div>
+            <p class="text-[11px] text-secondary/80 font-medium mt-1">
+              Total execution units across all states
+            </p>
           </div>
         </div>
 
@@ -469,16 +469,23 @@ export const DashboardComponent = {
           <div
             class="col-span-4 lg:col-span-2 xl:col-span-1 bg-surface-2 border border-border/70 rounded-2xl p-6 flex flex-col justify-between"
           >
-            <div>
-              <h4
-                class="text-lg font-bold text-primary flex items-center gap-2"
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h4
+                  class="text-lg font-bold text-primary flex items-center gap-2"
+                >
+                  <i class="fa-regular fa-arrow-down-small-big text-amber-400 text-xl"></i>
+                  Priority Breakdown
+                </h4>
+                <p class="text-xs text-secondary mt-1">
+                  Proportional distribution of active tasks classified by severity tier.
+                </p>
+              </div>
+              <span
+                class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0"
               >
-                <i class="fa-regular fa-arrow-down-small-big text-amber-400 text-xl"></i>
-                Priority Breakdown
-              </h4>
-              <p class="text-xs text-secondary mt-1">
-                Task distribution by priority level (Low, Medium, High).
-              </p>
+                3 Levels
+              </span>
             </div>
 
             <div
@@ -502,11 +509,10 @@ export const DashboardComponent = {
                   class="text-lg font-bold text-primary flex items-center gap-2"
                 >
                   <i class="fa-regular fa-tags text-sky-400 text-xl"></i>
-                  Tag Performance & Completion Velocity
+                  Tag Velocity
                 </h4>
                 <p class="text-xs text-secondary mt-1">
-                  Analysis of tag usage frequency alongside task completion
-                  rates across domain areas.
+                  Tag usage frequency vs completion rate.
                 </p>
               </div>
             </div>
@@ -524,17 +530,23 @@ export const DashboardComponent = {
           <div
             class="col-span-4 lg:col-span-2 xl:col-span-1 bg-surface-2 border border-border/70 rounded-2xl p-6 flex flex-col justify-between"
           >
-            <div>
-              <h4
-                class="text-lg font-bold text-primary flex items-center gap-2"
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h4
+                  class="text-lg font-bold text-primary flex items-center gap-2"
+                >
+                  <i class="fa-regular fa-bar-progress text-emerald-400 text-xl"></i>
+                  Status Breakdown
+                </h4>
+                <p class="text-xs text-secondary mt-1">
+                  Lifecycle stage mapping showing task allocation across execution states.
+                </p>
+              </div>
+              <span
+                class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0"
               >
-                <i class="fa-regular fa-bar-progress text-emerald-400 text-xl"></i>
-                Status Breakdown
-              </h4>
-              <p class="text-xs text-secondary mt-1">
-                Task distribution by current status (To Do, In Progress, Done,
-                Blocked).
-              </p>
+                4 States
+              </span>
             </div>
 
             <div
@@ -558,11 +570,10 @@ export const DashboardComponent = {
                   class="text-lg font-bold text-primary flex items-center gap-2"
                 >
                   <i class="fa-regular fa-tags text-sky-400 text-xl"></i>
-                  Tag Performance & Completion Velocity
+                  Tag Velocity
                 </h4>
                 <p class="text-xs text-secondary mt-1">
-                  Analysis of tag usage frequency alongside task completion
-                  rates across domain areas.
+                  Tag usage frequency vs completion rate.
                 </p>
               </div>
             </div>
