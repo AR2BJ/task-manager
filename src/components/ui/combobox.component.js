@@ -95,6 +95,7 @@ export class ComboboxComponent {
       e.stopPropagation();
       e.preventDefault();
       this.clearAll();
+      this.input.focus();
     });
 
     return btn;
@@ -141,7 +142,6 @@ export class ComboboxComponent {
     this.renderBadges();
     this.toggleClearButtonVisibility();
     this.hideDropdown();
-    this.input.focus();
 
     if (this.onChange) this.onChange(this.values);
   }
@@ -254,13 +254,7 @@ export class ComboboxComponent {
 
     const isAlreadySelected = query && this.values.includes(query);
 
-    if (!query && matches.length === 0) {
-      this.renderEmptyState(
-        `No ${this.itemTypeLabel.toLowerCase()}s available.`,
-      );
-      this.showDropdown();
-      return;
-    }
+    if (!query && matches.length === 0) return;
 
     this.renderDropdown(matches, query, isAlreadySelected);
     this.showDropdown();

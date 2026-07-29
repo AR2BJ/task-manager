@@ -92,20 +92,23 @@ export const DashboardComponent = {
               class="flex items-center gap-3 text-[11px] text-secondary/80 font-medium mt-1"
             >
               <span
-                ><strong class="text-red-400">${BlockedCount}</strong>&nbsp; Blocked</span
+                ><strong class="text-red-400">${BlockedCount}</strong>&nbsp;
+                Blocked</span
               >
               <span>•</span>
               <span
-                ><strong class="text-emerald-400">${DoneCount}</strong>&nbsp; Done</span
+                ><strong class="text-emerald-400">${DoneCount}</strong>&nbsp;
+                Done</span
               >
               <span>•</span>
               <span
-                ><strong class="text-amber-400">${inProgressCount}</strong>&nbsp; In
-                Progress</span
+                ><strong class="text-amber-400">${inProgressCount}</strong
+                >&nbsp; In Progress</span
               >
               <span>•</span>
               <span
-                ><strong class="text-brand">${todoCount}</strong>&nbsp; To Do</span
+                ><strong class="text-brand">${todoCount}</strong>&nbsp; To
+                Do</span
               >
             </div>
           </div>
@@ -331,22 +334,25 @@ export const DashboardComponent = {
             ${
               sortedTags.length > 0
                 ? `
-              <div class="mt-4 pt-4 border-t border-border/50">
-                <span class="text-[11px] font-bold uppercase text-secondary tracking-wider block mb-2">Top Active Tags</span>
-                <div class="flex flex-wrap gap-1.5">
-                  ${sortedTags
-                    .map(
-                      ([tag, count]) => `
+                    <div class="mt-4 pt-4 border-t border-border/50">
+                      <span
+                        class="text-[11px] font-bold uppercase text-secondary tracking-wider block mb-2"
+                        >Top Active Tags</span
+                      >
+                      <div class="flex flex-wrap gap-1.5">
+                        ${sortedTags
+                          .map(
+                            ([tag, count]) => `
                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-surface-1 border border-border/60 text-[10px] text-primary font-medium">
                       <span class="text-brand font-bold">#${tag}</span>
                       <span class="px-1.5 py-0.2 rounded-full bg-surface-2 text-secondary font-mono">${count}</span>
                     </span>
                   `,
-                    )
-                    .join("")}
-                </div>
-              </div>
-            `
+                          )
+                          .join("")}
+                      </div>
+                    </div>
+                  `
                 : ""
             }
           </div>
@@ -381,11 +387,13 @@ export const DashboardComponent = {
             ${
               tasks.length === 0
                 ? `
-                  <div class="text-center py-12 text-secondary text-sm bg-surface-1 rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2">
-                    <i class="fa-regular fa-box-open text-3xl opacity-30"></i>
-                    <span>No tasks found in repository.</span>
-                  </div>
-                `
+                    <div
+                      class="text-center py-12 text-secondary text-sm bg-surface-1 rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2"
+                    >
+                      <i class="fa-regular fa-box-open text-3xl opacity-30"></i>
+                      <span>No tasks found in repository.</span>
+                    </div>
+                  `
                 : tasks
                     .map((task) => {
                       const subtaskInfo = calculateSubtaskProgress(
@@ -415,11 +423,17 @@ export const DashboardComponent = {
                       };
 
                       return `
-                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-1/80 hover:bg-surface-1 p-4 rounded-xl border border-border/40 transition">
-                          
+                        <div
+                          class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-1/80 hover:bg-surface-1 p-4 rounded-xl border border-border/40 transition"
+                        >
                           <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                             <div class="flex items-center gap-2 flex-wrap">
-                              <span class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${statusBadgeStyles[task.status] || statusBadgeStyles.todo}">
+                              <span
+                                class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${
+                                  statusBadgeStyles[task.status] ||
+                                  statusBadgeStyles.todo
+                                }"
+                              >
                                 ${(task.status || "todo").replace("_", " ")}
                               </span>
 
@@ -432,7 +446,6 @@ export const DashboardComponent = {
                               `
                                   : ""
                               }
-
                               ${
                                 task.archived
                                   ? `<span class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Archived</span>`
@@ -440,11 +453,21 @@ export const DashboardComponent = {
                               }
                             </div>
 
-                            <h5 class="text-sm font-bold text-primary truncate">
+                            <h5
+                              data-tooltip-title="${task.title}"
+                              class="sm:hidden block text-sm font-bold text-primary truncate cursor-pointer"
+                            >
+                              ${task.title}
+                            </h5>
+                            <h5
+                              class="hidden sm:flex text-sm font-bold text-primary"
+                            >
                               ${task.title}
                             </h5>
 
-                            <div class="flex items-center gap-4 text-[11px] text-secondary/80 font-medium flex-wrap">
+                            <div
+                              class="flex items-center gap-4 text-[11px] text-secondary/80 font-medium flex-wrap"
+                            >
                               <span>${dueBadge}</span>
                               ${
                                 (task.tags || []).length > 0
@@ -459,20 +482,40 @@ export const DashboardComponent = {
                             </div>
                           </div>
 
-                          <div class="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-border/40 pt-3 lg:pt-0 shrink-0">
+                          <div
+                            class="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-border/40 pt-3 lg:pt-0 shrink-0"
+                          >
                             <div class="flex flex-col gap-1 w-36 sm:w-48">
-                              <div class="flex justify-between items-center text-[11px]">
-                                <span class="text-secondary font-medium">Subtasks</span>
-                                <span class="font-mono font-bold text-primary">${subtaskInfo.completedCount}/${subtaskInfo.totalCount} (${subtaskInfo.percentage}%)</span>
+                              <div
+                                class="flex justify-between items-center text-[11px]"
+                              >
+                                <span class="text-secondary font-medium"
+                                  >Subtasks</span
+                                >
+                                <span class="font-mono font-bold text-primary"
+                                  >${subtaskInfo.completedCount}/${subtaskInfo.totalCount}
+                                  (${subtaskInfo.percentage}%)</span
+                                >
                               </div>
-                              <div class="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-                                <div class="h-full bg-brand transition-all duration-300" style="width: ${subtaskInfo.percentage}%"></div>
+                              <div
+                                class="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden"
+                              >
+                                <div
+                                  class="h-full bg-brand transition-all duration-300"
+                                  style="width: ${subtaskInfo.percentage}%"
+                                ></div>
                               </div>
                             </div>
 
                             <div class="text-right">
-                              <span class="text-[10px] text-secondary/60 block uppercase font-bold">Created</span>
-                              <span class="text-xs font-mono font-medium text-primary">${task.createdAt || "N/A"}</span>
+                              <span
+                                class="text-[10px] text-secondary/60 block uppercase font-bold"
+                                >Created</span
+                              >
+                              <span
+                                class="text-xs font-mono font-medium text-primary"
+                                >${task.createdAt || "N/A"}</span
+                              >
                             </div>
                           </div>
                         </div>
