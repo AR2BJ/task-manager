@@ -157,7 +157,7 @@ export const EditModalsComponent = {
                   <div class="relative flex items-center">
                     <div
                       id="edit-task-tags-container"
-                      class="max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-surface w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
+                      class="max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-surface w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
                     >
                       <input
                         id="edit-task-tags-input"
