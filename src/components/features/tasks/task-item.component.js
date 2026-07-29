@@ -37,19 +37,18 @@ export const TaskItemComponent = {
     }
 
     const priorityStyles = {
-      low: "border-emerald-500/20 bg-emerald-500/10 text-emerald-500/80",
+      low: "border-lime-500/20 bg-lime-500/10 text-lime-500/80",
       medium: "border-amber-500/20 bg-amber-500/10 text-amber-500/80",
       high: "border-red-500/20 bg-red-500/10 text-red-500/80",
-      urgent: "border-violet-500/20 bg-violet-500/10 text-violet-500/80",
     };
     const priorityClass =
       priorityStyles[task.priority] || priorityStyles.medium;
 
     const statusStyles = {
-      todo: "border-border bg-surface-2 text-secondary",
-      in_progress: "border-amber-500/20 bg-amber-500/10 text-amber-500/80",
+      todo: "border-sky-500/20 bg-sky-500/10 text-sky-500/80",
+      in_progress: "border-orange-500/20 bg-orange-500/10 text-orange-500/80",
       done: "border-emerald-500/20 bg-emerald-500/10 text-emerald-500/80",
-      blocked: "border-red-500/20 bg-red-500/10 text-red-500/80",
+      blocked: "border-pink-500/20 bg-pink-500/10 text-pink-500/80",
     };
     const statusClass = statusStyles[task.status] || statusStyles.todo;
 

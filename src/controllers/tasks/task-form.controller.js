@@ -33,7 +33,7 @@ const PRIORITY_OPTIONS = [
   {
     value: "low",
     label: "Low Priority",
-    icon: "fa-solid fa-flag text-emerald-400",
+    icon: "fa-solid fa-flag text-lime-400",
   },
   {
     value: "medium",
@@ -43,26 +43,26 @@ const PRIORITY_OPTIONS = [
   {
     value: "high",
     label: "High Priority",
-    icon: "fa-solid fa-flag text-red-500",
+    icon: "fa-solid fa-flag text-red-400",
   },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "todo", label: "To Do", icon: "fa-regular fa-square text-sky-500" },
+  { value: "todo", label: "To Do", icon: "fa-regular fa-square text-sky-400" },
   {
     value: "in_progress",
     label: "In Progress",
-    icon: "fa-regular fa-arrow-progress text-amber-500",
+    icon: "fa-regular fa-arrow-progress text-orange-400",
   },
   {
     value: "done",
     label: "Done",
-    icon: "fa-regular fa-square-check text-emerald-500",
+    icon: "fa-regular fa-square-check text-emerald-400",
   },
   {
     value: "blocked",
     label: "Blocked",
-    icon: "fa-regular fa-ban text-red-500",
+    icon: "fa-regular fa-ban text-pink-400",
   },
 ];
 

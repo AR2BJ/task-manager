@@ -74,8 +74,8 @@ export const EditModalsComponent = {
               </button>
 
               <div class="accordion-content p-3.5 lg:p-4">
-                <div class="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
-                  <div>
+                <div class="grid grid-cols-1 gap-3.5 lg:grid-cols-3">
+                  <div class="lg:col-span-2">
                     <label
                       for="edit-task-title"
                       class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
@@ -90,7 +90,7 @@ export const EditModalsComponent = {
                     />
                   </div>
 
-                  <div>
+                  <div class="lg:col-span-1">
                     <label
                       for="edit-task-duedate"
                       class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"

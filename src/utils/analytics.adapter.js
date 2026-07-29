@@ -224,6 +224,90 @@ export const AnalyticsAdapter = {
     return weekdayCounts;
   },
 
+  generatePriorityCounts(tasks = []) {
+    const counts = {
+      low: 0,
+      medium: 0,
+      high: 0,
+    };
+
+    const activeTasks = tasks.filter((t) => !t.archived);
+
+    activeTasks.forEach((task) => {
+      const priority = (task.priority || "low").toLowerCase();
+      if (priority === "high") {
+        counts.high++;
+      } else if (priority === "medium") {
+        counts.medium++;
+      } else {
+        counts.low++;
+      }
+    });
+
+    return [counts.low, counts.medium, counts.high];
+  },
+
+  generateStatusCounts(tasks = []) {
+    const counts = {
+      todo: 0,
+      in_progress: 0,
+      done: 0,
+      blocked: 0,
+    };
+
+    const activeTasks = tasks.filter((t) => !t.archived);
+
+    activeTasks.forEach((task) => {
+      const status = task.status || "todo";
+      if (counts.hasOwnProperty(status)) {
+        counts[status]++;
+      } else {
+        counts.todo++;
+      }
+    });
+
+    return [counts.todo, counts.in_progress, counts.done, counts.blocked];
+  },
+
+  generateTagAnalytics(tasks = []) {
+    const activeTasks = tasks.filter((t) => !t.archived);
+    const tagStats = {};
+
+    activeTasks.forEach((task) => {
+      const tags = task.tags || [];
+      const isDone = task.status === "done";
+
+      tags.forEach((tag) => {
+        if (!tagStats[tag]) {
+          tagStats[tag] = { total: 0, completed: 0 };
+        }
+        tagStats[tag].total += 1;
+        if (isDone) {
+          tagStats[tag].completed += 1;
+        }
+      });
+    });
+
+    const sorted = Object.entries(tagStats)
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 6);
+
+    const categories = sorted.map(([tag]) => tag);
+    const totalSeries = sorted.map(([, stats]) => stats.total);
+    const completedSeries = sorted.map(([, stats]) => stats.completed);
+    const progressRates = sorted.map(([, stats]) =>
+      stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0,
+    );
+
+    return {
+      categories,
+      totalSeries,
+      completedSeries,
+      progressRates,
+      hasTags: categories.length > 0,
+    };
+  },
+
   getColorRanges(view, maxVal = 10, isDark = false) {
     const safeMax = Math.max(maxVal, 1);
 

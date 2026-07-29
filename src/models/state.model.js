@@ -107,7 +107,7 @@ export const StateManager = {
   },
 
   sortTasks(tasks, sortBy) {
-    const priorityWeight = { urgent: 4, high: 3, medium: 2, low: 1 };
+    const priorityWeight = { high: 3, medium: 2, low: 1 };
 
     const statusWeight = {
       blocked: 4,

@@ -5,6 +5,9 @@ import { DashboardComponent } from "@/components/features/analytics/dashboard.co
 
 let heatmapChartInstance = null;
 let barChartInstance = null;
+let priorityChartInstance = null;
+let statusChartInstance = null;
+let tagChartInstance = null;
 let resizeListenerAttached = false;
 let activeHeatmapTab = "weekly";
 
@@ -219,6 +222,18 @@ export function renderAnalyticsCharts(
     barChartInstance.destroy();
     barChartInstance = null;
   }
+  if (priorityChartInstance) {
+    priorityChartInstance.destroy();
+    priorityChartInstance = null;
+  }
+  if (statusChartInstance) {
+    statusChartInstance.destroy();
+    statusChartInstance = null;
+  }
+  if (tagChartInstance) {
+    tagChartInstance.destroy();
+    tagChartInstance = null;
+  }
 
   // Inject HTML Dashboard template
   dashboard.innerHTML = DashboardComponent.render(tasks);
@@ -246,7 +261,7 @@ export function renderAnalyticsCharts(
     chart: {
       id: "weekday-bar",
       type: "bar",
-      height: 300,
+      height: 400,
       toolbar: { show: false },
       fontFamily: "inherit",
     },
@@ -262,7 +277,6 @@ export function renderAnalyticsCharts(
     dataLabels: {
       enabled: true,
       textAnchor: "end",
-      offsetX: 8,
       colors: [isDark ? "#e2e8f0" : "#222f47"],
       style: {
         fontSize: "12px",
@@ -290,9 +304,197 @@ export function renderAnalyticsCharts(
     tooltip: { theme: isDark ? "dark" : "light" },
   };
 
+  const priorityCounts = AnalyticsAdapter.generatePriorityCounts(tasks);
+  const priorityChartOptions = {
+    series: priorityCounts,
+    labels: ["Low", "Medium", "High"],
+    chart: {
+      id: "priority-donut",
+      type: "donut",
+      height: 400,
+      fontFamily: "inherit",
+    },
+    colors: ["#9ae600da", "#ffb900da", "#ff6467da"],
+    stroke: {
+      colors: [isDark ? "#1e293b" : "#ffffff"],
+      width: 2,
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "0%",
+          labels: {
+            show: false,
+            value: {
+              show: false,
+            },
+          },
+        },
+      },
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      labels: {
+        colors: axisTextColor,
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 5,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return Math.round(val) + "%";
+      },
+    },
+    tooltip: {
+      theme: isDark ? "dark" : "light",
+      y: {
+        formatter: (val) => `${val} tasks`,
+      },
+    },
+  };
+
+  const statusCounts = AnalyticsAdapter.generateStatusCounts(tasks);
+  const statusChartOptions = {
+    series: statusCounts,
+    labels: ["To Do", "In Progress", "Done", "Blocked"],
+    chart: {
+      id: "status-donut",
+      type: "donut",
+      height: 400,
+      fontFamily: "inherit",
+    },
+    colors: ["#00bcffda", "#ff8904da", "#00d492da", "#fb64b6da"],
+    stroke: {
+      colors: [isDark ? "#1e293b" : "#ffffff"],
+      width: 2,
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "0%",
+          labels: {
+            show: false,
+            value: {
+              show: false,
+            },
+          },
+        },
+      },
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      labels: {
+        colors: axisTextColor,
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 5,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return Math.round(val) + "%";
+      },
+    },
+    tooltip: {
+      theme: isDark ? "dark" : "light",
+      y: {
+        formatter: (val) => `${val} tasks`,
+      },
+    },
+  };
+
+  const tagData = AnalyticsAdapter.generateTagAnalytics(tasks);
+
+  const tagChartOptions = {
+    series: [
+      {
+        name: "Total Tasks",
+        data: tagData.totalSeries,
+      },
+      {
+        name: "Completed Tasks",
+        data: tagData.completedSeries,
+      },
+    ],
+    chart: {
+      id: "tag-performance-bar",
+      type: "bar",
+      height: 400,
+      fontFamily: "inherit",
+      toolbar: { show: false },
+    },
+    colors: ["#00bcff", "#10b981"],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "60%",
+        borderRadius: 4,
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ["transparent"],
+    },
+    xaxis: {
+      categories:
+        tagData.categories.length > 0 ? tagData.categories : ["No Tags"],
+      labels: {
+        style: {
+          colors: axisTextColor,
+          fontSize: "12px",
+          fontWeight: 600,
+        },
+        rotateAlways: true,
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: axisTextColor, fontSize: "11px" },
+      },
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "center",
+      labels: { colors: axisTextColor },
+    },
+    grid: {
+      borderColor: isDark ? "#334155" : "#e2e8f0",
+      strokeDashArray: 4,
+    },
+    tooltip: {
+      theme: isDark ? "dark" : "light",
+      y: {
+        formatter: (val, { seriesIndex, dataPointIndex }) => {
+          if (seriesIndex === 1) {
+            const rate = tagData.progressRates[dataPointIndex] || 0;
+            return `${val} completed (${rate}% rate)`;
+          }
+          return `${val} tasks`;
+        },
+      },
+    },
+  };
+
   // Mount ApexCharts
   const heatmapEl = document.getElementById("apex-heatmap-chart");
   const barEl = document.getElementById("apex-weekday-chart");
+  const priorityEl = document.getElementById("apex-priority-chart");
+  const statusEl = document.getElementById("apex-status-chart");
+  const tagEl = document.getElementById("apex-tag-chart");
+  const tagDeskEl = document.getElementById("apex-tag-chart-desktop");
 
   if (heatmapEl) {
     heatmapChartInstance = new ApexCharts(heatmapEl, heatmapOptions);
@@ -302,6 +504,26 @@ export function renderAnalyticsCharts(
   if (barEl) {
     barChartInstance = new ApexCharts(barEl, barChartOptions);
     barChartInstance.render();
+  }
+
+  if (priorityEl) {
+    priorityChartInstance = new ApexCharts(priorityEl, priorityChartOptions);
+    priorityChartInstance.render();
+  }
+
+  if (statusEl) {
+    statusChartInstance = new ApexCharts(statusEl, statusChartOptions);
+    statusChartInstance.render();
+  }
+
+  if (tagEl) {
+    tagChartInstance = new ApexCharts(tagEl, tagChartOptions);
+    tagChartInstance.render();
+  }
+
+  if (tagDeskEl) {
+    tagChartInstance = new ApexCharts(tagDeskEl, tagChartOptions);
+    tagChartInstance.render();
   }
 
   // Sync tab slider position in next frame after DOM calculation

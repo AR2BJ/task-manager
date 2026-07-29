@@ -21,14 +21,6 @@ export const DashboardComponent = {
       (t) => t.status === "blocked",
     ).length;
 
-    const DoneCount = activeTasks.filter((t) => t.status === "done").length;
-
-    const inProgressCount = activeTasks.filter(
-      (t) => t.status === "in_progress",
-    ).length;
-
-    const todoCount = activeTasks.filter((t) => t.status === "todo").length;
-
     const overdueCount = activeTasks.filter((t) =>
       isOverdue(t.dueDate, t.status),
     ).length;
@@ -64,15 +56,79 @@ export const DashboardComponent = {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
 
+    const topTag = sortedTags.length > 0 ? sortedTags[0] : ["None", 0];
+    const topTagPercentage =
+      activeCount > 0 ? Math.round((topTag[1] / activeCount) * 100) : 0;
+
+    const criticalTasks = activeTasks.filter(
+      (t) => t.status !== "done" && t.priority === "high",
+    );
+    const criticalCount = criticalTasks.length;
+
+    const nearDeadlineCritical = criticalTasks.filter((t) => {
+      if (!t.dueDate) return false;
+      const days = getDaysRemaining(t.dueDate);
+      return days >= 0 && days <= 2;
+    }).length;
+
+    const unscheduledCount = activeTasks.filter(
+      (t) => t.status !== "done" && !t.dueDate,
+    ).length;
+    const unscheduledRate =
+      activeCount > 0 ? Math.round((unscheduledCount / activeCount) * 100) : 0;
+
+    const blockedRatio =
+      activeCount > 0 ? Math.round((BlockedCount / activeCount) * 100) : 0;
+
     return `
       <div
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full col-span-full"
       >
         <div
-          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-brand/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-yellow-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
         >
           <i
-            class="fa-solid fa-layer-group absolute -right-4 -bottom-6 text-[10rem] text-brand opacity-[0.04] dark:opacity-[0.06] rotate-20 pointer-events-none group-hover:scale-110 group-hover:rotate-10 transition-transform duration-500"
+            class="fa-solid fa-triangle-exclamation absolute -right-4 -bottom-6 text-[10rem] text-yellow-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
+          ></i>
+          <div class="flex items-center justify-between z-10">
+            <span
+              class="text-xs font-bold text-secondary uppercase tracking-wider"
+            >
+              Priority Risk
+            </span>
+            <span
+              class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${
+                criticalCount > 0
+                  ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse"
+                  : "bg-surface text-secondary"
+              }"
+            >
+              ${
+                nearDeadlineCritical > 0
+                  ? `${nearDeadlineCritical} Due Soon`
+                  : "At Risk"
+              }
+            </span>
+          </div>
+          <div class="z-10 mt-3">
+            <div
+              class="text-3xl font-black ${
+                criticalCount > 0 ? "text-yellow-400" : "text-primary"
+              } tracking-tight"
+            >
+              ${criticalCount}
+            </div>
+            <p class="text-[11px] text-secondary/80 font-medium mt-1">
+              High/Critical active items
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-purple-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+        >
+          <i
+            class="fa-solid fa-layer-group absolute -right-4 -bottom-6 text-[10rem] text-purple-500 opacity-[0.04] dark:opacity-[0.06] rotate-20 pointer-events-none group-hover:scale-110 group-hover:rotate-10 transition-transform duration-500"
           ></i>
           <div class="flex items-center justify-between z-10">
             <span
@@ -80,7 +136,7 @@ export const DashboardComponent = {
               >Total Tasks</span
             >
             <span
-              class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-brand/10 text-brand border border-brand/20"
+              class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20"
               >${activeCount} Active</span
             >
           </div>
@@ -90,27 +146,7 @@ export const DashboardComponent = {
             </div>
             <div
               class="flex items-center gap-3 text-[11px] text-secondary/80 font-medium mt-1"
-            >
-              <span
-                ><strong class="text-red-400">${BlockedCount}</strong>&nbsp;
-                Blocked</span
-              >
-              <span>•</span>
-              <span
-                ><strong class="text-emerald-400">${DoneCount}</strong>&nbsp;
-                Done</span
-              >
-              <span>•</span>
-              <span
-                ><strong class="text-amber-400">${inProgressCount}</strong
-                >&nbsp; In Progress</span
-              >
-              <span>•</span>
-              <span
-                ><strong class="text-brand">${todoCount}</strong>&nbsp; To
-                Do</span
-              >
-            </div>
+            ></div>
           </div>
         </div>
 
@@ -135,7 +171,7 @@ export const DashboardComponent = {
               ${overallCompletionRate}%
             </div>
             <div
-              class="w-full h-1.5 bg-surface-1 rounded-full overflow-hidden mt-2"
+              class="w-1/4 h-1.5 bg-surface rounded-full overflow-hidden mt-2"
             >
               <div
                 class="h-full bg-emerald-500 transition-all duration-500"
@@ -146,10 +182,10 @@ export const DashboardComponent = {
         </div>
 
         <div
-          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-rose-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-orange-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
         >
           <i
-            class="fa-solid fa-alarm-exclamation absolute -right-4 -bottom-6 text-[10rem] text-rose-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
+            class="fa-solid fa-alarm-exclamation absolute -right-4 -bottom-6 text-[10rem] text-orange-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
           ></i>
           <div class="flex items-center justify-between z-10">
             <span
@@ -159,8 +195,8 @@ export const DashboardComponent = {
             <span
               class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${
                 overdueCount > 0
-                  ? "bg-rose-500/10 text-rose-400 border border-rose-500/20 animate-pulse"
-                  : "bg-surface-1 text-secondary"
+                  ? "bg-orange-500/10 text-orange-400 border border-orange-500/20 animate-pulse"
+                  : "bg-surface text-secondary"
               }"
             >
               ${overdueCount > 0 ? "Action Needed" : "All Clear"}
@@ -169,7 +205,7 @@ export const DashboardComponent = {
           <div class="z-10 mt-3">
             <div
               class="text-3xl font-black ${
-                overdueCount > 0 ? "text-rose-400" : "text-primary"
+                overdueCount > 0 ? "text-orange-400" : "text-primary"
               } tracking-tight"
             >
               ${overdueCount}
@@ -185,10 +221,10 @@ export const DashboardComponent = {
         </div>
 
         <div
-          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-amber-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-indigo-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
         >
           <i
-            class="fa-solid fa-list-check absolute -right-4 -bottom-6 text-[10rem] text-amber-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
+            class="fa-solid fa-list-check absolute -right-4 -bottom-6 text-[10rem] text-indigo-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
           ></i>
           <div class="flex items-center justify-between z-10">
             <span
@@ -196,7 +232,7 @@ export const DashboardComponent = {
               >Subtask Velocity</span
             >
             <span
-              class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20"
+              class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
               >${completedSubtasks}/${totalSubtasks} Units</span
             >
           </div>
@@ -206,6 +242,96 @@ export const DashboardComponent = {
             </div>
             <p class="text-[11px] text-secondary/80 font-medium mt-1">
               Micro-execution lifecycle progress
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-blue-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+        >
+          <i
+            class="fa-solid fa-calendar-xmark absolute -right-4 -bottom-6 text-[10rem] text-blue-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
+          ></i>
+          <div class="flex items-center justify-between z-10">
+            <span
+              class="text-xs font-bold text-secondary uppercase tracking-wider"
+              >Unscheduled Rate</span
+            >
+            <span
+              class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20"
+              >${unscheduledRate}% Backlog</span
+            >
+          </div>
+          <div class="z-10 mt-3">
+            <div class="text-3xl font-black text-primary tracking-tight">
+              ${unscheduledCount}
+            </div>
+            <p class="text-[11px] text-secondary/80 font-medium mt-1">
+              Active tasks without target deadline
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-red-500/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+        >
+          <i
+            class="fa-solid fa-ban absolute -right-4 -bottom-6 text-[10rem] text-red-500 opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
+          ></i>
+          <div class="flex items-center justify-between z-10">
+            <span
+              class="text-xs font-bold text-secondary uppercase tracking-wider"
+              >Blocked Ratio</span
+            >
+            <span
+              class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${
+                BlockedCount > 0
+                  ? "bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse"
+                  : "bg-surface text-secondary"
+              }"
+            >
+              ${blockedRatio}% Bottleneck
+            </span>
+          </div>
+          <div class="z-10 mt-3">
+            <div
+              class="text-3xl font-black ${
+                BlockedCount > 0 ? "text-red-400" : "text-primary"
+              } tracking-tight"
+            >
+              ${BlockedCount}
+            </div>
+            <p class="text-[11px] text-secondary/80 font-medium mt-1">
+              Impeded tasks requiring resolution
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="col-span-2 md:col-span-1 relative overflow-hidden bg-surface-2 border border-border/70 hover:-translate-y-1 hover:border-brand/30 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between min-h-36 group"
+        >
+          <i
+            class="fa-solid fa-tags absolute -right-4 -bottom-6 text-[10rem] text-brand opacity-[0.04] dark:opacity-[0.06] rotate-15 pointer-events-none group-hover:scale-110 group-hover:rotate-5 transition-transform duration-500"
+          ></i>
+          <div class="flex items-center justify-between z-10">
+            <span
+              class="text-xs font-bold text-secondary uppercase tracking-wider"
+              >Domain Focus</span
+            >
+            <span
+              class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-brand/10 text-brand border border-brand/20"
+              >${topTagPercentage}% Concentration</span
+            >
+          </div>
+          <div class="z-10 mt-3">
+            <div
+              class="text-2xl font-black text-brand tracking-tight truncate max-w-45"
+              title="${topTag[0]}"
+            >
+              <i class="fa-regular fa-tag text-base mr-2"></i>${topTag[0]}
+            </div>
+            <p class="text-[11px] text-secondary/80 font-medium mt-1">
+              Leading focus area (${topTag[1]} tasks)
             </p>
           </div>
         </div>
@@ -247,19 +373,19 @@ export const DashboardComponent = {
                 >
                   <button
                     data-view="weekly"
-                    class="w-full px-4 py-2.5 text-left text-xs font-medium text-secondary hover:bg-surface-1"
+                    class="w-full px-4 py-2.5 text-left text-xs font-medium text-secondary hover:bg-surface"
                   >
                     Weekly
                   </button>
                   <button
                     data-view="monthly"
-                    class="w-full px-4 py-2.5 text-left text-xs font-medium text-secondary hover:bg-surface-1"
+                    class="w-full px-4 py-2.5 text-left text-xs font-medium text-secondary hover:bg-surface"
                   >
                     Monthly
                   </button>
                   <button
                     data-view="yearly"
-                    class="w-full px-4 py-2.5 text-left text-xs font-medium text-secondary hover:bg-surface-1"
+                    class="w-full px-4 py-2.5 text-left text-xs font-medium text-secondary hover:bg-surface"
                   >
                     Yearly
                   </button>
@@ -267,7 +393,7 @@ export const DashboardComponent = {
 
                 <div
                   id="chart-view-switcher"
-                  class="hidden sm:flex relative overflow-hidden rounded-xl border border-border/80 bg-surface-1 p-1 isolation-auto"
+                  class="hidden sm:flex relative overflow-hidden rounded-xl border border-border/80 bg-surface p-1 isolation-auto"
                 >
                   <div
                     id="heatmap-tab-indicator"
@@ -327,34 +453,128 @@ export const DashboardComponent = {
             </div>
 
             <div
-              id="apex-weekday-chart"
-              class="w-full mt-4"
-            ></div>
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+            >
+              <div
+                id="apex-weekday-chart"
+                class="w-full mt-4"
+              ></div>
+            </div>
+          </div>
+        </div>
 
-            ${
-              sortedTags.length > 0
-                ? `
-                    <div class="mt-4 pt-4 border-t border-border/50">
-                      <span
-                        class="text-[11px] font-bold uppercase text-secondary tracking-wider block mb-2"
-                        >Top Active Tags</span
-                      >
-                      <div class="flex flex-wrap gap-1.5">
-                        ${sortedTags
-                          .map(
-                            ([tag, count]) => `
-                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-surface-1 border border-border/60 text-[10px] text-primary font-medium">
-                      <span class="text-brand font-bold">#${tag}</span>
-                      <span class="px-1.5 py-0.2 rounded-full bg-surface-2 text-secondary font-mono">${count}</span>
-                    </span>
-                  `,
-                          )
-                          .join("")}
-                      </div>
-                    </div>
-                  `
-                : ""
-            }
+        <div
+          class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-3 gap-6 w-full col-span-full mt-2"
+        >
+          <div
+            class="col-span-4 lg:col-span-2 xl:col-span-1 bg-surface-2 border border-border/70 rounded-2xl p-6 flex flex-col justify-between"
+          >
+            <div>
+              <h4
+                class="text-lg font-bold text-primary flex items-center gap-2"
+              >
+                <i class="fa-regular fa-arrow-down-small-big text-amber-400 text-xl"></i>
+                Priority Breakdown
+              </h4>
+              <p class="text-xs text-secondary mt-1">
+                Task distribution by priority level (Low, Medium, High).
+              </p>
+            </div>
+
+            <div
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+            >
+              <div
+                id="apex-priority-chart"
+                class="w-full mt-4 flex justify-center overflow-hidden"
+              ></div>
+            </div>
+          </div>
+
+          <div
+            class="bg-surface-2 border border-border/70 rounded-2xl p-6 hidden xl:flex flex-col justify-between"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div>
+                <h4
+                  class="text-lg font-bold text-primary flex items-center gap-2"
+                >
+                  <i class="fa-regular fa-tags text-sky-400 text-xl"></i>
+                  Tag Performance & Completion Velocity
+                </h4>
+                <p class="text-xs text-secondary mt-1">
+                  Analysis of tag usage frequency alongside task completion
+                  rates across domain areas.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+            >
+              <div
+                id="apex-tag-chart"
+                class="w-full mt-4 flex justify-center overflow-hidden"
+              ></div>
+            </div>
+          </div>
+
+          <div
+            class="col-span-4 lg:col-span-2 xl:col-span-1 bg-surface-2 border border-border/70 rounded-2xl p-6 flex flex-col justify-between"
+          >
+            <div>
+              <h4
+                class="text-lg font-bold text-primary flex items-center gap-2"
+              >
+                <i class="fa-regular fa-bar-progress text-emerald-400 text-xl"></i>
+                Status Breakdown
+              </h4>
+              <p class="text-xs text-secondary mt-1">
+                Task distribution by current status (To Do, In Progress, Done,
+                Blocked).
+              </p>
+            </div>
+
+            <div
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+            >
+              <div
+                id="apex-status-chart"
+                class="w-full mt-4 flex justify-center overflow-hidden"
+              ></div>
+            </div>
+          </div>
+
+          <div
+            class="col-span-4 bg-surface-2 border border-border/70 rounded-2xl p-6 xl:hidden flex flex-col justify-center"
+          >
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div>
+                <h4
+                  class="text-lg font-bold text-primary flex items-center gap-2"
+                >
+                  <i class="fa-regular fa-tags text-sky-400 text-xl"></i>
+                  Tag Performance & Completion Velocity
+                </h4>
+                <p class="text-xs text-secondary mt-1">
+                  Analysis of tag usage frequency alongside task completion
+                  rates across domain areas.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+            >
+              <div
+                id="apex-tag-chart-desktop"
+                class="w-full mt-4 flex justify-center overflow-hidden"
+              ></div>
+            </div>
           </div>
         </div>
 
@@ -362,69 +582,105 @@ export const DashboardComponent = {
           class="w-full col-span-full mt-4 bg-surface-2 border border-border/70 rounded-2xl p-6"
         >
           <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+            class="w-full col-span-full mt-4 bg-surface-2 border border-border/70 rounded-2xl p-6"
           >
-            <div>
-              <h4
-                class="text-lg font-bold text-primary flex items-center gap-2"
-              >
-                <i class="fa-regular fa-sliders text-brand text-xl"></i>
-                Task-Level Execution & Subtask Progress
-              </h4>
-              <p class="text-xs text-secondary/80 mt-0.5 font-medium">
-                Granular view of active work items, subtask ratios, and
-                milestone health.
-              </p>
-            </div>
-            <span
-              class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-surface-1 border border-border text-secondary self-start sm:self-auto"
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
             >
-              ${activeCount} Active Tracked (${archivedCount} Archived)
-            </span>
-          </div>
+              <div>
+                <h4
+                  class="text-lg font-bold text-primary flex items-center gap-2"
+                >
+                  <i class="fa-regular fa-sliders text-brand text-xl"></i>
+                  Task-Level Execution & Subtask Progress
+                </h4>
+                <p class="text-xs text-secondary/80 mt-0.5 font-medium">
+                  Granular view of active work items, subtask ratios, and
+                  milestone health.
+                </p>
+              </div>
+              <span
+                class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-surface border border-border text-secondary self-start sm:self-auto"
+              >
+                ${activeCount} Active Tracked (${archivedCount} Archived)
+              </span>
+            </div>
 
-          <div class="mt-6 space-y-3">
-            ${
-              tasks.length === 0
-                ? `
+            <div class="mt-6 space-y-3">
+              ${
+                tasks.length === 0
+                  ? `
                     <div
-                      class="text-center py-12 text-secondary text-sm bg-surface-1 rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2"
+                      class="text-center py-12 text-secondary text-sm bg-surface rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2"
                     >
                       <i class="fa-regular fa-box-open text-3xl opacity-30"></i>
                       <span>No tasks found in repository.</span>
                     </div>
                   `
-                : tasks
-                    .map((task) => {
-                      const subtaskInfo = calculateSubtaskProgress(
-                        task.subtasks,
-                      );
-                      const daysRemaining = getDaysRemaining(task.dueDate);
-                      const overdue = isOverdue(task.dueDate, task.status);
+                  : tasks
+                      .map((task) => {
+                        const subtaskInfo = calculateSubtaskProgress(
+                          task.subtasks,
+                        );
+                        const daysRemaining = getDaysRemaining(task.dueDate);
+                        const overdue = isOverdue(task.dueDate, task.status);
 
-                      let dueBadge = `<span class="text-secondary/60">No due date</span>`;
-                      if (task.dueDate) {
-                        if (overdue) {
-                          dueBadge = `<span class="text-rose-400 font-bold"><i class="fa-regular fa-clock me-1"></i>Overdue (${Math.abs(daysRemaining)}d)</span>`;
-                        } else if (daysRemaining === 0) {
-                          dueBadge = `<span class="text-amber-400 font-bold"><i class="fa-regular fa-clock me-1"></i>Due Today</span>`;
-                        } else {
-                          dueBadge = `<span class="text-secondary"><i class="fa-regular fa-calendar me-1"></i>${daysRemaining}d left</span>`;
+                        const subtaskProgressColor =
+                          subtaskInfo.percentage === 100
+                            ? "bg-emerald-500/80"
+                            : subtaskInfo.percentage <= 65 &&
+                                subtaskInfo.percentage >= 35
+                              ? "bg-amber-500/80"
+                              : subtaskInfo.percentage <= 35 &&
+                                  subtaskInfo.percentage > 0
+                                ? "bg-red-500/80"
+                                : subtaskInfo.percentage === 0
+                                  ? "bg-slate-500/80"
+                                  : "bg-brand/80";
+
+                        const subtaskPercentColor =
+                          subtaskInfo.percentage === 100
+                            ? "text-emerald-500/80"
+                            : subtaskInfo.percentage <= 65 &&
+                                subtaskInfo.percentage >= 35
+                              ? "text-amber-500/80"
+                              : subtaskInfo.percentage <= 35 &&
+                                  subtaskInfo.percentage > 0
+                                ? "text-red-500/80"
+                                : subtaskInfo.percentage === 0
+                                  ? "text-slate-500/80"
+                                  : "text-brand/80";
+
+                        let dueBadge = `<span class="text-secondary/60">No due date</span>`;
+                        if (task.dueDate) {
+                          if (overdue) {
+                            dueBadge = `<span class="text-rose-400 font-bold"><i class="fa-regular fa-clock me-1"></i>Overdue (${Math.abs(daysRemaining)}d)</span>`;
+                          } else if (daysRemaining === 0) {
+                            dueBadge = `<span class="text-amber-400 font-bold"><i class="fa-regular fa-clock me-1"></i>Due Today</span>`;
+                          } else {
+                            dueBadge = `<span class="text-secondary"><i class="fa-regular fa-calendar me-1"></i>${daysRemaining}d left</span>`;
+                          }
                         }
-                      }
 
-                      const statusBadgeStyles = {
-                        todo: "bg-surface-1 text-secondary border-border/60",
-                        in_progress:
-                          "bg-blue-500/10 text-blue-400 border-blue-500/20",
-                        done: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                        blocked:
-                          "bg-rose-500/10 text-rose-400 border-rose-500/20",
-                      };
+                        const priorityBadgeStyles = {
+                          low: "bg-lime-500/10 text-lime-400 border-lime-500/20",
+                          medium:
+                            "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                          high: "bg-red-500/10 text-red-400 border-red-500/20",
+                        };
 
-                      return `
+                        const statusBadgeStyles = {
+                          todo: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+                          in_progress:
+                            "bg-orange-500/10 text-orange-400 border-orange-500/20",
+                          done: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                          blocked:
+                            "bg-pink-500/10 text-pink-400 border-pink-500/20",
+                        };
+
+                        return `
                         <div
-                          class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface-1/80 hover:bg-surface-1 p-4 rounded-xl border border-border/40 transition"
+                          class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface/80 hover:bg-surface p-4 rounded-xl border border-border/40 transition"
                         >
                           <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                             <div class="flex items-center gap-2 flex-wrap">
@@ -440,7 +696,10 @@ export const DashboardComponent = {
                               ${
                                 task.priority
                                   ? `
-                                <span class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider bg-surface-2 text-secondary border border-border/50">
+                                <span class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${
+                                  priorityBadgeStyles[task.priority] ||
+                                  priorityBadgeStyles.low
+                                }">
                                   ${task.priority}
                                 </span>
                               `
@@ -473,7 +732,7 @@ export const DashboardComponent = {
                                 (task.tags || []).length > 0
                                   ? `
                                 <div class="flex items-center gap-1">
-                                  <i class="fa-regular fa-hashtag text-[10px] opacity-60"></i>
+                                  <i class="fa-regular fa-tag text-[10px] opacity-60"></i>
                                   <span>${task.tags.join(", ")}</span>
                                 </div>
                               `
@@ -492,7 +751,7 @@ export const DashboardComponent = {
                                 <span class="text-secondary font-medium"
                                   >Subtasks</span
                                 >
-                                <span class="font-mono font-bold text-primary"
+                                <span class="font-mono font-bold ${subtaskPercentColor}"
                                   >${subtaskInfo.completedCount}/${subtaskInfo.totalCount}
                                   (${subtaskInfo.percentage}%)</span
                                 >
@@ -501,7 +760,7 @@ export const DashboardComponent = {
                                 class="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden"
                               >
                                 <div
-                                  class="h-full bg-brand transition-all duration-300"
+                                  class="h-full ${subtaskProgressColor} transition-all duration-300"
                                   style="width: ${subtaskInfo.percentage}%"
                                 ></div>
                               </div>
@@ -520,9 +779,10 @@ export const DashboardComponent = {
                           </div>
                         </div>
                       `;
-                    })
-                    .join("")
-            }
+                      })
+                      .join("")
+              }
+            </div>
           </div>
         </div>
       </div>

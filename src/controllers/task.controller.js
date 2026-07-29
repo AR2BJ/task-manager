@@ -119,7 +119,7 @@ export const TaskController = {
           {
             value: "status",
             label: "Status",
-            icon: "fa-regular fa-arrow-progress text-amber-400",
+            icon: "fa-regular fa-bar-progress text-amber-400",
           },
           {
             value: "createdAt",
