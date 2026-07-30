@@ -603,7 +603,6 @@ export const TaskController = {
     window.currentThemeListener = () => {
       const allTasks = StateManager.getTasks();
       AnalyticsController.dispatchRender(allTasks);
-      MatrixController.dispatchRender();
     };
     document.addEventListener("themeChanged", window.currentThemeListener);
   },
