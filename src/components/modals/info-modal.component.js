@@ -13,6 +13,11 @@ export const HELP_SHORTCUTS = [
         keys: [["Shift"], ["A"]],
       },
       {
+        label: "Go to Matrix Priorities",
+        icon: "fa-table-cells",
+        keys: [["Shift"], ["M"]],
+      },
+      {
         label: "Go to App Settings",
         icon: "fa-sliders",
         keys: [["Shift"], ["S"]],
@@ -91,51 +96,58 @@ export const InfoModalComponent = {
     return Object.entries(HELP_SHORTCUTS)
       .map(
         ([_, group]) => `
-      <div class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 first:mt-0 mb-1.5 pl-1">
-        ${group.category}
-      </div>
-      ${group.items
-        .map(
-          (item) => `
-            <div
-              class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
-            >
-              <span
-                data-tooltip-title="${item.label}"
-                class="text-xs sm:text-sm font-semibold text-secondary block md:hidden items-center gap-2 truncate cursor-pointer"
-              >
-                <i class="fa-regular ${item.icon} text-muted"></i> ${item.label}
-              </span>
-              <span
-                class="text-xs sm:text-sm font-semibold text-secondary hidden md:flex items-center gap-2"
-              >
-                <i class="fa-regular ${item.icon} text-muted"></i> ${item.label}
-              </span>
-              <div class="flex items-center gap-1 shrink-0">
-                ${item.keys
-                  .map(
-                    (keyGroup) => `
-                      <div class="flex items-center gap-0.5">
-                        ${keyGroup
-                          .map(
-                            (key) =>
-                              `<kbd class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md">${key}</kbd>`,
-                          )
-                          .join(
-                            '<span class="text-[9px] font-bold text-muted/60"><i class="fa-regular fa-slash-forward"></i></span>',
-                          )}
-                      </div>
-                    `,
-                  )
-                  .join(
-                    '<span class="text-[9px] font-bold text-muted/60"><i class="fa-regular fa-plus"></i></span>',
-                  )}
-              </div>
-            </div>
-          `,
-        )
-        .join("")}
-    `,
+          <div
+            class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 first:mt-0 mb-1.5 pl-1"
+          >
+            ${group.category}
+          </div>
+          ${group.items
+            .map(
+              (item) => `
+                <div
+                  class="flex items-center justify-between p-2.5 sm:p-3 bg-surface-2/60 border border-border/50 rounded-xl hover:border-border transition gap-2"
+                >
+                  <span
+                    data-tooltip-title="${item.label}"
+                    class="text-xs sm:text-sm font-semibold text-secondary block md:hidden items-center gap-2 truncate cursor-pointer"
+                  >
+                    <i class="fa-regular ${item.icon} text-muted"></i>
+                    ${item.label}
+                  </span>
+                  <span
+                    class="text-xs sm:text-sm font-semibold text-secondary hidden md:flex items-center gap-2"
+                  >
+                    <i class="fa-regular ${item.icon} text-muted"></i>
+                    ${item.label}
+                  </span>
+                  <div class="flex items-center gap-1 shrink-0">
+                    ${item.keys
+                      .map(
+                        (keyGroup) => `
+                          <div class="flex items-center gap-0.5">
+                            ${keyGroup
+                              .map(
+                                (key) =>
+                                  `<kbd
+                                    class="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-mono font-bold text-primary bg-surface border border-border shadow-2xs rounded-md"
+                                    >${key}</kbd
+                                  >`,
+                              )
+                              .join(
+                                '<span class="text-[9px] font-bold text-muted/60"><i class="fa-regular fa-slash-forward"></i></span>',
+                              )}
+                          </div>
+                        `,
+                      )
+                      .join(
+                        '<span class="text-[9px] font-bold text-muted/60"><i class="fa-regular fa-plus"></i></span>',
+                      )}
+                  </div>
+                </div>
+              `,
+            )
+            .join("")}
+        `,
       )
       .join("");
   },
@@ -183,7 +195,7 @@ export const InfoModalComponent = {
           </div>
 
           <div
-            class="flex flex-col md:flex-row border-b md:border-b-0 border-border/60 p-1 bg-surface-2 rounded-xl mb-4 sm:mb-5 shrink-0 gap-1.5"
+            class="flex flex-wrap sm:flex-nowrap border-b md:border-b-0 border-border/60 p-1 bg-surface-2 rounded-xl mb-4 sm:mb-5 shrink-0 gap-1.5"
           >
             <button
               id="tab-help-safeguard"
@@ -289,7 +301,7 @@ export const InfoModalComponent = {
             >
             <button
               id="btn-close-help"
-              class="w-full sm:w-auto px-6 py-2.5 text-xs sm:text-sm rounded-lg lg:rounded-xl bg-brand/80 text-white font-semibold hover:bg-(--color-brand-hover) transition cursor-pointer shadow-lg shadow-brand/10"
+              class="w-full sm:w-auto px-6 py-2.5 text-xs sm:text-sm rounded-lg lg:rounded-xl bg-brand/80 text-white font-semibold hover:bg-brand/50 transition cursor-pointer shadow-lg shadow-brand/10"
               >
               Got it, Thanks!
             </button>

@@ -41,8 +41,7 @@ export const TaskItemComponent = {
       medium: "border-amber-500/20 bg-amber-500/10 text-amber-500/80",
       high: "border-red-500/20 bg-red-500/10 text-red-500/80",
     };
-    const priorityClass =
-      priorityStyles[task.priority] || priorityStyles.low;
+    const priorityClass = priorityStyles[task.priority] || priorityStyles.low;
 
     const statusStyles = {
       todo: "border-sky-500/20 bg-sky-500/10 text-sky-500/80",
@@ -98,24 +97,30 @@ export const TaskItemComponent = {
           class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         >
           <div
-            class="flex flex-col sm:flex-row justify-start items-start gap-3 min-w-0 flex-1"
+            class="flex flex-wrap sm:flex-nowrap justify-start items-start gap-3 min-w-0 flex-1"
           >
             <div class="relative shrink-0">
               ${
                 isArchived
                   ? ""
                   : `
-                <button
-                  data-id="${task.id}"
-                  class="toggle-btn w-9 h-9 shrink-0 rounded-lg border-2 flex items-center justify-center transition peer hover:cursor-pointer ${
-                    isCompleted
-                      ? "bg-brand/80 border-brand/80 text-(--color-btn-primary-text) shadow-lg shadow-brand/20"
-                      : "border-border text-secondary hover:border-brand/80 hover:text-brand/80"
-                  }"
-                >
-                  <i class="fa-regular ${isCompleted ? "fa-check text-sm md:text-base font-bold" : "fa-square text-sm"}"></i>
-                </button>
-              `
+                      <button
+                        data-id="${task.id}"
+                        class="toggle-btn w-9 h-9 shrink-0 rounded-lg border-2 flex items-center justify-center transition peer hover:cursor-pointer ${
+                          isCompleted
+                            ? "bg-brand/80 border-brand/80 text-(--color-btn-primary-text) shadow-lg shadow-brand/20"
+                            : "border-border text-secondary hover:border-brand/80 hover:text-brand/80"
+                        }"
+                      >
+                        <i
+                          class="fa-regular ${
+                            isCompleted
+                              ? "fa-check text-sm md:text-base font-bold"
+                              : "fa-square text-sm"
+                          }"
+                        ></i>
+                      </button>
+                    `
               }
               <div
                 class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-surface-2 text-xs text-primary opacity-0 cursor-default peer-hover:opacity-100 transition z-10 whitespace-nowrap pointer-events-none border border-border/60"
@@ -124,7 +129,7 @@ export const TaskItemComponent = {
               </div>
             </div>
 
-            <div class="flex flex-col min-w-0 w-full gap-1.5">
+            <div class="flex flex-col min-w-0 w-full gap-1.5 pe-12">
               <div class="flex items-center gap-2 flex-wrap">
                 <span
                   class="inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold tracking-wider ${priorityClass}"
@@ -142,11 +147,13 @@ export const TaskItemComponent = {
                 ${(task.tags || [])
                   .map(
                     (tag) => `
-                    <span class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-secondary tracking-wider">
-                      <i class="fa-regular fa-tag"></i>
-                      ${tag}
-                    </span>
-                  `,
+                      <span
+                        class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-secondary tracking-wider"
+                      >
+                        <i class="fa-regular fa-tag"></i>
+                        ${tag}
+                      </span>
+                    `,
                   )
                   .join("")}
               </div>
@@ -161,7 +168,11 @@ export const TaskItemComponent = {
 
               ${
                 task.description
-                  ? `<p class="text-xs lg:text-sm text-secondary/90 leading-relaxed wrap-break-word">${task.description}</p>`
+                  ? `<p
+                      class="text-xs lg:text-sm text-secondary/90 leading-relaxed wrap-break-word"
+                    >
+                      ${task.description}
+                    </p>`
                   : ""
               }
 
@@ -172,7 +183,10 @@ export const TaskItemComponent = {
                 >
                 ${
                   task.completedAt
-                    ? `<span class="text-emerald-500/80"><i class="fa-regular fa-circle-check me-1"></i>Completed ${task.completedAt}</span>`
+                    ? `<span class="text-emerald-500/80"
+                        ><i class="fa-regular fa-circle-check me-1"></i
+                        >Completed ${task.completedAt}</span
+                      >`
                     : ""
                 }
               </div>
@@ -292,39 +306,58 @@ export const TaskItemComponent = {
         ${
           hasSubtasks
             ? `
-            <div class="mt-2 border-t border-border/60 pt-2">
-              <button
-                type="button"
-                data-task-id="${task.id}"
-                class="toggle-subtasks-btn w-full flex flex-col sm:flex-row items-center justify-between gap-5 p-2 rounded-md hover:bg-surface-3/40 transition cursor-pointer group/sub-hdr text-left"
-              >
-                <div class="w-full sm:w-fit flex justify-center xs:justify-start items-center gap-2">
-                  <i class="fa-regular fa-list-check text-brand/80"></i> 
-                  <span class="text-[11px] sm:text-xs font-bold text-secondary group-hover/sub-hdr:text-primary transition">
-                    Subtasks (${subtaskProgress.completedCount}/${subtaskProgress.totalCount})
-                  </span>
-                </div>
+                <div class="mt-2 border-t border-border/60 pt-2">
+                  <button
+                    type="button"
+                    data-task-id="${task.id}"
+                    class="toggle-subtasks-btn w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-5 p-2 rounded-md hover:bg-surface-3/40 transition cursor-pointer group/sub-hdr text-left"
+                  >
+                    <div
+                      class="w-full sm:w-fit flex justify-center xs:justify-start items-center gap-2"
+                    >
+                      <i class="fa-regular fa-list-check text-brand/80"></i>
+                      <span
+                        class="text-[11px] sm:text-xs font-bold text-secondary group-hover/sub-hdr:text-primary transition"
+                      >
+                        Subtasks
+                        (${subtaskProgress.completedCount}/${subtaskProgress.totalCount})
+                      </span>
+                    </div>
 
-                <div class="w-full sm:w-fit flex items-center gap-3">
-                  <div class="w-full sm:w-32 h-1.5 rounded-full bg-surface-2 overflow-hidden">
-                    <div class="h-full ${subtaskProgressColor} transition-all duration-300" style="width: ${subtaskProgress.percentage}%"></div>
-                  </div>
-                  
-                  <span class="text-[11px] font-mono font-bold ${subtaskPercentColor}">${subtaskProgress.percentage}%</span>
-                  
-                  <div class="subtask-chevron w-5 h-5 rounded-md flex items-center justify-center text-secondary group-hover/sub-hdr:text-primary transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}">
-                    <i class="fa-regular fa-chevron-down text-xs"></i>
-                  </div>
-                </div>
-              </button>
+                    <div class="w-full sm:w-fit flex items-center gap-3">
+                      <div
+                        class="w-full sm:w-32 h-1.5 rounded-full bg-surface-2 overflow-hidden"
+                      >
+                        <div
+                          class="h-full ${subtaskProgressColor} transition-all duration-300"
+                          style="width: ${subtaskProgress.percentage}%"
+                        ></div>
+                      </div>
 
-              <div
-                id="subtasks-container-${task.id}"
-                class="subtasks-dropdown-body ${isExpanded ? "" : "hidden"} animate-slide-down space-y-1.5 pt-2 ps-1 pe-1"
-              >
-                ${task.subtasks
-                  .map(
-                    (st) => `
+                      <span
+                        class="text-[11px] font-mono font-bold ${subtaskPercentColor}"
+                        >${subtaskProgress.percentage}%</span
+                      >
+
+                      <div
+                        class="subtask-chevron w-5 h-5 rounded-md flex items-center justify-center text-secondary group-hover/sub-hdr:text-primary transition-transform duration-300 ${
+                          isExpanded ? "rotate-180" : ""
+                        }"
+                      >
+                        <i class="fa-regular fa-chevron-down text-xs"></i>
+                      </div>
+                    </div>
+                  </button>
+
+                  <div
+                    id="subtasks-container-${task.id}"
+                    class="subtasks-dropdown-body ${
+                      isExpanded ? "" : "hidden"
+                    } animate-slide-down space-y-1.5 pt-2 ps-1 pe-1"
+                  >
+                    ${task.subtasks
+                      .map(
+                        (st) => `
                       <div
                         class="flex items-center justify-between gap-1 group/st rounded-lg p-2 hover:bg-surface-2/60 border border-transparent hover:border-border/50 transition cursor-pointer"
                       >
@@ -362,11 +395,11 @@ export const TaskItemComponent = {
                         </div>
                       </div>
                     `,
-                  )
-                  .join("")}
-              </div>
-            </div>
-          `
+                      )
+                      .join("")}
+                  </div>
+                </div>
+              `
             : ""
         }
       </div>

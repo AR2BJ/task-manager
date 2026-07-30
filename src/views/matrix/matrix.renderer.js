@@ -15,45 +15,83 @@ export function renderEisenhowerGrid(tasks) {
     else q4.push(task);
   });
 
-  const renderSection = (title, subtitle, taskList, colorTheme, icon) => `
-    <div class="flex flex-col h-full rounded-2xl bg-surface-2 border border-border/80 p-3.5 shadow-sm">
-      <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-border/60">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-lg ${colorTheme.bg} ${colorTheme.text} flex items-center justify-center text-xs">
-            <i class="${icon}"></i>
-          </div>
-          <div>
-            <h3 class="text-xs sm:text-sm font-bold text-primary flex items-center gap-2">
-              ${title}
-              <span class="text-[11px] px-2 py-0.2 rounded-md ${colorTheme.bg} ${colorTheme.text} font-bold">
-                ${taskList.length}
-              </span>
-            </h3>
-            <p class="text-[10px] text-tertiary font-medium">${subtitle}</p>
+  const renderSection = (title, subtitle, taskList, colorTheme, icon) => {
+    return `
+      <div
+        class="flex flex-col h-full rounded-2xl bg-surface-2 border border-border/80 p-4 shadow-sm"
+      >
+        <div
+          class="flex items-center justify-between pb-3 mb-3 border-b border-border/60"
+        >
+          <div class="flex items-center gap-2.5">
+            <div
+              class="w-8 h-8 rounded-xl ${colorTheme.bg} ${colorTheme.text} flex items-center justify-center text-xs font-bold"
+            >
+              <i class="${icon}"></i>
+            </div>
+            <div>
+              <h3
+                class="text-sm font-bold text-primary flex items-center gap-2"
+              >
+                ${title}
+                <span
+                  class="text-xs px-2 py-0.5 rounded-md ${colorTheme.bg} ${colorTheme.text} font-bold"
+                >
+                  ${taskList.length}
+                </span>
+              </h3>
+              <p class="text-[11px] text-tertiary font-medium">${subtitle}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="flex-1 space-y-2 overflow-y-auto max-h-115 min-h-35 pr-1.5 scrollbar-thin scrollbar-thumb-surface-3">
-        ${
-          taskList.length > 0
-            ? taskList
-                .map((task) => MatrixTaskCardComponent.render(task))
-                .join("")
-            : `<div class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-border/60 rounded-xl bg-surface/30">
+        <div
+          class="flex-1 space-y-2.5 overflow-y-auto max-h-120 min-h-35 pr-1.5 scrollbar-thin scrollbar-thumb-surface-3"
+        >
+          ${
+            taskList.length > 0
+              ? taskList
+                  .map((task) => MatrixTaskCardComponent.render(task))
+                  .join("")
+              : `<div class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-border/60 rounded-xl bg-surface/30">
                  <p class="text-xs text-tertiary font-medium">No tasks in this quadrant</p>
                </div>`
-        }
+          }
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  };
 
   return `
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-      ${renderSection("Do First (Q1)", "Urgent & Important", q1, { bg: "bg-red-500/10", text: "text-red-400" }, "fa-solid fa-fire")}
-      ${renderSection("Schedule (Q2)", "Not Urgent but Important", q2, { bg: "bg-sky-500/10", text: "text-sky-400" }, "fa-solid fa-calendar-check")}
-      ${renderSection("Delegate (Q3)", "Urgent but Not Important", q3, { bg: "bg-amber-500/10", text: "text-amber-400" }, "fa-solid fa-user-gear")}
-      ${renderSection("Eliminate (Q4)", "Neither Urgent nor Important", q4, { bg: "bg-slate-500/10", text: "text-slate-400" }, "fa-solid fa-trash-can")}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+      ${renderSection(
+        "Do First (Q1)",
+        "Urgent & Important",
+        q1,
+        { bg: "bg-red-500/10", text: "text-red-400" },
+        "fa-solid fa-fire",
+      )}
+      ${renderSection(
+        "Schedule (Q2)",
+        "Not Urgent but Important",
+        q2,
+        { bg: "bg-sky-500/10", text: "text-sky-400" },
+        "fa-solid fa-calendar-check",
+      )}
+      ${renderSection(
+        "Delegate (Q3)",
+        "Urgent but Not Important",
+        q3,
+        { bg: "bg-amber-500/10", text: "text-amber-400" },
+        "fa-solid fa-user-gear",
+      )}
+      ${renderSection(
+        "Eliminate (Q4)",
+        "Neither Urgent nor Important",
+        q4,
+        { bg: "bg-slate-500/10", text: "text-slate-400" },
+        "fa-solid fa-trash-can",
+      )}
     </div>
   `;
 }
@@ -114,40 +152,65 @@ export function renderAbcdeList(tasks) {
   ];
 
   return `
-    <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3.5 w-full">
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"
+    >
       ${categories
-        .map((cat) => {
+        .map((cat, idx) => {
           const list = groups[cat.key];
-          return `
-          <div class="flex flex-col h-full rounded-2xl bg-surface-2 border border-border/80 p-3 shadow-sm">
-            <div class="pb-2.5 mb-2.5 border-b border-border/60 flex items-center justify-between">
-              <div>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-black px-1.5 py-0.5 rounded ${cat.style}">
-                    ${cat.key}
-                  </span>
-                  <span class="text-xs font-bold text-primary">${cat.label}</span>
-                </div>
-                <p class="text-[10px] text-tertiary mt-0.5 font-medium">${cat.desc}</p>
-              </div>
-              <span class="text-xs px-2 py-0.5 rounded-md font-bold ${cat.style}">
-                ${list.length}
-              </span>
-            </div>
+          const colSpanClass =
+            idx === 3
+              ? "lg:col-span-1"
+              : idx === 4
+                ? "lg:col-span-2"
+                : "";
 
-            <div class="flex-1 space-y-2 overflow-y-auto max-h-125 min-h-30 pr-1 scrollbar-thin scrollbar-thumb-surface-3">
-              ${
-                list.length > 0
-                  ? list
-                      .map((item) => MatrixTaskCardComponent.render(item.task))
-                      .join("")
-                  : `<div class="h-28 flex items-center justify-center text-center p-2 border border-dashed border-border/60 rounded-xl bg-surface/30">
-                     <p class="text-[10px] text-tertiary font-medium">Empty</p>
+          return `
+            <div
+              class="flex flex-col h-full rounded-2xl bg-surface-2 border border-border/80 p-3.5 shadow-sm ${colSpanClass}"
+            >
+              <div
+                class="pb-3 mb-3 border-b border-border/60 flex items-center justify-between"
+              >
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="text-xs font-black px-2 py-0.5 rounded ${cat.style}"
+                    >
+                      ${cat.key}
+                    </span>
+                    <span class="text-xs font-bold text-primary"
+                      >${cat.label}</span
+                    >
+                  </div>
+                  <p class="text-[10px] text-tertiary mt-1 font-medium">
+                    ${cat.desc}
+                  </p>
+                </div>
+                <span
+                  class="text-xs px-2 py-0.5 rounded-md font-bold ${cat.style}"
+                >
+                  ${list.length}
+                </span>
+              </div>
+
+              <div
+                class="flex-1 space-y-2.5 overflow-y-auto max-h-125 min-h-35 pr-1 scrollbar-thin scrollbar-thumb-surface-3"
+              >
+                ${
+                  list.length > 0
+                    ? list
+                        .map((item) =>
+                          MatrixTaskCardComponent.render(item.task),
+                        )
+                        .join("")
+                    : `<div class="h-28 flex items-center justify-center text-center p-2 border border-dashed border-border/60 rounded-xl bg-surface/30">
+                     <p class="text-[11px] text-tertiary font-medium">Empty</p>
                    </div>`
-              }
+                }
+              </div>
             </div>
-          </div>
-        `;
+          `;
         })
         .join("")}
     </div>

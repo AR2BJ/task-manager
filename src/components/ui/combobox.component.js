@@ -397,17 +397,19 @@ export class ComboboxComponent {
       html += items
         .map(
           (item) => `
-          <div
-            data-value="${item}"
-            class="combobox-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none"
-          >
-            <span class="flex items-center gap-1.5">
-              <i class="${this.iconClass} text-brand/70 text-xs"></i>
-              ${item}
-            </span>
-            <span class="text-[10px] text-muted">Existing ${this.itemTypeLabel}</span>
-          </div>
-        `,
+            <div
+              data-value="${item}"
+              class="combobox-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none"
+            >
+              <span class="flex items-center gap-1.5">
+                <i class="${this.iconClass} text-brand/70 text-xs"></i>
+                ${item}
+              </span>
+              <span class="text-[10px] text-muted"
+                >Existing ${this.itemTypeLabel}</span
+              >
+            </div>
+          `,
         )
         .join("");
     }
@@ -431,7 +433,9 @@ export class ComboboxComponent {
               <i class="fa-solid fa-plus text-xs"></i>
               Create "${query}"
             </span>
-            <span class="text-[10px] text-brand/80 font-bold">New ${this.itemTypeLabel}</span>
+            <span class="text-[10px] text-brand/80 font-bold"
+              >New ${this.itemTypeLabel}</span
+            >
           </div>
         `;
       }
@@ -449,7 +453,9 @@ export class ComboboxComponent {
     this.activeDropdownIndex = -1;
     this.clearDropdownHighlight();
     this.dropdown.innerHTML = `
-      <div class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none">
+      <div
+        class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none"
+      >
         <i class="fa-regular fa-circle-info text-brand/70"></i>
         <span>${message}</span>
       </div>
@@ -459,7 +465,9 @@ export class ComboboxComponent {
   showLoading() {
     this.isLoading = true;
     this.dropdown.innerHTML = `
-      <div class="px-3.5 py-3 text-xs text-brand text-center flex items-center justify-center gap-2">
+      <div
+        class="px-3.5 py-3 text-xs text-brand text-center flex items-center justify-center gap-2"
+      >
         <i class="fa-solid fa-spinner animate-spin"></i>
         <span>Loading...</span>
       </div>

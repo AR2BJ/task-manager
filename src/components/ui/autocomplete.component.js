@@ -63,7 +63,10 @@ export class AutocompleteComponent {
     const initialLabel = selectedOption ? selectedOption.label : "";
 
     return `
-      <div id="${this.id}-container" class="relative w-full">
+      <div
+        id="${this.id}-container"
+        class="relative w-full"
+      >
         <div class="relative flex items-center">
           <input
             type="text"
@@ -71,7 +74,11 @@ export class AutocompleteComponent {
             value="${initialLabel}"
             placeholder="${this.placeholder}"
             autocomplete="off"
-            class="h-${this.height} w-full rounded-${this._roundedValue(this.height)} border border-border bg-${this.background} pl-4 pr-10 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none cursor-pointer"
+            class="h-${this.height} w-full rounded-${this._roundedValue(
+              this.height,
+            )} border border-border bg-${
+              this.background
+            } pl-4 pr-10 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none cursor-pointer"
           />
           <button
             type="button"
@@ -79,7 +86,10 @@ export class AutocompleteComponent {
             class="flex absolute right-3 text-secondary hover:text-primary transition pointer-events-none"
             tabindex="-1"
           >
-            <i class="fa-solid fa-chevron-down text-xs" id="${this.id}-chevron-icon"></i>
+            <i
+              class="fa-solid fa-chevron-down text-xs"
+              id="${this.id}-chevron-icon"
+            ></i>
           </button>
         </div>
       </div>
@@ -252,15 +262,20 @@ export class AutocompleteComponent {
         <div
           data-value="${opt.value}"
           data-label="${opt.label}"
-          class="autocomplete-item px-3.5 py-2 rounded-${this._roundedValue(String(Number(this.height) - 2))} text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition ${
+          class="autocomplete-item px-3.5 py-2 rounded-${this._roundedValue(
+            String(Number(this.height) - 2),
+          )} text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition ${
             isSelected ? "bg-brand/10 text-brand font-bold" : ""
           }"
         >
           <span class="flex items-center gap-2">
-            ${iconHTML}
-            ${opt.label}
+            ${iconHTML} ${opt.label}
           </span>
-          ${isSelected ? `<i class="fa-solid fa-check text-xs text-brand"></i>` : ""}
+          ${
+            isSelected
+              ? `<i class="fa-solid fa-check text-xs text-brand"></i>`
+              : ""
+          }
         </div>
       `;
     });

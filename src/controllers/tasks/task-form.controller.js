@@ -221,83 +221,91 @@ export const TaskFormController = {
 
     if (total === 0) {
       container.innerHTML = `
-      <div
-        class="w-full h-full min-h-55 sm:min-h-50 lg:min-h-45 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface rounded-2xl border border-dashed border-border/70 p-4 text-center flex flex-col justify-center items-center"
-      >
-        <div class="h-full flex flex-col justify-center items-center">
-          <div class="text-3xl">
-            <i class="fa-regular fa-list-check text-brand/80"></i>
+        <div
+          class="w-full h-full min-h-55 sm:min-h-50 lg:min-h-45 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface rounded-2xl border border-dashed border-border/70 p-4 text-center flex flex-col justify-center items-center"
+        >
+          <div class="h-full flex flex-col justify-center items-center">
+            <div class="text-3xl">
+              <i class="fa-regular fa-list-check text-brand/80"></i>
+            </div>
+            <p class="mt-3 text-secondary max-w-sm mx-auto text-sm">
+              No subtasks defined yet.
+            </p>
           </div>
-          <p class="mt-3 text-secondary max-w-sm mx-auto text-sm">
-            No subtasks defined yet.
-          </p>
         </div>
-      </div>
-    `;
+      `;
       return;
     }
 
     container.innerHTML = `
-    <div
-      class="w-full h-full max-h-55 sm:max-h-50 lg:max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin  bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
-    >
-      ${currentModalSubtasks
-        .map(
-          (subtask) => `
-            <div
-              data-subtask-id="${subtask.id}"
-              class="subtask-item flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-surface-2 p-1 shadow-sm transition"
-            >
-              <div class="flex items-center gap-3 flex-1 min-w-0">
-                <input
-                  type="text"
-                  data-action="edit-text"
-                  data-tooltip-title="${subtask.title}"
-                  value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
-                  class="subtask-title-input flex sm:hidden truncate text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 cursor-pointer ${
-                    subtask.isEditing ? "border-brand/50" : "border-transparent"
-                  } ${subtask.completed ? "line-through text-muted" : ""}"
-                  ${subtask.isEditing ? "" : "readonly"}
-                />
-                <input
-                  type="text"
-                  data-action="edit-text"
-                  value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
-                  class="subtask-title-input hidden sm:flex text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 ${
-                    subtask.isEditing ? "border-brand/50" : "border-transparent"
-                  } ${subtask.completed ? "line-through text-muted" : ""}"
-                  ${subtask.isEditing ? "" : "readonly"}
-                />
-              </div>
+      <div
+        class="w-full h-full max-h-55 sm:max-h-50 lg:max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin  bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
+      >
+        ${currentModalSubtasks
+          .map(
+            (subtask) => `
+              <div
+                data-subtask-id="${subtask.id}"
+                class="subtask-item flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-surface-2 p-1 shadow-sm transition"
+              >
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                  <input
+                    type="text"
+                    data-action="edit-text"
+                    data-tooltip-title="${subtask.title}"
+                    value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
+                    class="subtask-title-input flex sm:hidden truncate text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 cursor-pointer ${
+                      subtask.isEditing
+                        ? "border-brand/50"
+                        : "border-transparent"
+                    } ${subtask.completed ? "line-through text-muted" : ""}"
+                    ${subtask.isEditing ? "" : "readonly"}
+                  />
+                  <input
+                    type="text"
+                    data-action="edit-text"
+                    value="${(subtask.title ?? "").replace(/"/g, "&quot;")}"
+                    class="subtask-title-input hidden sm:flex text-sm text-primary mx-3 bg-transparent outline-none w-full border-b min-h-7 py-1 ${
+                      subtask.isEditing
+                        ? "border-brand/50"
+                        : "border-transparent"
+                    } ${subtask.completed ? "line-through text-muted" : ""}"
+                    ${subtask.isEditing ? "" : "readonly"}
+                  />
+                </div>
 
-              <div class="flex items-center gap-1 shrink-0">
-                <button
-                  data-action="edit"
-                  class="edit-btn flex h-8 w-8 sm:w-10 sm:h-10 items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
-                  title="${subtask.isEditing ? "Save changes" : "Edit subtask"}"
-                >
-                  <i
-                    class="fa-regular ${
-                      subtask.isEditing ? "fa-floppy-disk" : "fa-pen-to-square"
-                    } text-blue-500/80 text-base"
-                  ></i>
-                </button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button
+                    data-action="edit"
+                    class="edit-btn flex h-8 w-8 sm:w-10 sm:h-10 items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
+                    title="${
+                      subtask.isEditing ? "Save changes" : "Edit subtask"
+                    }"
+                  >
+                    <i
+                      class="fa-regular ${
+                        subtask.isEditing
+                          ? "fa-floppy-disk"
+                          : "fa-pen-to-square"
+                      } text-blue-500/80 text-base"
+                    ></i>
+                  </button>
 
-                <button
-                  data-action="delete"
-                  class="delete-btn flex h-8 w-8 sm:w-10 sm:h-10 items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
-                >
-                  <i
-                    class="fa-regular fa-trash-can text-red-500/80 text-base"
-                  ></i>
-                </button>
+                  <button
+                    data-action="delete"
+                    class="delete-btn flex h-8 w-8 sm:w-10 sm:h-10 items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
+                  >
+                    <i
+                      class="fa-regular fa-trash-can text-red-500/80 text-base"
+                    ></i>
+                  </button>
+                </div>
               </div>
-            </div>
-          `,
-        )
-        .join("")}
-    </div>
-  `;
+            `,
+          )
+          .join("")}
+      </div>
+    `;
   },
 
   bindSubtaskEvents() {

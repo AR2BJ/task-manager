@@ -4,6 +4,7 @@ export const state = {
   tasks: [],
   lastDeletedTask: null,
   activeTab: "active",
+  matrixMode: "eisenhower",
   currentView: "tasks",
   selectedTag: "all",
   currentPriority: "low",
@@ -157,6 +158,10 @@ export const StateManager = {
 
   setSortBy(sortBy) {
     state.sortBy = sortBy;
+  },
+
+  setMode(mode) {
+    state.matrixMode = mode;
   },
 
   setTab(tab) {

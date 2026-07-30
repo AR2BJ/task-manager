@@ -275,7 +275,7 @@ export const SettingsViewComponent = {
             </div>
 
             <div
-              class="w-full flex flex-col lg:flex-row items-stretch lg:items-center justify-between bg-red-500/5 border border-red-500/20 rounded-xl p-3 sm:p-4 gap-3 mt-1"
+              class="w-full flex flex-wrap lg:flex-nowrap items-stretch lg:items-center justify-between bg-red-500/5 border border-red-500/20 rounded-xl p-3 sm:p-4 gap-3 mt-1"
             >
               <div class="flex flex-col gap-0.5 min-w-0">
                 <span

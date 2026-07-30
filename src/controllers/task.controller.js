@@ -183,6 +183,8 @@ export const TaskController = {
     MatrixController.dispatchRender();
     this.updateNavigationDOM();
 
+    clearOpenSubtasksState();
+
     renderTagFilterBar();
   },
 
@@ -387,10 +389,7 @@ export const TaskController = {
 
       setTimeout(() => {
         try {
-          clearOpenSubtasksState();
-          StateManager.setTab(targetTab);
-          this.updateTabStyles(targetTab);
-          this.refreshUI();
+          this.handleTabSwitch(targetTab);
         } finally {
           GlobalLoaderService.hide();
         }
@@ -610,12 +609,7 @@ export const TaskController = {
   handleTabSwitch(tab) {
     clearOpenSubtasksState();
     StateManager.setTab(tab);
-    this.refreshUI();
     this.updateTabStyles(tab);
-  },
-
-  handleViewSwitch(view) {
-    StateManager.setView(view);
     this.refreshUI();
   },
 
@@ -662,14 +656,20 @@ export const TaskController = {
       if (currentView === "tasks") {
         this.updateTabStyles(state.activeTab);
       }
+      if (currentView === "matrix") {
+        MatrixController.updateTabStyles(state.matrixMode);
+      }
     });
+
+    clearOpenSubtasksState();
   },
 
   setupTabIndicatorObserver() {
     const activeBtn = document.getElementById("tab-active");
+    const completedBtn = document.getElementById("tab-completed");
     const archivedBtn = document.getElementById("tab-archived");
 
-    if (!activeBtn || !archivedBtn) return;
+    if (!activeBtn || !completedBtn || !archivedBtn) return;
 
     if (!window.taskTabResizeObserver) {
       window.taskTabResizeObserver = new ResizeObserver(() => {
@@ -681,6 +681,7 @@ export const TaskController = {
 
     window.taskTabResizeObserver.disconnect();
     window.taskTabResizeObserver.observe(activeBtn);
+    window.taskTabResizeObserver.observe(completedBtn);
     window.taskTabResizeObserver.observe(archivedBtn);
   },
 

@@ -70,7 +70,10 @@ export class DatePickerComponent {
 
   render() {
     return `
-      <div id="${this.id}-container" class="relative w-full">
+      <div
+        id="${this.id}-container"
+        class="relative w-full"
+      >
         <div class="relative flex items-center">
           <input
             type="text"
@@ -79,7 +82,9 @@ export class DatePickerComponent {
             placeholder="${this.placeholder}"
             maxlength="10"
             autocomplete="off"
-            class="h-11 w-full rounded-xl border border-border bg-${this.background} px-4 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none"
+            class="h-11 w-full rounded-xl border border-border bg-${
+              this.background
+            } px-4 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none"
           />
           <button
             type="button"
@@ -112,17 +117,28 @@ export class DatePickerComponent {
         ></button>
 
         <div class="flex items-center gap-1">
-          <button type="button" id="${this.id}-prev-btn" class="p-1 text-secondary hover:text-primary hover:bg-surface-2 rounded-md transition cursor-pointer">
+          <button
+            type="button"
+            id="${this.id}-prev-btn"
+            class="p-1 text-secondary hover:text-primary hover:bg-surface-2 rounded-md transition cursor-pointer"
+          >
             <i class="fa-solid fa-chevron-left text-xs"></i>
           </button>
-          <button type="button" id="${this.id}-next-btn" class="p-1 text-secondary hover:text-primary hover:bg-surface-2 rounded-md transition cursor-pointer">
+          <button
+            type="button"
+            id="${this.id}-next-btn"
+            class="p-1 text-secondary hover:text-primary hover:bg-surface-2 rounded-md transition cursor-pointer"
+          >
             <i class="fa-solid fa-chevron-right text-xs"></i>
           </button>
         </div>
       </div>
 
-      <div id="${this.id}-weekdays-header" class="grid grid-cols-7 gap-1 mb-1 text-center">
-      <span class="text-[10px] font-semibold text-secondary">Sa</span>
+      <div
+        id="${this.id}-weekdays-header"
+        class="grid grid-cols-7 gap-1 mb-1 text-center"
+      >
+        <span class="text-[10px] font-semibold text-secondary">Sa</span>
         <span class="text-[10px] font-semibold text-secondary">Su</span>
         <span class="text-[10px] font-semibold text-secondary">Mo</span>
         <span class="text-[10px] font-semibold text-secondary">Tu</span>
@@ -133,9 +149,23 @@ export class DatePickerComponent {
 
       <div id="${this.id}-view-container"></div>
 
-      <div class="flex items-center justify-between pt-2 mt-2 border-t border-border/50 text-xs">
-        <button type="button" id="${this.id}-clear-btn" class="text-xs text-rose-400 hover:underline transition cursor-pointer">Clear</button>
-        <button type="button" id="${this.id}-today-btn" class="text-xs text-brand hover:underline font-medium transition cursor-pointer">Today</button>
+      <div
+        class="flex items-center justify-between pt-2 mt-2 border-t border-border/50 text-xs"
+      >
+        <button
+          type="button"
+          id="${this.id}-clear-btn"
+          class="text-xs text-rose-400 hover:underline transition cursor-pointer"
+        >
+          Clear
+        </button>
+        <button
+          type="button"
+          id="${this.id}-today-btn"
+          class="text-xs text-brand hover:underline font-medium transition cursor-pointer"
+        >
+          Today
+        </button>
       </div>
     `;
 
@@ -504,7 +534,11 @@ export class DatePickerComponent {
 
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const day = prevMonthTotalDays - i;
-      gridHTML += `<div class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg text-secondary/30 pointer-events-none">${day}</div>`;
+      gridHTML += `<div
+        class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg text-secondary/30 pointer-events-none"
+      >
+        ${day}
+      </div>`;
     }
 
     for (let day = 1; day <= totalDays; day++) {
@@ -536,7 +570,12 @@ export class DatePickerComponent {
         classNames += "text-primary hover:bg-surface-2";
       }
 
-      gridHTML += `<div class="${classNames}" data-date="${dateStr}">${day}</div>`;
+      gridHTML += `<div
+        class="${classNames}"
+        data-date="${dateStr}"
+      >
+        ${day}
+      </div>`;
     }
 
     const totalFilled = firstDayIndex + totalDays;
@@ -544,7 +583,11 @@ export class DatePickerComponent {
       (42 - totalFilled) % 7 === 0 && totalFilled > 35 ? 0 : 42 - totalFilled;
 
     for (let day = 1; day <= nextDaysNeeded; day++) {
-      gridHTML += `<div class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg text-secondary/30 pointer-events-none">${day}</div>`;
+      gridHTML += `<div
+        class="h-7 w-7 mx-auto flex items-center justify-center text-xs rounded-lg text-secondary/30 pointer-events-none"
+      >
+        ${day}
+      </div>`;
     }
 
     gridHTML += `</div>`;
@@ -576,7 +619,7 @@ export class DatePickerComponent {
   }
 
   renderMonthsView(container) {
-    let html = `<div class="grid grid-cols-3 gap-2 py-1">`;
+    let html = `<div class="grid grid-cols-3 gap-2 py-1"></div>`;
 
     this.shortMonthNames.forEach((month, idx) => {
       const isCurrentMonth = idx === this.currentMonth;
@@ -589,7 +632,12 @@ export class DatePickerComponent {
         classNames += "text-primary hover:bg-surface-2";
       }
 
-      html += `<div class="${classNames}" data-month="${idx}">${month}</div>`;
+      html += `<div
+        class="${classNames}"
+        data-month="${idx}"
+      >
+        ${month}
+      </div>`;
     });
 
     html += `</div>`;
@@ -621,7 +669,12 @@ export class DatePickerComponent {
         classNames += "text-primary hover:bg-surface-2";
       }
 
-      html += `<div class="${classNames}" data-year="${year}">${year}</div>`;
+      html += `<div
+        class="${classNames}"
+        data-year="${year}"
+      >
+        ${year}
+      </div>`;
     }
 
     html += `</div>`;

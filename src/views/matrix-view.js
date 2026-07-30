@@ -3,9 +3,9 @@ export const MatrixView = {
     return `
       <section
         id="matrix-view"
-        class="hidden flex-col gap-6 w-full max-w-7xl mx-auto pb-12 animate-fadeIn"
+        class="hidden w-full min-w-0 flex-col gap-6"
       >
-        <div class="mb-2 flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4">
+        <div class="mb-2 flex flex-wrap sm:flex-nowrap w-full justify-between items-start md:items-center gap-4">
           <div>
             <h1
               id="matrix-header-title"
@@ -23,7 +23,7 @@ export const MatrixView = {
           </div>
         
           <div
-            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row xs:w-fit xs:justify-start"
+            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row sm:w-fit sm:justify-start"
             role="tablist"
             aria-label="Prioritization Mode Switcher"
           >
@@ -35,8 +35,7 @@ export const MatrixView = {
             <button
               id="btn-matrix-eisenhower"
               role="tab"
-              aria-selected="true"
-              class="relative z-10 flex-1 w-full rounded-t-xl py-2 text-sm font-medium text-primary transition cursor-pointer text-center xs:w-27 xs:rounded-l-xl xs:rounded-tr-none"
+              class="relative z-10 flex-1 w-full rounded-t-xl py-2 text-sm font-medium text-(--color-btn-primary-text) transition cursor-pointer text-center xs:w-27 xs:rounded-l-xl xs:rounded-tr-none"
             >
               Eisenhower
             </button>
@@ -45,7 +44,7 @@ export const MatrixView = {
               id="btn-matrix-abcde"
               role="tab"
               aria-selected="false"
-              class="relative z-10 flex-1 w-full rounded-b-xl py-2 text-sm font-medium text-secondary transition cursor-pointer text-center xs:w-27 xs:rounded-r-xl xs:rounded-t-none"
+              class="relative z-10 flex-1 w-full rounded-none py-2 text-sm font-medium text-secondary transition cursor-pointer text-center xs:w-27"
             >
               ABCDE
             </button>

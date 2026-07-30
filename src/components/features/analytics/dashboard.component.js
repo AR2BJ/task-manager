@@ -337,7 +337,7 @@ export const DashboardComponent = {
         </div>
 
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full col-span-full mt-4"
+          class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full col-span-2 sm:col-span-full mt-4"
         >
           <div
             class="lg:col-span-2 bg-surface-2 border border-border/70 rounded-2xl p-6 flex flex-col justify-between"
@@ -464,7 +464,7 @@ export const DashboardComponent = {
         </div>
 
         <div
-          class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-3 gap-6 w-full col-span-full mt-2"
+          class="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-3 gap-6 w-full col-span-2 sm:col-span-full mt-2"
         >
           <div
             class="col-span-4 lg:col-span-2 xl:col-span-1 bg-surface-2 border border-border/70 rounded-2xl p-6 flex flex-col justify-between"
@@ -502,7 +502,7 @@ export const DashboardComponent = {
             class="bg-surface-2 border border-border/70 rounded-2xl p-6 hidden xl:flex flex-col justify-between"
           >
             <div
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              class="flex flex-wrap sm:flex-nowrap sm:items-center justify-between gap-4"
             >
               <div>
                 <h4
@@ -563,7 +563,7 @@ export const DashboardComponent = {
             class="col-span-4 bg-surface-2 border border-border/70 rounded-2xl p-6 xl:hidden flex flex-col justify-center"
           >
             <div
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              class="flex flex-wrap sm:flex-nowrap sm:items-center justify-between gap-4"
             >
               <div>
                 <h4
@@ -590,13 +590,13 @@ export const DashboardComponent = {
         </div>
 
         <div
-          class="w-full col-span-full mt-4 bg-surface-2 border border-border/70 rounded-2xl p-6"
+          class="w-full col-span-2 sm:col-span-full mt-4 bg-surface-2 border border-border/70 rounded-2xl p-6"
         >
           <div
             class="w-full col-span-full mt-4 bg-surface-2 border border-border/70 rounded-2xl p-6"
           >
             <div
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+              class="flex flex-wrap sm:flex-nowrap sm:items-center justify-between gap-2"
             >
               <div>
                 <h4
@@ -611,7 +611,7 @@ export const DashboardComponent = {
                 </p>
               </div>
               <span
-                class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-surface border border-border text-secondary self-start sm:self-auto"
+                class="text-xs text-center font-semibold px-2.5 py-1 rounded-lg bg-surface border border-border text-secondary self-center sm:self-auto w-full sm:w-auto"
               >
                 ${activeCount} Active Tracked (${archivedCount} Archived)
               </span>
@@ -621,13 +621,15 @@ export const DashboardComponent = {
               ${
                 tasks.length === 0
                   ? `
-                    <div
-                      class="text-center py-12 text-secondary text-sm bg-surface rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2"
-                    >
-                      <i class="fa-regular fa-box-open text-3xl opacity-30"></i>
-                      <span>No tasks found in repository.</span>
-                    </div>
-                  `
+                      <div
+                        class="text-center py-12 text-secondary text-sm bg-surface rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2"
+                      >
+                        <i
+                          class="fa-regular fa-box-open text-3xl opacity-30"
+                        ></i>
+                        <span>No tasks found in repository.</span>
+                      </div>
+                    `
                   : tasks
                       .map((task) => {
                         const subtaskInfo = calculateSubtaskProgress(
@@ -662,14 +664,27 @@ export const DashboardComponent = {
                                   ? "text-slate-500/80"
                                   : "text-brand/80";
 
-                        let dueBadge = `<span class="text-secondary/60">No due date</span>`;
+                        let dueBadge = `<span class="text-secondary/60"
+                          >No due date</span
+                        >`;
                         if (task.dueDate) {
                           if (overdue) {
-                            dueBadge = `<span class="text-rose-400 font-bold"><i class="fa-regular fa-clock me-1"></i>Overdue (${Math.abs(daysRemaining)}d)</span>`;
+                            dueBadge = `<span
+                              class="text-rose-400 font-bold"
+                              ><i class="fa-regular fa-clock me-1"></i>Overdue
+                              (${Math.abs(daysRemaining)}d)</span
+                            >`;
                           } else if (daysRemaining === 0) {
-                            dueBadge = `<span class="text-amber-400 font-bold"><i class="fa-regular fa-clock me-1"></i>Due Today</span>`;
+                            dueBadge = `<span
+                              class="text-amber-400 font-bold"
+                              ><i class="fa-regular fa-clock me-1"></i>Due
+                              Today</span
+                            >`;
                           } else {
-                            dueBadge = `<span class="text-secondary"><i class="fa-regular fa-calendar me-1"></i>${daysRemaining}d left</span>`;
+                            dueBadge = `<span class="text-secondary"
+                              ><i class="fa-regular fa-calendar me-1"></i
+                              >${daysRemaining}d left</span
+                            >`;
                           }
                         }
 
@@ -690,106 +705,127 @@ export const DashboardComponent = {
                         };
 
                         return `
-                        <div
-                          class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface/80 hover:bg-surface p-4 rounded-xl border border-border/40 transition"
-                        >
-                          <div class="flex flex-col gap-1.5 min-w-0 flex-1">
-                            <div class="flex items-center gap-2 flex-wrap">
-                              <span
-                                class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${
-                                  statusBadgeStyles[task.status] ||
-                                  statusBadgeStyles.todo
-                                }"
-                              >
-                                ${(task.status || "todo").replace("_", " ")}
-                              </span>
-
-                              ${
-                                task.priority
-                                  ? `
-                                <span class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${
-                                  priorityBadgeStyles[task.priority] ||
-                                  priorityBadgeStyles.low
-                                }">
-                                  ${task.priority}
+                          <div
+                            class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface/80 hover:bg-surface p-4 rounded-xl border border-border/40 transition"
+                          >
+                            <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                              <div class="flex items-center gap-2 flex-wrap">
+                                <span
+                                  class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${
+                                    statusBadgeStyles[task.status] ||
+                                    statusBadgeStyles.todo
+                                  }"
+                                >
+                                  ${(task.status || "todo").replace("_", " ")}
                                 </span>
-                              `
-                                  : ""
-                              }
-                              ${
-                                task.archived
-                                  ? `<span class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Archived</span>`
-                                  : ""
-                              }
-                            </div>
 
-                            <h5
-                              data-tooltip-title="${task.title}"
-                              class="sm:hidden block text-sm font-bold text-primary truncate cursor-pointer"
-                            >
-                              ${task.title}
-                            </h5>
-                            <h5
-                              class="hidden sm:flex text-sm font-bold text-primary"
-                            >
-                              ${task.title}
-                            </h5>
+                                ${
+                                  task.priority
+                                    ? `
+                                        <span
+                                          class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider border ${
+                                            priorityBadgeStyles[
+                                              task.priority
+                                            ] || priorityBadgeStyles.low
+                                          }"
+                                        >
+                                          ${task.priority}
+                                        </span>
+                                      `
+                                    : ""
+                                }
+                                ${
+                                  task.archived
+                                    ? `<span
+                                        class="inline-flex items-center rounded px-2 py-0.5 text-[9px] uppercase font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                        >Archived</span
+                                      >`
+                                    : ""
+                                }
+                              </div>
+
+                              <h5
+                                data-tooltip-title="${task.title}"
+                                class="sm:hidden block text-sm font-bold text-primary truncate cursor-pointer"
+                              >
+                                ${task.title}
+                              </h5>
+                              <h5
+                                class="hidden sm:flex text-sm font-bold text-primary"
+                              >
+                                ${task.title}
+                              </h5>
+
+                              <div
+                                class="flex items-center gap-4 text-[11px] text-secondary/80 font-medium flex-wrap"
+                              >
+                                <span>${dueBadge}</span>
+                                ${
+                                  task.tags?.length
+                                    ? `
+                                        <div
+                                          class="flex flex-wrap items-center gap-1"
+                                        >
+                                          ${task.tags
+                                            .map(
+                                              (tag) => `
+                                                <span
+                                                  class="text-[9px] bg-surface-3/40 text-secondary px-1.5 py-0.5 rounded border border-border/40 whitespace-nowrap flex flex-row justify-center items-center gap-1"
+                                                >
+                                                  <i
+                                                    class="fa-regular fa-tags"
+                                                  ></i>
+                                                  ${tag}
+                                                </span>
+                                              `,
+                                            )
+                                            .join("")}
+                                        </div>
+                                      `
+                                    : ""
+                                }
+                              </div>
+                            </div>
 
                             <div
-                              class="flex items-center gap-4 text-[11px] text-secondary/80 font-medium flex-wrap"
+                              class="flex flex-wrap sm:flex-nowrap items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-border/40 pt-3 lg:pt-0 shrink-0"
                             >
-                              <span>${dueBadge}</span>
-                              ${
-                                (task.tags || []).length > 0
-                                  ? `
-                                <div class="flex items-center gap-1">
-                                  <i class="fa-regular fa-tag text-[10px] opacity-60"></i>
-                                  <span>${task.tags.join(", ")}</span>
-                                </div>
-                              `
-                                  : ""
-                              }
-                            </div>
-                          </div>
-
-                          <div
-                            class="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 border-border/40 pt-3 lg:pt-0 shrink-0"
-                          >
-                            <div class="flex flex-col gap-1 w-36 sm:w-48">
-                              <div
-                                class="flex justify-between items-center text-[11px]"
-                              >
-                                <span class="text-secondary font-medium"
-                                  >Subtasks</span
-                                >
-                                <span class="font-mono font-bold ${subtaskPercentColor}"
-                                  >${subtaskInfo.completedCount}/${subtaskInfo.totalCount}
-                                  (${subtaskInfo.percentage}%)</span
-                                >
-                              </div>
-                              <div
-                                class="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden"
-                              >
+                              <div class="flex flex-col gap-1 w-full sm:w-48">
                                 <div
-                                  class="h-full ${subtaskProgressColor} transition-all duration-300"
-                                  style="width: ${subtaskInfo.percentage}%"
-                                ></div>
+                                  class="flex flex-wrap sm:flex-nowrap justify-between items-center text-[11px]"
+                                >
+                                  <span class="text-secondary font-medium"
+                                    >Subtasks</span
+                                  >
+                                  <span
+                                    class="font-mono font-bold ${subtaskPercentColor}"
+                                    >${subtaskInfo.completedCount}/${subtaskInfo.totalCount}
+                                    (${subtaskInfo.percentage}%)</span
+                                  >
+                                </div>
+                                <div
+                                  class="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden"
+                                >
+                                  <div
+                                    class="h-full ${subtaskProgressColor} transition-all duration-300"
+                                    style="width: ${subtaskInfo.percentage}%"
+                                  ></div>
+                                </div>
+                              </div>
+
+                              <div class="text-left sm:text-right">
+                                <span
+                                  class="text-[10px] text-secondary/60 block uppercase font-bold"
+                                  >Created</span
+                                >
+                                <span
+                                  class="text-xs font-mono font-medium text-primary"
+                                  >${task.createdAt || "N/A"}</span
+                                >
                               </div>
                             </div>
-
-                            <div class="text-right">
-                              <span
-                                class="text-[10px] text-secondary/60 block uppercase font-bold"
-                                >Created</span
-                              >
-                              <span
-                                class="text-xs font-mono font-medium text-primary"
-                                >${task.createdAt || "N/A"}</span
-                              >
-                            </div>
                           </div>
-                        </div>
-                      `;
+                        `;
                       })
                       .join("")
               }

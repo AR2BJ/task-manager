@@ -272,6 +272,11 @@ export class NavigationController {
     });
   }
 
+  static handleViewSwitch(view) {
+    StateManager.setView(view);
+    TaskController.refreshUI();
+  }
+
   static setActiveTab(tabType) {
     document.querySelectorAll(".nav-item").forEach((btn) => {
       btn.classList.remove("active");
@@ -283,7 +288,7 @@ export class NavigationController {
     });
     document.getElementById(`mobile-${tabType}`)?.classList.add("active");
 
-    TaskController.handleViewSwitch(tabType);
+    this.handleViewSwitch(tabType);
     this.showSection(tabType);
 
     if (tabType === "analytics") {

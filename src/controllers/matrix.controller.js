@@ -1,13 +1,10 @@
+import { StateManager, state } from "@/models/state.model.js";
 import {
   renderAbcdeList,
   renderEisenhowerGrid,
 } from "@/views/matrix/matrix.renderer.js";
 
-import { StateManager } from "@/models/state.model.js";
-
 export class MatrixController {
-  static currentMode = "eisenhower";
-
   // Data config for individual matrix modes to enforce single source of truth
   static matrixConfigs = {
     eisenhower: {
@@ -29,8 +26,8 @@ export class MatrixController {
     this.setupTabIndicatorObserver();
 
     requestAnimationFrame(() => {
-      this.updateTabStyles(this.currentMode);
-      this.updateHeaderData(this.currentMode);
+      this.updateTabStyles(state.matrixMode);
+      this.updateHeaderData(state.matrixMode);
     });
   }
 
@@ -48,9 +45,9 @@ export class MatrixController {
   }
 
   static switchMode(mode) {
-    if (this.currentMode === mode) return;
+    if (state.matrixMode === mode) return;
 
-    this.currentMode = mode;
+    StateManager.setMode(mode);
     this.updateTabStyles(mode);
     this.updateHeaderData(mode);
     this.dispatchRender();
@@ -81,7 +78,7 @@ export class MatrixController {
     if (!window.matrixTabResizeObserver) {
       window.matrixTabResizeObserver = new ResizeObserver(() => {
         requestAnimationFrame(() => {
-          this.updateTabStyles(this.currentMode);
+          this.updateTabStyles(state.matrixMode);
         });
       });
     }
@@ -106,7 +103,7 @@ export class MatrixController {
       targetBtn.offsetWidth || targetBtn.getBoundingClientRect().width;
     if (!buttonWidth) return;
 
-    const isWide = window.matchMedia("(min-width: 475px)").matches;
+    const isWide = window.matchMedia("(min-width: 375px)").matches;
 
     if (isWide) {
       let offsetLeft = 4;
@@ -155,14 +152,14 @@ export class MatrixController {
       (t) => t.status !== "done" && !t.isArchived,
     );
 
-    if (this.currentMode === "eisenhower") {
+    if (state.matrixMode === "eisenhower") {
       container.innerHTML = renderEisenhowerGrid(activeTasks);
     } else {
       container.innerHTML = renderAbcdeList(activeTasks);
     }
 
     requestAnimationFrame(() => {
-      this.updateTabStyles(this.currentMode);
+      this.updateTabStyles(state.matrixMode);
     });
   }
 }

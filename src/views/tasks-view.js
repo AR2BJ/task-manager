@@ -3,10 +3,10 @@ export const TasksView = {
     return `
       <section
         id="tasks-view"
-        class="flex w-full min-w-0 flex-col"
+        class="hidden w-full min-w-0 flex-col"
       >
         <div
-          class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center w-full"
+          class="mb-6 flex flex-wrap sm:flex-nowrap gap-4 justify-center sm:justify-between items-center w-full"
         >
           <div
             class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row xs:w-fit xs:justify-start"
@@ -228,11 +228,11 @@ export const TasksView = {
 
           <div
             id="task-filters-bar"
-            class="mb-6 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 border-b border-border pb-4 w-full"
+            class="mb-6 flex flex-wrap lg:flex-nowrap items-stretch lg:items-center justify-between gap-6 border-b border-border pb-4 w-full"
           >
             <div class="relative flex flex-1 items-center gap-2 min-w-0 group">
               <p
-                class="text-xs font-bold uppercase tracking-wider text-secondary shrink-0 mr-1 hidden sm:block"
+                class="text-xs font-bold uppercase tracking-wider text-secondary shrink-0 mr-1 hidden sm:flex"
               >
                 Tags:
               </p>
@@ -269,12 +269,12 @@ export const TasksView = {
             </div>
 
             <div
-              class="flex flex-col sm:flex-row items-center justify-between sm:justify-end gap-3"
+              class="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3"
             >
               <div class="w-full flex flex-col xs:flex-row items-center gap-3">
                 <div class="w-full flex items-center gap-2">
                   <label
-                    class="text-xs text-secondary font-medium hidden sm:block"
+                    class="text-xs text-secondary font-medium hidden sm:flex"
                     >Date:</label
                   >
                   <div
@@ -285,7 +285,7 @@ export const TasksView = {
 
                 <div class="w-full flex items-center gap-2">
                   <label
-                    class="text-xs text-secondary font-medium hidden sm:block"
+                    class="text-xs text-secondary font-medium hidden sm:flex"
                     >Sort:</label
                   >
                   <div
