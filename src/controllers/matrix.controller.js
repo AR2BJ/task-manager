@@ -8,42 +8,143 @@ import { StateManager } from "@/models/state.model.js";
 export class MatrixController {
   static currentMode = "eisenhower";
 
+  // Data config for individual matrix modes to enforce single source of truth
+  static matrixConfigs = {
+    eisenhower: {
+      title: "Eisenhower Matrix",
+      description:
+        "Categorize tasks into 4 urgent/important quadrants for high-impact productivity.",
+      iconClass: "fa-solid fa-table-cells-large text-brand",
+    },
+    abcde: {
+      title: "ABCDE Method",
+      description:
+        "Prioritize tasks systematically from highest impact (A) to delegable/eliminable (D/E).",
+      iconClass: "fa-solid fa-list-ol text-brand",
+    },
+  };
+
   static init() {
     this.bindEvents();
+    this.setupTabIndicatorObserver();
+
+    requestAnimationFrame(() => {
+      this.updateTabStyles(this.currentMode);
+      this.updateHeaderData(this.currentMode);
+    });
   }
 
   static bindEvents() {
-    document
-      .getElementById("btn-matrix-eisenhower")
-      ?.addEventListener("click", () => {
-        this.switchMode("eisenhower");
-      });
-
-    document
-      .getElementById("btn-matrix-abcde")
-      ?.addEventListener("click", () => {
-        this.switchMode("abcde");
-      });
-  }
-
-  static switchMode(mode) {
-    this.currentMode = mode;
     const btnEisenhower = document.getElementById("btn-matrix-eisenhower");
     const btnAbcde = document.getElementById("btn-matrix-abcde");
 
-    if (mode === "eisenhower") {
-      btnEisenhower?.classList.add("bg-brand", "text-white", "shadow-sm");
-      btnEisenhower?.classList.remove("text-secondary");
-      btnAbcde?.classList.remove("bg-brand", "text-white", "shadow-sm");
-      btnAbcde?.classList.add("text-secondary");
-    } else {
-      btnAbcde?.classList.add("bg-brand", "text-white", "shadow-sm");
-      btnAbcde?.classList.remove("text-secondary");
-      btnEisenhower?.classList.remove("bg-brand", "text-white", "shadow-sm");
-      btnEisenhower?.classList.add("text-secondary");
+    btnEisenhower?.addEventListener("click", () => {
+      this.switchMode("eisenhower");
+    });
+
+    btnAbcde?.addEventListener("click", () => {
+      this.switchMode("abcde");
+    });
+  }
+
+  static switchMode(mode) {
+    if (this.currentMode === mode) return;
+
+    this.currentMode = mode;
+    this.updateTabStyles(mode);
+    this.updateHeaderData(mode);
+    this.dispatchRender();
+  }
+
+  static updateHeaderData(mode) {
+    const titleEl = document.getElementById("matrix-header-title");
+    const descEl = document.getElementById("matrix-header-description");
+    const config = this.matrixConfigs[mode];
+
+    if (!config) return;
+
+    if (titleEl) {
+      titleEl.innerHTML = `<i class="${config.iconClass}"></i> ${config.title}`;
     }
 
-    this.dispatchRender();
+    if (descEl) {
+      descEl.textContent = config.description;
+    }
+  }
+
+  static setupTabIndicatorObserver() {
+    const btnEisenhower = document.getElementById("btn-matrix-eisenhower");
+    const btnAbcde = document.getElementById("btn-matrix-abcde");
+
+    if (!btnEisenhower || !btnAbcde) return;
+
+    if (!window.matrixTabResizeObserver) {
+      window.matrixTabResizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(() => {
+          this.updateTabStyles(this.currentMode);
+        });
+      });
+    }
+
+    window.matrixTabResizeObserver.disconnect();
+    window.matrixTabResizeObserver.observe(btnEisenhower);
+    window.matrixTabResizeObserver.observe(btnAbcde);
+  }
+
+  static updateTabStyles(mode) {
+    const indicator = document.getElementById("matrix-tab-indicator");
+    const btnEisenhower = document.getElementById("btn-matrix-eisenhower");
+    const btnAbcde = document.getElementById("btn-matrix-abcde");
+
+    if (!indicator || !btnEisenhower || !btnAbcde) return;
+
+    const buttons = [btnEisenhower, btnAbcde];
+    const activeIndex = mode === "eisenhower" ? 0 : 1;
+    const targetBtn = buttons[activeIndex];
+
+    const buttonWidth =
+      targetBtn.offsetWidth || targetBtn.getBoundingClientRect().width;
+    if (!buttonWidth) return;
+
+    const isWide = window.matchMedia("(min-width: 475px)").matches;
+
+    if (isWide) {
+      let offsetLeft = 4;
+      for (let i = 0; i < activeIndex; i++) {
+        offsetLeft += buttons[i].offsetWidth;
+      }
+
+      indicator.style.width = `${buttonWidth}px`;
+      indicator.style.left = `${offsetLeft}px`;
+      indicator.style.top = `4px`;
+      indicator.style.height = `${targetBtn.offsetHeight}px`;
+    } else {
+      let offsetTop = 4;
+      for (let i = 0; i < activeIndex; i++) {
+        offsetTop += buttons[i].offsetHeight;
+      }
+
+      indicator.style.height = `${targetBtn.offsetHeight}px`;
+      indicator.style.top = `${offsetTop}px`;
+      indicator.style.left = `4px`;
+      indicator.style.width = `${buttonWidth}px`;
+    }
+
+    buttons.forEach((btn, idx) => {
+      if (idx === activeIndex) {
+        btn.classList.replace(
+          "text-secondary",
+          "text-(--color-btn-primary-text)",
+        );
+        btn.setAttribute("aria-selected", "true");
+      } else {
+        btn.classList.replace(
+          "text-(--color-btn-primary-text)",
+          "text-secondary",
+        );
+        btn.setAttribute("aria-selected", "false");
+      }
+    });
   }
 
   static dispatchRender() {
@@ -59,5 +160,9 @@ export class MatrixController {
     } else {
       container.innerHTML = renderAbcdeList(activeTasks);
     }
+
+    requestAnimationFrame(() => {
+      this.updateTabStyles(this.currentMode);
+    });
   }
 }

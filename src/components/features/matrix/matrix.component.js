@@ -1,8 +1,9 @@
+import { getTaskMatrixAttributes } from "@/utils/helpers.js";
+
 export const MatrixTaskCardComponent = {
   render(task) {
-    const importance = task.importance || 1;
-    const urgency = task.urgency || 1;
-    const priorityScore = importance * urgency;
+    const { importance, urgency, priorityScore } =
+      getTaskMatrixAttributes(task);
 
     const statusBadgeStyles = {
       todo: "bg-sky-500/10 text-sky-400 border-sky-500/20",

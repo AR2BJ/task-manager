@@ -1,58 +1,53 @@
-/**
- * MatrixView Module
- * Responsible for rendering the Prioritization Matrix wrapper & handling view toggles.
- */
 export const MatrixView = {
-  // Local state to track selected view mode
-  state: {
-    currentMode: "eisenhower", // 'eisenhower' | 'abcde'
-  },
-
-  /**
-   * Renders the primary layout structure
-   * @returns {string} HTML string
-   */
   render() {
     return `
       <section
         id="matrix-view"
         class="hidden flex-col gap-6 w-full max-w-7xl mx-auto pb-12 animate-fadeIn"
       >
-        <div
-          class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface/60 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-border shadow-sm"
-        >
+        <div class="mb-2 flex flex-col md:flex-row w-full justify-between items-start md:items-center gap-4">
           <div>
             <h1
-              class="text-xl sm:text-2xl font-bold text-primary flex items-center gap-2"
+              id="matrix-header-title"
+              class="text-lg sm:text-xl font-bold text-primary flex items-center gap-2"
             >
-              <i class="fa-solid fa-table-cells-large text-brand"></i>
-              Prioritization Matrix
+              <i class="fa-solid fa-table-cells text-brand"></i>
+              Eisenhower Matrix
             </h1>
-            <p class="text-xs sm:text-sm text-secondary mt-1">
-              Analyze tasks using Eisenhower 4-Quadrant or ABCDE method.
+            <p 
+              id="matrix-header-description" 
+              class="text-xs sm:text-sm text-secondary mt-1"
+            >
+              Categorize tasks into 4 urgent/important quadrants for high-impact productivity.
             </p>
           </div>
-
+        
           <div
-            class="flex items-center p-1 bg-surface-2 rounded-xl border border-border/60 w-full sm:w-auto"
+            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row xs:w-fit xs:justify-start"
             role="tablist"
             aria-label="Prioritization Mode Switcher"
           >
+            <div
+              id="matrix-tab-indicator"
+              class="absolute top-1 left-1 h-12 w-[calc(100%-8px)] rounded-lg bg-brand/80 transition-all duration-300 xs:h-[calc(100%-8px)] xs:w-27"
+            ></div>
+
             <button
               id="btn-matrix-eisenhower"
               role="tab"
               aria-selected="true"
-              class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-brand text-white shadow-sm"
+              class="relative z-10 flex-1 w-full rounded-t-xl py-2 text-sm font-medium text-primary transition cursor-pointer text-center xs:w-27 xs:rounded-l-xl xs:rounded-tr-none"
             >
-              <i class="fa-solid fa-border-all mr-1.5"></i> Eisenhower
+              Eisenhower
             </button>
+
             <button
               id="btn-matrix-abcde"
               role="tab"
               aria-selected="false"
-              class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 text-secondary hover:text-primary"
+              class="relative z-10 flex-1 w-full rounded-b-xl py-2 text-sm font-medium text-secondary transition cursor-pointer text-center xs:w-27 xs:rounded-r-xl xs:rounded-t-none"
             >
-              <i class="fa-solid fa-arrow-down-a-z mr-1.5"></i> ABCDE
+              ABCDE
             </button>
           </div>
         </div>
@@ -63,81 +58,5 @@ export const MatrixView = {
         ></div>
       </section>
     `;
-  },
-
-  /**
-   * Initializes event listeners and handles state transitions.
-   * Call this function right after mounting the HTML to the DOM.
-   */
-  init() {
-    const btnEisenhower = document.getElementById("btn-matrix-eisenhower");
-    const btnABCDE = document.getElementById("btn-matrix-abcde");
-
-    if (!btnEisenhower || !btnABCDE) return;
-
-    btnEisenhower.addEventListener("click", () =>
-      this.switchMode("eisenhower"),
-    );
-    btnABCDE.addEventListener("click", () => this.switchMode("abcde"));
-
-    // Initial render of the content container based on default state
-    this.renderMatrixContent();
-  },
-
-  /**
-   * Switches the active matrix mode and updates UI state accordingly.
-   * @param {'eisenhower' | 'abcde'} mode
-   */
-  switchMode(mode) {
-    if (this.state.currentMode === mode) return;
-
-    this.state.currentMode = mode;
-    this.updateToggleUI();
-    this.renderMatrixContent();
-  },
-
-  /**
-   * Dynamic UI update for the active/inactive toggle buttons
-   */
-  updateToggleUI() {
-    const btnEisenhower = document.getElementById("btn-matrix-eisenhower");
-    const btnABCDE = document.getElementById("btn-matrix-abcde");
-
-    const activeClasses = ["bg-brand", "text-white", "shadow-sm"];
-    const inactiveClasses = ["text-secondary", "hover:text-primary"];
-
-    if (this.state.currentMode === "eisenhower") {
-      btnEisenhower.classList.add(...activeClasses);
-      btnEisenhower.classList.remove(...inactiveClasses);
-      btnEisenhower.setAttribute("aria-selected", "true");
-
-      btnABCDE.classList.remove(...activeClasses);
-      btnABCDE.classList.add(...inactiveClasses);
-      btnABCDE.setAttribute("aria-selected", "false");
-    } else {
-      btnABCDE.classList.add(...activeClasses);
-      btnABCDE.classList.remove(...inactiveClasses);
-      btnABCDE.setAttribute("aria-selected", "true");
-
-      btnEisenhower.classList.remove(...activeClasses);
-      btnEisenhower.classList.add(...inactiveClasses);
-      btnEisenhower.setAttribute("aria-selected", "false");
-    }
-  },
-
-  /**
-   * Handles rendering child views inside #matrix-content-container
-   */
-  renderMatrixContent() {
-    const container = document.getElementById("matrix-content-container");
-    if (!container) return;
-
-    if (this.state.currentMode === "eisenhower") {
-      // Inject Eisenhower Sub-component view here
-      container.innerHTML = `<div class="p-4 border border-dashed border-border rounded-xl text-center text-secondary">Eisenhower Quadrants Component Placeholder</div>`;
-    } else {
-      // Inject ABCDE Sub-component view here
-      container.innerHTML = `<div class="p-4 border border-dashed border-border rounded-xl text-center text-secondary">ABCDE Method Component Placeholder</div>`;
-    }
   },
 };

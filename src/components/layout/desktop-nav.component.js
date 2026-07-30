@@ -41,7 +41,7 @@ export const DesktopNavComponent = {
             class="nav-item justify-center"
             title="Matrix"
           >
-            <i class="fa-regular fa-table-cells-large text-lg"></i>
+            <i class="fa-regular fa-table-cells text-lg"></i>
           </button>
         </div>
 

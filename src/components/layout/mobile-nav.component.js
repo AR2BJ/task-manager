@@ -24,7 +24,7 @@ export const MobileNavComponent = {
           id="mobile-matrix"
           class="mobile-nav-btn flex flex-col items-center justify-center gap-2 text-secondary"
         >
-          <i class="fa-regular fa-table-cells-large text-2xl"></i>
+          <i class="fa-regular fa-table-cells text-2xl"></i>
           <span class="text-xs font-medium tracking-wide">Matrix</span>
         </button>
 

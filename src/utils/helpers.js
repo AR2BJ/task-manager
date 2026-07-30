@@ -4,6 +4,55 @@ export function clearOpenSubtasksState() {
   openSubtasksState.clear();
 }
 
+export function getTaskMatrixAttributes(task) {
+  // 1. Calculate Importance Score (1 to 5)
+  const priorityWeights = {
+    high: 5,
+    medium: 3,
+    low: 1,
+  };
+  const importance = priorityWeights[task.priority] || 1;
+
+  // 2. Calculate Urgency Score (1 to 5)
+  let urgency = 1;
+  if (task.dueDate && task.status !== "done") {
+    const daysRemaining = getDaysRemaining(task.dueDate);
+
+    if (daysRemaining !== null) {
+      if (daysRemaining <= 0)
+        urgency = 5; // Overdue / Due today
+      else if (daysRemaining === 1)
+        urgency = 4; // Due tomorrow
+      else if (daysRemaining <= 3)
+        urgency = 3; // Within 3 days
+      else if (daysRemaining <= 7)
+        urgency = 2; // Within a week
+      else urgency = 1; // More than a week
+    }
+  }
+
+  // 3. Calculate Priority Score
+  const priorityScore = importance * urgency;
+
+  // 4. Determine Eisenhower Quadrant based on threshold (>= 3)
+  const isImportant = importance >= 3;
+  const isUrgent = urgency >= 3;
+
+  let quadrant = 4;
+  if (isImportant && isUrgent)
+    quadrant = 1; // Q1: Do First
+  else if (isImportant && !isUrgent)
+    quadrant = 2; // Q2: Schedule
+  else if (!isImportant && isUrgent) quadrant = 3; // Q3: Delegate
+
+  return {
+    importance,
+    urgency,
+    priorityScore,
+    quadrant,
+  };
+}
+
 export function generateId() {
   if (window.crypto?.randomUUID) {
     return window.crypto.randomUUID();

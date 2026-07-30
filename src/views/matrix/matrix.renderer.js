@@ -1,18 +1,19 @@
 import { MatrixTaskCardComponent } from "@/components/features/matrix/matrix.component.js";
+import { getTaskMatrixAttributes } from "@/utils/helpers";
 
 export function renderEisenhowerGrid(tasks) {
-  const q1 = tasks.filter(
-    (t) => (t.urgency || 1) >= 3 && (t.importance || 1) >= 3,
-  );
-  const q2 = tasks.filter(
-    (t) => (t.urgency || 1) < 3 && (t.importance || 1) >= 3,
-  );
-  const q3 = tasks.filter(
-    (t) => (t.urgency || 1) >= 3 && (t.importance || 1) < 3,
-  );
-  const q4 = tasks.filter(
-    (t) => (t.urgency || 1) < 3 && (t.importance || 1) < 3,
-  );
+  const q1 = [];
+  const q2 = [];
+  const q3 = [];
+  const q4 = [];
+
+  tasks.forEach((task) => {
+    const { quadrant } = getTaskMatrixAttributes(task);
+    if (quadrant === 1) q1.push(task);
+    else if (quadrant === 2) q2.push(task);
+    else if (quadrant === 3) q3.push(task);
+    else q4.push(task);
+  });
 
   const renderSection = (title, subtitle, taskList, colorTheme, icon) => `
     <div class="flex flex-col h-full rounded-2xl bg-surface-2 border border-border/70 p-4 shadow-sm">
@@ -98,25 +99,35 @@ export function renderEisenhowerGrid(tasks) {
 }
 
 export function renderAbcdeList(tasks) {
-  const getScore = (t) => (t.importance || 1) * (t.urgency || 1);
+  const tasksWithMetrics = tasks.map((task) => ({
+    task,
+    metrics: getTaskMatrixAttributes(task),
+  }));
 
   const groups = {
-    A: tasks
-      .filter((t) => getScore(t) >= 20)
-      .sort((a, b) => getScore(b) - getScore(a)),
-    B: tasks
-      .filter((t) => getScore(t) >= 12 && getScore(t) < 20)
-      .sort((a, b) => getScore(b) - getScore(a)),
-    C: tasks
-      .filter((t) => getScore(t) >= 6 && getScore(t) < 12)
-      .sort((a, b) => getScore(b) - getScore(a)),
-    D: tasks
-      .filter((t) => getScore(t) >= 3 && getScore(t) < 6)
-      .sort((a, b) => getScore(b) - getScore(a)),
-    E: tasks
-      .filter((t) => getScore(t) < 3)
-      .sort((a, b) => getScore(b) - getScore(a)),
+    A: [],
+    B: [],
+    C: [],
+    D: [],
+    E: [],
   };
+
+  tasksWithMetrics.forEach((item) => {
+    const score = item.metrics.priorityScore;
+
+    if (score >= 20) groups.A.push(item);
+    else if (score >= 12) groups.B.push(item);
+    else if (score >= 6) groups.C.push(item);
+    else if (score >= 3) groups.D.push(item);
+    else groups.E.push(item);
+  });
+
+  const sortByScoreDesc = (a, b) =>
+    b.metrics.priorityScore - a.metrics.priorityScore;
+
+  Object.keys(groups).forEach((key) => {
+    groups[key].sort(sortByScoreDesc);
+  });
 
   const categories = [
     {
@@ -177,7 +188,7 @@ export function renderAbcdeList(tasks) {
               ${
                 list.length > 0
                   ? list
-                      .map((task) => MatrixTaskCardComponent.render(task))
+                      .map((item) => MatrixTaskCardComponent.render(item.task))
                       .join("")
                   : `<div class="h-full flex items-center justify-center text-center p-2 border border-dashed border-border/70 rounded-xl bg-surface/40">
                      <p class="text-[11px] text-secondary font-medium">Empty</p>
