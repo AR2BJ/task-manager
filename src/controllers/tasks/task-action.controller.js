@@ -8,6 +8,7 @@ import { NotificationService } from "@/services/notification.service.js";
 import { SettingsController } from "../settings.controller.js";
 import { StateManager } from "@/models/state.model.js";
 import { TaskService } from "@/services/task.service.js";
+import { openSubtasksState } from "@/utils/helpers.js";
 
 export const TaskActionController = {
   init(mainController) {
@@ -108,6 +109,13 @@ export const TaskActionController = {
             taskId,
             subtaskId,
           );
+
+          const updatedTask = updated.find((t) => t.id === taskId);
+
+          if (updatedTask && updatedTask.status === "done") {
+            openSubtasksState.delete(taskId);
+          }
+
           StateManager.save(updated);
           this.mainController.refreshUI();
         } catch (error) {

@@ -1,4 +1,5 @@
 import { StateManager, state } from "@/models/state.model.js";
+import { clearOpenSubtasksState, openSubtasksState } from "@/utils/helpers.js";
 
 import { AnalyticsController } from "./analytics.controller.js";
 import { AnalyticsView } from "@/views/analytics-view.js";
@@ -15,7 +16,6 @@ import { SettingsViewComponent } from "@/components/features/settings/settings-v
 import { TaskActionController } from "./tasks/task-action.controller.js";
 import { TaskFormController } from "./tasks/task-form.controller.js";
 import { TasksView } from "@/views/tasks-view.js";
-import { openSubtasksState } from "@/utils/helpers.js";
 import { renderTagFilterBar } from "@/views/tasks/tag-bar.renderer.js";
 import { renderTaskList } from "@/views/tasks/task-list.renderer.js";
 
@@ -383,6 +383,7 @@ export const TaskController = {
 
       setTimeout(() => {
         try {
+          clearOpenSubtasksState();
           StateManager.setTab(targetTab);
           this.updateTabStyles(targetTab);
           this.refreshUI();
@@ -603,6 +604,7 @@ export const TaskController = {
   },
 
   handleTabSwitch(tab) {
+    clearOpenSubtasksState();
     StateManager.setTab(tab);
     this.refreshUI();
     this.updateTabStyles(tab);

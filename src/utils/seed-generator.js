@@ -57,26 +57,19 @@ const SUBTASK_TEMPLATES = [
   "Deploy to staging",
 ];
 
+const CAPACITY_LIMITS = {
+  high: 6,
+  medium: 8,
+  low: 10,
+  total: 24,
+};
+
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomSubtasks() {
-  const count = getRandomInt(0, 4);
-  const subtasks = [];
-
-  for (let i = 0; i < count; i++) {
-    subtasks.push({
-      id: `subtask-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 5)}`,
-      title: getRandomElement(SUBTASK_TEMPLATES),
-      completed: Math.random() > 0.5,
-    });
-  }
-  return subtasks;
 }
 
 function getRandomTags() {
@@ -90,6 +83,20 @@ function getRandomTags() {
   }
 
   return shuffled.slice(0, count);
+}
+
+function getRandomSubtasks() {
+  const count = getRandomInt(0, 4);
+  const subtasks = [];
+
+  for (let i = 0; i < count; i++) {
+    subtasks.push({
+      id: `subtask-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 5)}`,
+      title: getRandomElement(SUBTASK_TEMPLATES),
+      completed: false,
+    });
+  }
+  return subtasks;
 }
 
 export function generateDynamicMockData(count = 20) {
@@ -110,22 +117,65 @@ export function generateDynamicMockData(count = 20) {
 
   const tasks = [];
 
+  const capacityTracker = {};
+
   for (let i = 1; i <= count; i++) {
     const title = `${getRandomElement(TASK_TITLES)} (#${i})`;
     const id = `mock-task-${i}-${Math.random().toString(36).substring(2, 7)}`;
-    const status = getRandomElement(STATUSES);
-    const priority = getRandomElement(PRIORITIES);
     const tags = getRandomTags();
     const description = getRandomElement(TASK_DESCRIPTIONS);
-    const subtasks = getRandomSubtasks();
 
     const daysAgoCreated = getRandomInt(1, 60);
     const createdAtDate = subtractDays(today, daysAgoCreated);
+    const createdAtISO = formatDate(createdAtDate);
 
     let dueDate = null;
     if (Math.random() > 0.2) {
       const dueOffset = getRandomInt(-5, 15);
       dueDate = formatDate(addDays(today, dueOffset));
+    }
+
+    const targetDate = dueDate || createdAtISO;
+
+    if (!capacityTracker[targetDate]) {
+      capacityTracker[targetDate] = { high: 0, medium: 0, low: 0, total: 0 };
+    }
+
+    if (capacityTracker[targetDate].total >= CAPACITY_LIMITS.total) {
+      continue;
+    }
+
+    const availablePriorities = PRIORITIES.filter(
+      (p) => capacityTracker[targetDate][p] < CAPACITY_LIMITS[p],
+    );
+
+    if (availablePriorities.length === 0) {
+      continue;
+    }
+
+    const priority = getRandomElement(availablePriorities);
+    capacityTracker[targetDate][priority]++;
+    capacityTracker[targetDate].total++;
+
+    let status = getRandomElement(STATUSES);
+    let subtasks = getRandomSubtasks();
+
+    if (subtasks.length > 0) {
+      if (status === "done") {
+        subtasks = subtasks.map((st) => ({ ...st, completed: true }));
+      } else {
+
+        let completedCount = 0;
+        subtasks = subtasks.map((st) => {
+          const isCompleted = Math.random() > 0.5;
+          if (isCompleted) completedCount++;
+          return { ...st, completed: isCompleted };
+        });
+
+        if (completedCount === subtasks.length) {
+          status = "done";
+        }
+      }
     }
 
     const archived = status === "done" ? Math.random() < 0.2 : false;
@@ -134,6 +184,10 @@ export function generateDynamicMockData(count = 20) {
         ? formatDate(subtractDays(today, getRandomInt(0, 10)))
         : null;
 
+    const completedSubtaskIdsBeforeDone = subtasks
+      .filter((st) => st.completed)
+      .map((st) => st.id);
+
     tasks.push({
       id,
       title,
@@ -141,13 +195,14 @@ export function generateDynamicMockData(count = 20) {
       status,
       priority,
       dueDate,
-      createdAt: formatDate(createdAtDate),
+      createdAt: createdAtISO,
       updatedAt: null,
       completedAt,
       archived,
       tags,
       estimatedMinutes: getRandomElement([15, 30, 45, 60, 120]),
       subtasks,
+      completedSubtaskIdsBeforeDone,
     });
   }
 

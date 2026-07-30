@@ -1,6 +1,50 @@
 import { generateId, todayISO } from "@/utils/helpers.js";
 
 export const TaskService = {
+  validateTaskLimits(tasks, targetDate, newPriority, excludeTaskId = null) {
+    if (!targetDate) return;
+
+    const LIMITS = {
+      high: 6,
+      medium: 8,
+      low: 10,
+      total: 24,
+    };
+
+    const sameDateTasks = tasks.filter((task) => {
+      if (task.archived) return false;
+      if (excludeTaskId && task.id === excludeTaskId) return false;
+
+      const taskDate = task.dueDate || task.createdAt;
+      return taskDate === targetDate;
+    });
+
+    if (sameDateTasks.length >= LIMITS.total) {
+      throw new Error(
+        `Daily capacity reached! Maximum total tasks allowed for ${targetDate} is ${LIMITS.total}.`,
+      );
+    }
+
+    const countByPriority = sameDateTasks.reduce(
+      (acc, task) => {
+        const p = task.priority || "medium";
+        acc[p] = (acc[p] || 0) + 1;
+        return acc;
+      },
+      { high: 0, medium: 0, low: 0 },
+    );
+
+    const targetPriority = newPriority || "medium";
+    const currentCount = countByPriority[targetPriority] || 0;
+    const maxAllowed = LIMITS[targetPriority] || LIMITS.low;
+
+    if (currentCount >= maxAllowed) {
+      throw new Error(
+        `Priority capacity exceeded! You can only set up to ${maxAllowed} ${targetPriority.toUpperCase()} priority tasks for ${targetDate}.`,
+      );
+    }
+  },
+
   createTask(currentTasks, taskData) {
     const rawTitle = typeof taskData === "string" ? taskData : taskData.title;
     const cleanedTitle = (rawTitle || "").trim().replace(/\s+/g, " ");
@@ -18,6 +62,11 @@ export const TaskService = {
       throw new Error("An active task with this title already exists.");
     }
 
+    const taskDate = taskData.dueDate || todayISO();
+    const taskPriority = taskData.priority || "medium";
+
+    this.validateTaskLimits(currentTasks, taskDate, taskPriority);
+
     let parsedTags = [];
     if (Array.isArray(taskData.tags)) {
       parsedTags = taskData.tags;
@@ -33,7 +82,7 @@ export const TaskService = {
       title: cleanedTitle,
       description: (taskData.description || "").trim(),
       status: taskData.status || "todo",
-      priority: taskData.priority || "medium",
+      priority: taskPriority,
       dueDate: taskData.dueDate || null,
       createdAt: todayISO(),
       updatedAt: null,
@@ -117,6 +166,15 @@ export const TaskService = {
         throw new Error("Task title must be between 2 and 120 characters.");
       }
     }
+
+    const targetDate =
+      updatedFields.dueDate !== undefined
+        ? updatedFields.dueDate
+        : task.dueDate;
+    const finalDate = targetDate || task.createdAt;
+    const targetPriority = updatedFields.priority || task.priority;
+
+    this.validateTaskLimits(currentTasks, finalDate, targetPriority, id);
 
     let parsedTags = task.tags;
     if (Array.isArray(updatedFields.tags)) {
@@ -237,6 +295,12 @@ export const TaskService = {
   },
 
   restoreTask(currentTasks, id) {
+    const task = currentTasks.find((t) => t.id === id);
+    if (task) {
+      const taskDate = task.dueDate || task.createdAt;
+      this.validateTaskLimits(currentTasks, taskDate, task.priority, id);
+    }
+
     return currentTasks.map((task) =>
       task.id === id ? { ...task, archived: false } : task,
     );

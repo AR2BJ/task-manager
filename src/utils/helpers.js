@@ -1,5 +1,9 @@
 export const openSubtasksState = new Set();
 
+export function clearOpenSubtasksState() {
+  openSubtasksState.clear();
+}
+
 export function generateId() {
   if (window.crypto?.randomUUID) {
     return window.crypto.randomUUID();
