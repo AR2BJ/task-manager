@@ -39,7 +39,11 @@ export function renderTagFilterBar() {
         }"
       >
         <span class="flex flex-row justify-center items-center gap-1">
-          <i class="fa-regular fa-tag ${isSelected ? "text-white" : "text-brand/70"} text-xs"></i>
+          <i
+            class="fa-regular fa-tag ${
+              isSelected ? "text-white" : "text-brand/70"
+            } text-xs"
+          ></i>
           ${tag}
         </span>
       </button>

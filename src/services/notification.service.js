@@ -53,7 +53,9 @@ export const NotificationService = {
       iconColor || typeIconColorMap[type] || "text-emerald-500";
 
     const toast = document.createElement("div");
-    toast.className = `animate-slide-up ${toastTypeClass} backdrop-blur-md rounded-2xl px-5 py-3.5 shadow-2xl flex flex-row justify-between items-center gap-4 transition-all duration-300 transform w-full`;
+    toast.className = `animate-slide-up ${toastTypeClass} backdrop-blur-md
+    rounded-2xl px-5 py-3.5 shadow-2xl flex flex-row justify-between
+    items-center gap-4 transition-all duration-300 transform w-full`;
 
     const countdownId = `toast-cd-${Math.random().toString(36).slice(2, 11)}`;
 
@@ -65,7 +67,11 @@ export const NotificationService = {
       <div class="flex items-center gap-3 text-secondary">
         ${
           undoAction
-            ? `<span id="${countdownId}" class="text-xs font-mono ${toastTimerClass} px-1.5 py-0.5 rounded">${duration / 1000}s</span>`
+            ? `<span
+                id="${countdownId}"
+                class="text-xs font-mono ${toastTimerClass} px-1.5 py-0.5 rounded"
+                >${duration / 1000}s</span
+              >`
             : iconHTML
         }
         <span class="${toastTextClass} text-sm font-medium">${message}</span>

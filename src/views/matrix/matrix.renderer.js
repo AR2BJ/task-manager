@@ -53,9 +53,13 @@ export function renderEisenhowerGrid(tasks) {
               ? taskList
                   .map((task) => MatrixTaskCardComponent.render(task))
                   .join("")
-              : `<div class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-border/60 rounded-xl bg-surface/30">
-                 <p class="text-xs text-tertiary font-medium">No tasks in this quadrant</p>
-               </div>`
+              : `<div
+                  class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-border/60 rounded-xl bg-surface/30"
+                >
+                  <p class="text-xs text-tertiary font-medium">
+                    No tasks in this quadrant
+                  </p>
+                </div>`
           }
         </div>
       </div>
@@ -159,11 +163,7 @@ export function renderAbcdeList(tasks) {
         .map((cat, idx) => {
           const list = groups[cat.key];
           const colSpanClass =
-            idx === 3
-              ? "lg:col-span-1"
-              : idx === 4
-                ? "lg:col-span-2"
-                : "";
+            idx === 3 ? "lg:col-span-1" : idx === 4 ? "lg:col-span-2" : "";
 
           return `
             <div

@@ -1,5 +1,6 @@
+import { formatDate, generateId } from "@/utils/helpers";
+
 import { STORAGE_VERSION } from "@/models/storage.model";
-import { formatDate } from "@/utils/helpers";
 
 const TASK_TITLES = [
   "Fix OAuth2 Refresh Token Bug",
@@ -91,7 +92,9 @@ function getRandomSubtasks() {
 
   for (let i = 0; i < count; i++) {
     subtasks.push({
-      id: `subtask-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 5)}`,
+      id: `subtask-${Date.now()}-${i}-${Math.random()
+        .toString(36)
+        .substring(2, 5)}`,
       title: getRandomElement(SUBTASK_TEMPLATES),
       completed: false,
     });
@@ -121,7 +124,7 @@ export function generateDynamicMockData(count = 20) {
 
   for (let i = 1; i <= count; i++) {
     const title = `${getRandomElement(TASK_TITLES)} (#${i})`;
-    const id = `mock-task-${i}-${Math.random().toString(36).substring(2, 7)}`;
+    const id = generateId();
     const tags = getRandomTags();
     const description = getRandomElement(TASK_DESCRIPTIONS);
 
@@ -164,7 +167,6 @@ export function generateDynamicMockData(count = 20) {
       if (status === "done") {
         subtasks = subtasks.map((st) => ({ ...st, completed: true }));
       } else {
-
         let completedCount = 0;
         subtasks = subtasks.map((st) => {
           const isCompleted = Math.random() > 0.5;

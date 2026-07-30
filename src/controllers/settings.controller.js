@@ -158,14 +158,15 @@ export const SettingsController = {
       fileName = `Tasks_Backup_${dateStr}_v${STORAGE_VERSION}.json`;
       contentType = "application/json";
     } else if (format === "markdown") {
-      fileContent = `# 📊 Task Manager Workspace Progress Report\n\nGenerated: ${new Date().toLocaleDateString()}\n\n---\n\n`;
+      fileContent = `# 📊 Task Manager Workspace Progress Report Generated:
+      ${new Date().toLocaleDateString()} --- `;
 
       tasks.forEach((task) => {
         const tagsFormatted = (task.tags || []).map((t) => `#${t}`).join(" ");
 
         fileContent += `## #️⃣ ${task.id}\n`;
         fileContent += `### 🎯 ${task.title}\n`;
-        fileContent += `- **Description:** ${task.description || "N/A"}\n`;
+        fileContent += `- **Description:** ${task.description || "N/A"} `;
         fileContent += `- **Status:** ${task.status}\n`;
         fileContent += `- **Priority:** ${task.priority}\n`;
         fileContent += `- **Due Date:** 📅 ${task.dueDate || "None"}\n`;
@@ -176,7 +177,10 @@ export const SettingsController = {
         fileContent += `- **Completed At:** ✅ ${task.completedAt || "N/A"}\n`;
         fileContent += `- **Archived:** ${task.archived ? "📦 Yes" : "⚡ No"}\n\n`;
 
-        fileContent += `#### 📋 Subtasks (${(task.subtasks || []).filter((st) => st.completed).length}/${(task.subtasks || []).length})\n`;
+        fileContent += `#### 📋 Subtasks
+        (${(task.subtasks || []).filter((st) => st.completed).length}/${
+          (task.subtasks || []).length
+        }) `;
         if (!task.subtasks || task.subtasks.length === 0) {
           fileContent += `_No subtasks defined._\n\n`;
         } else {
@@ -252,7 +256,8 @@ export const SettingsController = {
 
     NotificationService.show({
       type: "success",
-      message: `Database layer exported successfully as ${format.toUpperCase()}.`,
+      message: `Database layer exported successfully as
+      ${format.toUpperCase()}.`,
       icon: "fa-file-arrow-down",
       iconColor: "text-emerald-500/80",
       duration: 5000,
@@ -533,7 +538,8 @@ export const SettingsController = {
 
           NotificationService.show({
             type: "success",
-            message: `Data ledger parsed and synchronized from ${format.toUpperCase()} file.`,
+            message: `Data ledger parsed and synchronized from
+            ${format.toUpperCase()} file.`,
             icon: "fa-circle-check",
             iconColor: "text-emerald-500/80",
             duration: 5000,
@@ -572,7 +578,8 @@ export const SettingsController = {
 
     NotificationService.show({
       type: "info",
-      message: `Initiating massive ${mockDataCount}-task matrix calculation...`,
+      message: `Initiating massive ${mockDataCount}-task matrix
+      calculation...`,
       icon: "fa-gears",
       iconColor: "text-brand/80",
       duration: 5000,
@@ -600,7 +607,8 @@ export const SettingsController = {
         setTimeout(() => {
           NotificationService.show({
             type: "success",
-            message: `Sandbox environment populated with ${mockDataCount} edge-case routine logs.`,
+            message: `Sandbox environment populated with ${mockDataCount}
+            edge-case routine logs.`,
             icon: "fa-circle-check",
             iconColor: "text-emerald-500/80",
             duration: 5000,
@@ -665,9 +673,8 @@ export const SettingsController = {
 
     NotificationService.show({
       type: "info",
-      message: `Autonomous archiving pipeline has been ${
-        nextState ? "activated" : "deactivated"
-      }.`,
+      message: `Autonomous archiving pipeline has been
+      ${nextState ? "activated" : "deactivated"}.`,
       icon: "fa-robot",
       iconColor: "text-brand/80",
       duration: 5000,

@@ -21,7 +21,8 @@ export const TaskService = {
 
     if (sameDateTasks.length >= LIMITS.total) {
       throw new Error(
-        `Daily capacity reached! Maximum total tasks allowed for ${targetDate} is ${LIMITS.total}.`,
+        `Daily capacity reached! Maximum total tasks allowed for
+        ${targetDate} is ${LIMITS.total}.`,
       );
     }
 
@@ -40,7 +41,8 @@ export const TaskService = {
 
     if (currentCount >= maxAllowed) {
       throw new Error(
-        `Priority capacity exceeded! You can only set up to ${maxAllowed} ${targetPriority.toUpperCase()} priority tasks for ${targetDate}.`,
+        `Priority capacity exceeded! You can only set up to ${maxAllowed}
+        ${targetPriority.toUpperCase()} priority tasks for ${targetDate}.`,
       );
     }
   },

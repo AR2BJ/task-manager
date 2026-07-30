@@ -10,9 +10,8 @@ export function renderTaskList(tasks, activeTab = "active") {
     const totalCount = tasks.length;
     countBadge.innerHTML = `
       <p class="text-secondary font-semibold text-sm p-0.5">
-        <span class="text-brand/80 font-extrabold">${totalCount}</span>&nbsp; ${
-          totalCount === 1 || totalCount === 0 ? "task" : "tasks"
-        }
+        <span class="text-brand/80 font-extrabold">${totalCount}</span>&nbsp;
+        ${totalCount === 1 || totalCount === 0 ? "task" : "tasks"}
       </p>
     `;
   }
