@@ -27,14 +27,14 @@ export const TaskService = {
 
     const countByPriority = sameDateTasks.reduce(
       (acc, task) => {
-        const p = task.priority || "medium";
+        const p = task.priority || "low";
         acc[p] = (acc[p] || 0) + 1;
         return acc;
       },
       { high: 0, medium: 0, low: 0 },
     );
 
-    const targetPriority = newPriority || "medium";
+    const targetPriority = newPriority || "low";
     const currentCount = countByPriority[targetPriority] || 0;
     const maxAllowed = LIMITS[targetPriority] || LIMITS.low;
 
@@ -63,7 +63,7 @@ export const TaskService = {
     }
 
     const taskDate = taskData.dueDate || todayISO();
-    const taskPriority = taskData.priority || "medium";
+    const taskPriority = taskData.priority || "low";
 
     this.validateTaskLimits(currentTasks, taskDate, taskPriority);
 

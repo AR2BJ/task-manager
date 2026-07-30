@@ -308,7 +308,7 @@ export const SettingsController = {
 
       let description = "";
       let status = "todo";
-      let priority = "medium";
+      let priority = "low";
       let dueDate = null;
       let estimatedMinutes = 0;
       let tags = [];
@@ -325,7 +325,7 @@ export const SettingsController = {
         } else if (line.includes("- **Status:**")) {
           status = line.split("- **Status:**")[1]?.trim() || "todo";
         } else if (line.includes("- **Priority:**")) {
-          priority = line.split("- **Priority:**")[1]?.trim() || "medium";
+          priority = line.split("- **Priority:**")[1]?.trim() || "low";
         } else if (line.includes("- **Due Date:**")) {
           const val = line.split("📅 ")[1]?.trim();
           dueDate = !val || val === "None" ? null : val;
@@ -411,7 +411,7 @@ export const SettingsController = {
         const title = clean(1) || "Untitled Task";
         const description = clean(2);
         const status = clean(3) || "todo";
-        const priority = clean(4) || "medium";
+        const priority = clean(4) || "low";
         const dueDate = clean(5) || null;
         const estimatedMinutes = parseInt(clean(6)) || 0;
         const tags = clean(7)

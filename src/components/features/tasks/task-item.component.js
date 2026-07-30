@@ -42,7 +42,7 @@ export const TaskItemComponent = {
       high: "border-red-500/20 bg-red-500/10 text-red-500/80",
     };
     const priorityClass =
-      priorityStyles[task.priority] || priorityStyles.medium;
+      priorityStyles[task.priority] || priorityStyles.low;
 
     const statusStyles = {
       todo: "border-sky-500/20 bg-sky-500/10 text-sky-500/80",
@@ -129,7 +129,7 @@ export const TaskItemComponent = {
                 <span
                   class="inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold tracking-wider ${priorityClass}"
                 >
-                  ${task.priority || "medium"}
+                  ${task.priority || "low"}
                 </span>
 
                 <span

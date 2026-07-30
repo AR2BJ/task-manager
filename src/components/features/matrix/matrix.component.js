@@ -5,75 +5,81 @@ export const MatrixTaskCardComponent = {
     const { importance, urgency, priorityScore } =
       getTaskMatrixAttributes(task);
 
-    const statusBadgeStyles = {
-      todo: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-      in_progress: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-      done: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-      blocked: "bg-pink-500/10 text-pink-400 border-pink-500/20",
-    };
+    const statusAccent =
+      {
+        todo: "bg-sky-500",
+        in_progress: "bg-amber-500",
+        done: "bg-emerald-500",
+        blocked: "bg-rose-500",
+      }[task.status] || "bg-sky-500";
 
-    const taskStatusClass =
-      statusBadgeStyles[task.status] || statusBadgeStyles.todo;
+    const priorityStyles = {
+      low: "border-lime-500/20 bg-lime-500/10 text-lime-500/80",
+      medium: "border-amber-500/20 bg-amber-500/10 text-amber-500/80",
+      high: "border-red-500/20 bg-red-500/10 text-red-500/80",
+    };
+    const priorityClass =
+      priorityStyles[task.priority] || priorityStyles.medium;
 
     return `
-      <div class="group relative flex flex-col justify-between p-3.5 rounded-xl bg-surface-2 border border-border/70 hover:border-brand/40 transition-all duration-200 shadow-sm">
-        <div>
-          <div class="flex items-center justify-between gap-1.5 mb-2.5 flex-wrap">
+      <div class="group relative flex flex-col justify-between p-3 rounded-xl bg-surface hover:bg-surface-2 border border-border/60 hover:border-brand/40 transition-all duration-200 shadow-sm overflow-hidden">
+        <div class="absolute top-0 left-0 bottom-0 w-1 ${statusAccent}"></div>
+
+        <div class="pl-1.5">
+          <div class="flex items-center justify-between gap-2 mb-2">
             <div class="flex items-center gap-1.5">
-              <span class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border ${taskStatusClass}">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-secondary/90">
                 ${(task.status || "todo").replace("_", " ")}
               </span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-brand/10 text-brand border border-brand/20">
-                Score: ${priorityScore}
+              <span class="inline-flex items-center rounded-sm border px-1 py-0.5 text-[8px] uppercase font-semibold tracking-wider ${priorityClass}">
+                ${task.priority || "low"}
               </span>
             </div>
 
-            ${
-              task.dueDate
-                ? `
-              <span class="text-[10px] text-secondary flex items-center gap-1 font-medium bg-surface px-2 py-0.5 rounded-md border border-border/60">
-                <i class="fa-regular fa-clock text-brand text-[9px]"></i>
-                ${task.dueDate}
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-light text-brand">
+                Score: ${priorityScore}
               </span>
-            `
-                : ""
-            }
+              ${
+                task.dueDate
+                  ? `
+                <span class="text-[10px] text-tertiary flex items-center gap-1 font-medium">
+                  <i class="fa-regular fa-clock text-[9px]"></i>
+                  ${task.dueDate}
+                </span>
+              `
+                  : ""
+              }
+            </div>
           </div>
 
-          <h4 class="text-xs sm:text-sm font-bold text-primary group-hover:text-brand transition-colors line-clamp-2 leading-snug mb-1">
+          <h4 class="text-xs font-bold text-primary group-hover:text-brand transition-colors line-clamp-2 leading-snug mb-1">
             ${task.title}
           </h4>
 
           ${
             task.description
-              ? `
-            <p class="text-[11px] text-secondary/80 line-clamp-1 mb-2 font-normal">${task.description}</p>
-          `
+              ? `<p class="text-[11px] text-tertiary line-clamp-1 font-normal mb-2">${task.description}</p>`
               : ""
           }
         </div>
 
-        <div class="flex items-center justify-between pt-2.5 mt-2 border-t border-border/50 text-[11px] text-secondary">
-          <div class="flex items-center gap-3 font-medium">
-            <span class="flex items-center gap-1">
-              <i class="fa-solid fa-star text-amber-400 text-[9px]"></i>
-              <span class="text-primary font-bold">Imp: ${importance}</span>
+        <div class="flex items-center justify-between pt-2 mt-1 border-t border-border/40 text-[10px] text-secondary pl-1.5">
+          <div class="flex items-center gap-2.5 font-semibold">
+            <span class="flex items-center gap-1 text-tertiary">
+              Imp: <strong class="text-primary font-bold">${importance}</strong>
             </span>
-            <span class="flex items-center gap-1">
-              <i class="fa-solid fa-bolt text-red-400 text-[9px]"></i>
-              <span class="text-primary font-bold">Urg: ${urgency}</span>
+            <span class="flex items-center gap-1 text-tertiary">
+              Urg: <strong class="text-primary font-bold">${urgency}</strong>
             </span>
           </div>
 
           ${
             task.tags?.length
               ? `
-            <div class="flex items-center gap-1 max-w-[45%] overflow-hidden">
-              <span class="text-[9px] bg-surface text-secondary px-1.5 py-0.5 rounded border border-border/60 truncate flex items-center gap-1">
-                <i class="fa-regular fa-tag text-[8px] opacity-60"></i>
-                ${task.tags[0]}
-              </span>
-            </div>
+            <span class="text-[9px] bg-surface-3/50 text-secondary px-1.5 py-0.5 rounded border border-border/40 truncate max-w-22.5 flex flex-row justify-center items-center gap-1">
+              <i class="fa-regular fa-tags"></i> ${task.tags[0]}
+            </span>
           `
               : ""
           }
