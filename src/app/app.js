@@ -1,4 +1,5 @@
 import { GlobalLoaderService } from "@/services/loader.service";
+import { MatrixController } from "@/controllers/matrix.controller";
 import { NavigationController } from "@/controllers/navigation.controller.js";
 import { SettingsController } from "@/controllers/settings.controller";
 import { TaskController } from "@/controllers/task.controller.js";
@@ -16,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   NavigationController.init();
   TaskController.init();
+  MatrixController.init();
   SettingsController.init();
 
   TooltipController.init();

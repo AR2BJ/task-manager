@@ -2,6 +2,7 @@ import { StateManager, state } from "@/models/state.model.js";
 
 import { AnalyticsController } from "./analytics.controller.js";
 import { GlobalLoaderService } from "@/services/loader.service.js";
+import { MatrixController } from "./matrix.controller.js";
 import { TaskController } from "./task.controller.js";
 
 export class NavigationController {
@@ -23,6 +24,9 @@ export class NavigationController {
     document.getElementById("nav-analytics")?.addEventListener("click", () => {
       this.setActiveTab("analytics");
     });
+    document.getElementById("nav-matrix")?.addEventListener("click", () => {
+      this.setActiveTab("matrix");
+    });
     document.getElementById("nav-settings")?.addEventListener("click", () => {
       this.setActiveTab("settings");
     });
@@ -36,6 +40,9 @@ export class NavigationController {
       ?.addEventListener("click", () => {
         this.setActiveTab("analytics");
       });
+    document.getElementById("mobile-matrix")?.addEventListener("click", () => {
+      this.setActiveTab("matrix");
+    });
     document
       .getElementById("mobile-settings")
       ?.addEventListener("click", () => {
@@ -150,16 +157,23 @@ export class NavigationController {
       }
 
       if (event.shiftKey) {
-        if (["t", "a", "s"].includes(key)) {
+        if (["t", "a", "m", "s"].includes(key)) {
           event.preventDefault();
 
           const viewNames = {
             t: "Tasks Dashboard",
             a: "Analytical Metrics",
+            m: "Priority Matrix",
             s: "System Settings",
           };
           const targetTab =
-            key === "t" ? "tasks" : key === "a" ? "analytics" : "settings";
+            key === "t"
+              ? "tasks"
+              : key === "a"
+                ? "analytics"
+                : key === "m"
+                  ? "matrix"
+                  : "settings";
 
           GlobalLoaderService.show(`Navigating to ${viewNames[key]}...`);
 
@@ -225,9 +239,7 @@ export class NavigationController {
     this.tagKeyTimeoutId = null;
 
     const tagButtons = Array.from(
-      document.querySelectorAll(
-        "#tag-filters button, .tag-filter-btn",
-      ),
+      document.querySelectorAll("#tag-filters button, .tag-filter-btn"),
     ).filter((btn) => {
       const style = window.getComputedStyle(btn);
       return (
@@ -276,6 +288,10 @@ export class NavigationController {
 
     if (tabType === "analytics") {
       AnalyticsController.dispatchRender(StateManager.getTasks());
+    }
+
+    if (tabType === "matrix") {
+      MatrixController.dispatchRender();
     }
   }
 

@@ -19,6 +19,14 @@ export const MobileNavComponent = {
           <i class="fa-regular fa-chart-line text-2xl"></i>
           <span class="text-xs font-medium tracking-wide">Analytics</span>
         </button>
+        
+        <button
+          id="mobile-matrix"
+          class="mobile-nav-btn flex flex-col items-center justify-center gap-2 text-secondary"
+        >
+          <i class="fa-regular fa-table-cells-large text-2xl"></i>
+          <span class="text-xs font-medium tracking-wide">Matrix</span>
+        </button>
 
         <button
           id="mobile-settings"

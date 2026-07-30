@@ -35,6 +35,14 @@ export const DesktopNavComponent = {
           >
             <i class="fa-regular fa-chart-line text-xl"></i>
           </button>
+
+          <button
+            id="nav-matrix"
+            class="nav-item justify-center"
+            title="Matrix"
+          >
+            <i class="fa-regular fa-table-cells-large text-lg"></i>
+          </button>
         </div>
 
         <div class="w-full px-3">

@@ -10,6 +10,8 @@ import { EditModalsComponent } from "@/components/modals/edit-modals.component.j
 import { GlobalLoaderService } from "@/services/loader.service.js";
 import { HeaderComponent } from "@/components/shared/header.component.js";
 import { InfoModalComponent } from "@/components/modals/info-modal.component.js";
+import { MatrixController } from "./matrix.controller.js";
+import { MatrixView } from "@/views/matrix-view.js";
 import { MobileNavComponent } from "@/components/layout/mobile-nav.component.js";
 import { SettingsController } from "./settings.controller.js";
 import { SettingsViewComponent } from "@/components/features/settings/settings-view.component.js";
@@ -157,6 +159,7 @@ export const TaskController = {
       "mobile-nav-container": MobileNavComponent.render,
       "tasks-view-container": TasksView.render,
       "analytics-view-container": AnalyticsView.render,
+      "matrix-view-container": MatrixView.render,
       "settings-view-container": SettingsViewComponent.render,
       "help-modal-container": InfoModalComponent.render,
       "edit-modals-container": EditModalsComponent.render,
@@ -177,6 +180,7 @@ export const TaskController = {
 
     renderTaskList(filteredTasks, state.activeTab);
     AnalyticsController.dispatchRender(allTasks);
+    MatrixController.dispatchRender();
     this.updateNavigationDOM();
 
     renderTagFilterBar();
@@ -403,7 +407,7 @@ export const TaskController = {
       handleTabClick("archived", "Loading Archived Tasks..."),
     );
 
-    const navButtons = ["tasks", "analytics", "settings"];
+    const navButtons = ["tasks", "analytics", "matrix", "settings"];
     navButtons.forEach((v) => {
       const desktopBtn = document.getElementById(`nav-${v}`);
       const mobileBtn = document.getElementById(`mobile-${v}`);
@@ -599,6 +603,7 @@ export const TaskController = {
     window.currentThemeListener = () => {
       const allTasks = StateManager.getTasks();
       AnalyticsController.dispatchRender(allTasks);
+      MatrixController.dispatchRender();
     };
     document.addEventListener("themeChanged", window.currentThemeListener);
   },
@@ -628,7 +633,7 @@ export const TaskController = {
   },
 
   updateNavigationDOM() {
-    const views = ["tasks", "analytics", "settings"];
+    const views = ["tasks", "analytics", "matrix", "settings"];
     const currentView = state.currentView;
 
     views.forEach((v) => {
