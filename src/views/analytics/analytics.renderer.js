@@ -203,6 +203,76 @@ function handleAnalyticsResize() {
   updateTabStyles(activeHeatmapTab);
 }
 
+function renderChartEmptyState(chartEl, title, icon, subtitle) {
+  if (!chartEl) return;
+
+  chartEl.innerHTML = `
+    <div
+      class="empty-state-box flex w-full h-full min-h-60 items-center justify-center rounded-2xl border border-dashed border-border/80 bg-surface p-6 text-center"
+    >
+      <div class="max-w-xs">
+        <i class="text-4xl mb-3 fa-regular ${icon} text-brand/60"></i>
+        <div
+          class="mb-2 text-lg font-semibold text-primary"
+        >
+          ${title}
+        </div>
+        <p class="text-sm leading-6 text-secondary">
+          ${subtitle}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function renderNoDataState() {
+  const emptyStateConfigs = [
+    {
+      id: "apex-heatmap-chart",
+      title: "Activity Heatmap",
+      icon: "fa-table-cells",
+      subtitle:
+        "Add tasks to see your weekly, monthly, and yearly activity trend.",
+    },
+    {
+      id: "apex-weekday-chart",
+      title: "Weekly Activity",
+      icon: "fa-calendar-days",
+      subtitle:
+        "Your task activity by weekday will appear here once data exists.",
+    },
+    {
+      id: "apex-priority-chart",
+      title: "Priority Breakdown",
+      icon: "fa-chart-pie-simple",
+      subtitle: "Add tasks with priorities to view the distribution.",
+    },
+    {
+      id: "apex-status-chart",
+      title: "Status Overview",
+      icon: "fa-chart-pie",
+      subtitle: "Task status analytics will appear here after you add tasks.",
+    },
+    {
+      id: "apex-tag-chart",
+      title: "Tag Performance",
+      icon: "fa-chart-column",
+      subtitle: "Tag-based analytics will be shown once you have tagged tasks.",
+    },
+    {
+      id: "apex-tag-chart-desktop",
+      title: "Tag Performance",
+      icon: "fa-chart-column",
+      subtitle: "Tag-based analytics will be shown once you have tagged tasks.",
+    },
+  ];
+
+  emptyStateConfigs.forEach(({ id, title, icon, subtitle }) => {
+    const chartEl = document.getElementById(id);
+    renderChartEmptyState(chartEl, title, icon, subtitle);
+  });
+}
+
 /**
  * Main entry point to render all analytics components and charts
  */
@@ -238,8 +308,43 @@ export function renderAnalyticsCharts(
   // Inject HTML Dashboard template
   dashboard.innerHTML = DashboardComponent.render(tasks);
 
+  const hasTasks = Array.isArray(tasks) && tasks.length > 0;
+
+  if (hasTasks) {
+    const chartBox = document.querySelectorAll('[id^="apex"]');
+    const HeatmapSwitcher = document.getElementById("chart-view-switcher");
+    const mobileHeatmapSwitcher = document.getElementById(
+      "heatmap-mobile-menu-toggle",
+    );
+
+    chartBox.forEach((chart) => {
+      ["px-2", "min-w-200", "md:min-w-full", "overflow-hidden"].forEach((c) =>
+        chart.classList.add(c),
+      );
+    });
+
+    HeatmapSwitcher.classList.replace("sm:hidden", "sm:flex");
+    mobileHeatmapSwitcher.classList.replace("hidden", "inline-flex");
+  }
+
   AnalyticsController.init();
   bindAnalyticsControls(tasks);
+
+  if (!hasTasks) {
+    const HeatmapSwitcher = document.getElementById("chart-view-switcher");
+    const mobileHeatmapSwitcher = document.getElementById(
+      "heatmap-mobile-menu-toggle",
+    );
+
+    HeatmapSwitcher.classList.replace("sm:flex", "sm:hidden");
+    mobileHeatmapSwitcher.classList.replace("inline-flex", "hidden");
+
+    renderNoDataState();
+    requestAnimationFrame(() => {
+      updateTabStyles(currentHeatmapView);
+    });
+    return;
+  }
 
   if (!resizeListenerAttached) {
     window.addEventListener("resize", handleAnalyticsResize);

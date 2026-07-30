@@ -426,11 +426,11 @@ export const DashboardComponent = {
             </div>
 
             <div
-              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface"
             >
               <div
                 id="apex-heatmap-chart"
-                class="min-w-120 md:min-w-full"
+                class="w-full"
               ></div>
             </div>
           </div>
@@ -453,11 +453,11 @@ export const DashboardComponent = {
             </div>
 
             <div
-              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface"
             >
               <div
                 id="apex-weekday-chart"
-                class="w-full mt-4"
+                class="w-full"
               ></div>
             </div>
           </div>
@@ -489,11 +489,11 @@ export const DashboardComponent = {
             </div>
 
             <div
-              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface"
             >
               <div
                 id="apex-priority-chart"
-                class="w-full mt-4 flex justify-center overflow-hidden"
+                class="w-full"
               ></div>
             </div>
           </div>
@@ -518,11 +518,11 @@ export const DashboardComponent = {
             </div>
 
             <div
-              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface"
             >
               <div
                 id="apex-tag-chart"
-                class="w-full mt-4 flex justify-center overflow-hidden"
+                class="w-full"
               ></div>
             </div>
           </div>
@@ -550,11 +550,11 @@ export const DashboardComponent = {
             </div>
 
             <div
-              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface"
             >
               <div
                 id="apex-status-chart"
-                class="w-full mt-4 flex justify-center overflow-hidden"
+                class="w-full"
               ></div>
             </div>
           </div>
@@ -579,11 +579,11 @@ export const DashboardComponent = {
             </div>
 
             <div
-              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface px-2"
+              class="w-full mt-6 overflow-x-auto scrollbar-thin scrollbar-thumb-surface"
             >
               <div
                 id="apex-tag-chart-desktop"
-                class="w-full mt-4 flex justify-center overflow-hidden"
+                class="w-full"
               ></div>
             </div>
           </div>

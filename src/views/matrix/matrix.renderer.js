@@ -53,13 +53,23 @@ export function renderEisenhowerGrid(tasks) {
               ? taskList
                   .map((task) => MatrixTaskCardComponent.render(task))
                   .join("")
-              : `<div
-                  class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-border/60 rounded-xl bg-surface/30"
-                >
-                  <p class="text-xs text-tertiary font-medium">
-                    No tasks in this quadrant
-                  </p>
-                </div>`
+              : `
+                  <div
+                    class="max-h-32 bg-surface border border-dashed border-border rounded-xl p-4 text-center"
+                  >
+                    <div class="text-3xl mb-2">
+                      <i
+                        class="fa-regular fa-clipboard-list-check text-brand/80"
+                      ></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-primary">
+                      No tasks in this quadrant
+                    </h2>
+                    <p class="text-xs mt-1 text-secondary max-w-sm mx-auto">
+                      You're all caught up! Create a new task to get started.
+                    </p>
+                  </div>
+                `
           }
         </div>
       </div>
@@ -204,9 +214,22 @@ export function renderAbcdeList(tasks) {
                           MatrixTaskCardComponent.render(item.task),
                         )
                         .join("")
-                    : `<div class="h-28 flex items-center justify-center text-center p-2 border border-dashed border-border/60 rounded-xl bg-surface/30">
-                     <p class="text-[11px] text-tertiary font-medium">Empty</p>
-                   </div>`
+                    : `<div
+                        class="max-h-32 bg-surface border border-dashed border-border rounded-xl p-4 text-center"
+                      >
+                        <div class="text-2xl mb-2">
+                          <i
+                            class="fa-regular fa-clipboard-list-check text-brand/80"
+                          ></i>
+                        </div>
+                        <h2 class="text-xs font-bold text-primary">
+                          No tasks in this quadrant
+                        </h2>
+                        <p class="text-[10px] mt-1 text-secondary max-w-sm mx-auto">
+                          You're all caught up! Create a new task to get
+                          started.
+                        </p>
+                      </div>`
                 }
               </div>
             </div>
