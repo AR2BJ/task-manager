@@ -1,415 +1,297 @@
 export class ComboboxComponent {
-  constructor({
-    containerId,
-    inputId,
-    dropdownId,
-    chevronBtnId,
-    initialValues = [],
-    options = [],
-    iconClass = "fa-regular fa-tag",
-    itemTypeLabel = "Item",
-    onChange = null,
-  }) {
-    this.container = document.getElementById(containerId);
-    this.input = document.getElementById(inputId);
-    this.dropdown = document.getElementById(dropdownId);
-    this.chevronBtn = document.getElementById(chevronBtnId);
-
-    this.clearBtn = this._createClearButton();
-
-    this.options = options;
-    this.iconClass = iconClass;
-    this.itemTypeLabel = itemTypeLabel;
-    this.onChange = onChange;
-
-    this.isRefreshingFocus = false;
-    this.isLoading = false;
-    this.activeDropdownIndex = -1;
-
-    this.values = Array.isArray(initialValues)
-      ? Array.from(
-          new Set(
-            initialValues.map((v) => v.trim().toLowerCase()).filter(Boolean),
-          ),
-        )
-      : [];
-
-    this._onOutsideClick = this._handleOutsideClick.bind(this);
-    this._onScrollOrResize = this._handleScrollOrResize.bind(this);
-
-    this._handleFocus = () => {
-      if (this.isRefreshingFocus) return;
-      this.handleInput();
+  constructor(container, items = [], options = {}) {
+    const defaults = {
+      placeholder: "Type and press Enter...",
+      itemTitle: "title",
+      itemValue: "value",
+      clearable: true,
+      autoSelectFirst: false,
+      multiple: true,
+      chips: true,
+      chipRemovable: true,
+      iconClass: "fa-regular fa-tag",
+      containerClass: "",
+      inputClass: "",
+      dropdownClass: "",
+      chipClass: "",
+      clearButtonClass: "",
+      onChange: null,
+      onClear: null,
     };
 
-    this._handleClick = () => {
-      if (this.isRefreshingFocus) return;
-      this.handleInput();
-    };
+    this.options = { ...defaults, ...options };
+    this.container =
+      typeof container === "string"
+        ? document.getElementById(container)
+        : container;
 
-    this._handleInput = () => {
-      if (this.isRefreshingFocus) return;
-      this.toggleClearButtonVisibility?.();
-      this.handleInput();
-    };
-    this._handleKeyDown = (e) => this.handleKeyDown(e);
-    this._handleContainerClick = (e) => {
-      if (
-        e.target !== this.input &&
-        !e.target.closest(".remove-item-btn") &&
-        !e.target.closest(".combobox-clear-btn")
-      ) {
-        this.input.focus();
-        this.handleInput();
-      }
-    };
-    this._handleDropdownMouseDown = (e) => {
-      const item = e.target.closest(".combobox-item");
-      if (item) {
-        e.preventDefault();
-        e.stopPropagation();
-        const value = item.dataset.value;
-        if (value) {
-          this.addValue(value);
-          this.input.value = "";
-          this.hideDropdown();
-          this.input.focus();
-        }
-      }
-    };
-
-    if (this.container && this.input && this.dropdown) {
-      this.init();
-    }
-  }
-
-  _createClearButton() {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className =
-      "combobox-clear-btn bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 flex items-center justify-center cursor-pointer ml-auto mr-1 hidden";
-    btn.innerHTML = `<i class="fa-solid fa-xmark-large text-[8px]"></i>`;
-    btn.setAttribute("title", "Clear all");
-
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      this.clearAll();
-      this.input.focus();
-    });
-
-    return btn;
-  }
-
-  init() {
-    this.unbindEvents();
-
-    if (this.container && !this.container.classList.contains("group")) {
-      this.container.classList.add("group");
+    if (!this.container) {
+      throw new Error("Combobox: Container element not found!");
     }
 
-    if (this.chevronBtn && this.chevronBtn.parentNode === this.container) {
-      this.container.insertBefore(this.clearBtn, this.chevronBtn);
-    } else {
-      this.container.appendChild(this.clearBtn);
-    }
+    this.allItems = [...items];
+    this.filteredItems = [...items];
+    this.selectedItems = [];
+    this.isOpen = false;
+    this.activeIndex = -1;
+    this.searchQuery = "";
+    this.isDestroyed = false;
 
-    this.renderBadges();
-    this.toggleClearButtonVisibility();
+    this.render();
+    this.bindEvents();
 
-    this.input.addEventListener("focus", this._handleFocus);
-    this.input.addEventListener("click", this._handleClick);
-    this.input.addEventListener("input", this._handleInput);
-    this.input.addEventListener("keydown", this._handleKeyDown);
-    this.container.addEventListener("click", this._handleContainerClick);
-    this.dropdown.addEventListener("mousedown", this._handleDropdownMouseDown);
-
-    document.addEventListener("mousedown", this._onOutsideClick);
+    if (this.options.onChange) this.onChange(this.options.onChange);
+    if (this.options.onClear) this.onClear(this.options.onClear);
   }
 
-  toggleClearButtonVisibility() {
-    const hasContent = this.values.length > 0 || this.input.value.trim() !== "";
-    if (hasContent) {
-      this.clearBtn.classList.remove("hidden");
-    } else {
-      this.clearBtn.classList.add("hidden");
-    }
-  }
+  render() {
+    this.container.innerHTML = `
+    <div class="relative flex flex-col justify-center items-stretch gap-1">
+      <div
+        id="combobox-container"
+        class="relative min-h-10 w-full flex flex-wrap items-center content-start gap-1.5 rounded-xl border border-border bg-surface-2 py-1.75 ps-2.5 pe-20 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition group cursor-pointer ${
+          this.options.containerClass
+        }"
+      >
+        <div id="combobox-chips" class="flex flex-wrap gap-1.5"></div>
 
-  clearAll() {
-    this.values = [];
-    this.input.value = "";
-    this.renderBadges();
-    this.toggleClearButtonVisibility();
-    this.hideDropdown();
+        <input
+          id="combobox-input"
+          type="text"
+          placeholder="${
+            this.options.placeholder
+              ? this.options.placeholder
+              : "Typing and press Enter..."
+          }"
+          class="flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-1 h-7 cursor-text focus:outline-none ${
+            this.options.inputClass
+          }"
+          autocomplete="off"
+        />
 
-    if (this.onChange) this.onChange(this.values);
-  }
+        <button
+          id="combobox-clear-btn"
+          type="button"
+          class="absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10 ${
+            this.options.clearButtonClass
+          }"
+          title="Clear all"
+        >
+          <i class="fa-solid fa-xmark-large text-[8px]"></i>
+        </button>
 
-  unbindEvents() {
-    if (!this.input || !this.container || !this.dropdown) return;
+        <button
+          type="button"
+          id="combobox-arrow"
+          class="absolute right-3 top-1/2 -translate-y-1/2 flex text-secondary hover:text-primary transition duration-200 pointer-events-none z-10"
+          tabindex="-1"
+        >
+          <i
+            id="combobox-arrow-icon"
+            class="fa-solid fa-chevron-down text-xs"
+          ></i>
+        </button>
+      </div>
 
-    this.input.removeEventListener("focus", this._handleFocus);
-    this.input.removeEventListener("click", this._handleClick);
-    this.input.removeEventListener("input", this._handleInput);
-    this.input.removeEventListener("keydown", this._handleKeyDown);
-    this.container.removeEventListener("click", this._handleContainerClick);
-    this.dropdown.removeEventListener(
-      "mousedown",
-      this._handleDropdownMouseDown,
-    );
+      <div
+        id="combobox-dropdown"
+        class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2 ${
+          this.options.dropdownClass
+        }"
+      ></div>
+    </div>
+  `;
 
-    document.removeEventListener("mousedown", this._onOutsideClick);
+    this.elements = {
+      container: this.container.querySelector("#combobox-container"),
+      input: this.container.querySelector("#combobox-input"),
+      clearBtn: this.container.querySelector("#combobox-clear-btn"),
+      arrow: this.container.querySelector("#combobox-arrow"),
+      dropdown: this.container.querySelector("#combobox-dropdown"),
+      chipsContainer: this.container.querySelector("#combobox-chips"),
+    };
+
+    this.updateClearButton();
+    this.renderChips();
   }
 
   bindEvents() {
-    this.init();
-  }
+    const { input, dropdown, clearBtn } = this.elements;
 
-  getAvailableOptions() {
-    if (typeof this.options === "function") {
-      return this.options();
-    }
-    return Array.isArray(this.options) ? this.options : [];
-  }
-
-  clearDropdownHighlight() {
-    const items = Array.from(
-      this.dropdown?.querySelectorAll(".combobox-item") || [],
-    );
-    items.forEach((item) => {
-      item.classList.remove("bg-brand/15", "border-brand/20", "text-brand");
+    input.addEventListener("focus", () => this.handleFocus());
+    input.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.handleFocus();
     });
-    this.activeDropdownIndex = -1;
+
+    input.addEventListener("input", () => this.handleInput());
+    input.addEventListener("keydown", (e) => this.handleKeydown(e));
+
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.clearAll();
+    });
+
+    this.boundDocumentClick = (e) => {
+      if (!this.container.contains(e.target)) {
+        this.closeDropdown();
+      }
+    };
+    document.addEventListener("click", this.boundDocumentClick);
+
+    this.boundScroll = () => {
+      if (this.isOpen) this.closeDropdown();
+    };
+    window.addEventListener("scroll", this.boundScroll, true);
+
+    dropdown.addEventListener("mousedown", (e) => e.preventDefault());
+
+    dropdown.addEventListener("click", (e) => {
+      const el = e.target.closest(".combobox-item");
+      if (!el) return;
+      e.stopPropagation();
+      e.preventDefault();
+      const value = el.getAttribute("data-value");
+      if (value === undefined || value === null) return;
+
+      // try to find matching object/item, fallback to creating new
+      const found = this.allItems.find(
+        (i) => String(this.getItemValue(i)) === String(value),
+      );
+      if (found) {
+        this.selectItem(found);
+      } else {
+        this.createNewItem(value);
+      }
+    });
+
+    this.boundResize = () => {
+      if (this.isOpen) this.closeList();
+    };
+    window.addEventListener("resize", this.boundResize);
   }
 
-  highlightDropdownItem(index) {
-    const items = Array.from(
-      this.dropdown?.querySelectorAll(".combobox-item") || [],
+  updatePosition() {
+    if (!this.isOpen || !this.elements) return;
+
+    const rect = this.elements.container.getBoundingClientRect();
+
+    const dropdown = this.elements.dropdown;
+
+    dropdown.style.position = "fixed";
+    dropdown.style.top = `${rect.bottom + 4}px`;
+    dropdown.style.left = `${rect.left}px`;
+    dropdown.style.width = `${rect.width}px`;
+    dropdown.style.zIndex = "100";
+
+    dropdown.classList.add(
+      "max-h-52",
+      "overflow-y-auto",
+      "scrollbar-thin",
+      "scrollbar-thumb-surface-2",
     );
-    if (items.length === 0) {
-      this.activeDropdownIndex = -1;
-      return null;
-    }
-
-    const normalizedIndex =
-      index < 0 ? items.length - 1 : index >= items.length ? 0 : index;
-
-    this.clearDropdownHighlight();
-    const item = items[normalizedIndex];
-    item?.classList.add("bg-brand/15", "border-brand/20", "text-brand");
-    this.activeDropdownIndex = normalizedIndex;
-    item?.scrollIntoView({ block: "nearest" });
-
-    return item;
   }
 
-  moveDropdownSelection(direction) {
-    const items = Array.from(
-      this.dropdown?.querySelectorAll(".combobox-item") || [],
-    );
-    if (items.length === 0) return null;
-
-    const currentIndex =
-      this.activeDropdownIndex >= 0 && this.activeDropdownIndex < items.length
-        ? this.activeDropdownIndex
-        : -1;
-
-    const nextIndex =
-      direction > 0
-        ? (currentIndex + 1) % items.length
-        : currentIndex < 0
-          ? items.length - 1
-          : (currentIndex - 1 + items.length) % items.length;
-
-    return this.highlightDropdownItem(nextIndex);
-  }
-
-  getActiveDropdownItem() {
-    const items = Array.from(
-      this.dropdown?.querySelectorAll(".combobox-item") || [],
-    );
-    if (
-      this.activeDropdownIndex >= 0 &&
-      this.activeDropdownIndex < items.length
-    ) {
-      return items[this.activeDropdownIndex];
-    }
-    return null;
+  handleFocus() {
+    if (this.isDestroyed) return;
+    this.openDropdown();
   }
 
   handleInput() {
-    if (this.isLoading) return;
+    if (this.isDestroyed) return;
+    this.searchQuery = this.elements.input.value;
+    this.filterItems(this.searchQuery);
+    this.updateClearButton();
 
-    this.activeDropdownIndex = -1;
-
-    const query = this.input.value.trim().toLowerCase().replace(/^#/, "");
-    const allOptions = this.getAvailableOptions();
-
-    const matches = allOptions.filter((opt) => {
-      const isNotSelected = !this.values.includes(opt.toLowerCase());
-      const matchesQuery = query ? opt.toLowerCase().includes(query) : true;
-      return isNotSelected && matchesQuery;
-    });
-
-    const isAlreadySelected = query && this.values.includes(query);
-
-    if (!query && matches.length === 0) return;
-
-    this.renderDropdown(matches, query, isAlreadySelected);
-    this.showDropdown();
-  }
-
-  handleKeyDown(e) {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const activeItem = this.getActiveDropdownItem();
-      if (activeItem) {
-        const value = activeItem.dataset.value;
-        if (value) {
-          this.addValue(value);
-          this.input.value = "";
-          this.hideDropdown();
-          this.input.focus();
-          return false;
-        }
-      }
-
-      const val = this.input.value
-        .trim()
-        .toLowerCase()
-        .replace(/^#/, "")
-        .replace(/,/g, "");
-
-      if (val) {
-        this.addValue(val);
-        this.input.value = "";
-        this.hideDropdown();
-        this.input.focus();
-      }
-      return false;
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (this.dropdown.classList.contains("hidden")) {
-        this.handleInput();
-      }
-
-      this.moveDropdownSelection(1);
-      return false;
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (this.dropdown.classList.contains("hidden")) {
-        this.handleInput();
-      }
-
-      this.moveDropdownSelection(-1);
-      return false;
-    } else if (
-      e.key === "Backspace" &&
-      this.input.value === "" &&
-      this.values.length > 0
-    ) {
-      const lastVal = this.values[this.values.length - 1];
-      this.removeValue(lastVal);
-      this.handleInput();
-    } else if (e.key === "Escape") {
-      this.hideDropdown();
+    if (!this.isOpen) {
+      this.openDropdown();
     }
   }
 
-  addValue(val) {
-    const cleanVal = val.trim().toLowerCase();
-    if (cleanVal && !this.values.includes(cleanVal)) {
-      this.values = [...this.values, cleanVal];
-      this.renderBadges();
-      this.toggleClearButtonVisibility();
+  openDropdown() {
+    if (this.isOpen || this.isDestroyed) return;
 
-      this.updateDropdownPosition();
+    this.isOpen = true;
+    this.filteredItems = [...this.allItems];
 
-      if (this.onChange) this.onChange(this.values);
+    if (this.options.multiple || this.options.chips) {
+      this.filteredItems = this.filteredItems.filter(
+        (item) => !this.selectedItems.some((s) => this.isEqual(item, s)),
+      );
     }
+
+    this.updatePosition();
+
+    this.filterItems(this.searchQuery);
+    this.elements.dropdown.classList.remove("hidden");
+    this.elements.arrow.classList.add("rotate-180");
+    this.activeIndex = -1;
   }
 
-  removeValue(val) {
-    this.values = this.values.filter((v) => v !== val);
-    this.renderBadges();
-    this.toggleClearButtonVisibility();
+  closeDropdown() {
+    if (!this.isOpen || this.isDestroyed) return;
 
-    if (
-      !this.dropdown.classList.contains("hidden") ||
-      document.activeElement === this.input
-    ) {
-      this.handleInput();
-      this.input.focus();
+    this.isOpen = false;
+    this.elements.dropdown.classList.add("hidden");
+    this.elements.arrow.classList.remove("rotate-180");
+    this.activeIndex = -1;
+
+    this.updatePosition();
+  }
+
+  filterItems(query) {
+    const q = query.toLowerCase().trim();
+
+    if (!q) {
+      this.filteredItems = [...this.allItems];
     } else {
-      this.updateDropdownPosition();
+      this.filteredItems = this.allItems.filter((item) => {
+        const text = this.getItemText(item).toLowerCase();
+        return text.includes(q);
+      });
     }
 
-    if (this.onChange) this.onChange(this.values);
-  }
+    if (this.options.multiple || this.options.chips) {
+      this.filteredItems = this.filteredItems.filter(
+        (item) => !this.selectedItems.some((s) => this.isEqual(item, s)),
+      );
+    }
 
-  renderBadges() {
-    if (!this.container || !this.input) return;
+    const isAlreadySelected = q
+      ? this.selectedItems.some((item) =>
+          this.getItemText(item).toLowerCase().includes(q),
+        )
+      : false;
 
-    const existingBadges = this.container.querySelectorAll(".combobox-badge");
-    existingBadges.forEach((b) => b.remove());
-
-    this.values.forEach((val) => {
-      const badge = document.createElement("span");
-      badge.className =
-        "combobox-badge flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-brand/10 text-brand font-medium text-xs border border-brand/20 select-none animate-fadeIn";
-      badge.innerHTML = `
-        <span class="flex flex-row justify-center items-center gap-1">
-          <i class="${this.iconClass} text-brand/70 text-xs"></i>
-          ${val}
-        </span>
-        <button
-          type="button"
-          class="remove-item-btn hover:text-red-500 transition cursor-pointer flex items-center justify-center"
-        >
-          <i class="fa-solid fa-xmark text-[10px]"></i>
-        </button>
-      `;
-
-      badge.querySelector(".remove-item-btn").addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        this.removeValue(val);
-      });
-
-      this.container.insertBefore(badge, this.input);
-    });
+    this.renderDropdown(this.filteredItems, q, isAlreadySelected);
   }
 
   renderDropdown(items, query, isAlreadySelected) {
-    let html = "";
+    const dropdown = this.elements.dropdown;
 
-    this.activeDropdownIndex = -1;
+    this.activeIndex = -1;
     this.clearDropdownHighlight();
+
+    let html = "";
 
     if (items.length > 0) {
       html += items
         .map(
           (item) => `
-            <div
-              data-value="${item}"
-              class="combobox-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none"
+          <div
+            data-value="${this.getItemValue(item)}"
+            class="combobox-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none"
+          >
+            <span class="flex items-center gap-1.5">
+              <i class="${this.options.iconClass} text-brand/70 text-xs"></i>
+              ${this.getItemText(item)}
+            </span>
+            <span class="text-[10px] text-muted"
+              >Existing Item</span
             >
-              <span class="flex items-center gap-1.5">
-                <i class="${this.iconClass} text-brand/70 text-xs"></i>
-                ${item}
-              </span>
-              <span class="text-[10px] text-muted"
-                >Existing ${this.itemTypeLabel}</span
-              >
-            </div>
-          `,
+          </div>
+        `,
         )
         .join("");
     }
@@ -420,7 +302,9 @@ export class ComboboxComponent {
     }
 
     if (query) {
-      const isExactMatch = items.some((t) => t.toLowerCase() === query);
+      const isExactMatch = items.some(
+        (item) => this.getItemText(item).toLowerCase() === query,
+      );
       if (!isExactMatch) {
         html += `
           <div
@@ -434,11 +318,16 @@ export class ComboboxComponent {
               Create "${query}"
             </span>
             <span class="text-[10px] text-brand/80 font-bold"
-              >New ${this.itemTypeLabel}</span
+              >New Items</span
             >
           </div>
         `;
       }
+    }
+
+    if (html.length === 0) {
+      this.renderEmptyState("No items found");
+      return;
     }
 
     if (!html) {
@@ -446,13 +335,19 @@ export class ComboboxComponent {
       return;
     }
 
-    this.dropdown.innerHTML = html;
+    dropdown.innerHTML = html;
+
+    if (!dropdown.classList.contains("hidden")) {
+      this.updatePosition();
+    }
   }
 
   renderEmptyState(message) {
-    this.activeDropdownIndex = -1;
+    this.activeIndex = -1;
+
     this.clearDropdownHighlight();
-    this.dropdown.innerHTML = `
+
+    this.elements.dropdown.innerHTML = `
       <div
         class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none"
       >
@@ -462,107 +357,440 @@ export class ComboboxComponent {
     `;
   }
 
-  showLoading() {
-    this.isLoading = true;
-    this.dropdown.innerHTML = `
-      <div
-        class="px-3.5 py-3 text-xs text-brand text-center flex items-center justify-center gap-2"
-      >
-        <i class="fa-solid fa-spinner animate-spin"></i>
-        <span>Loading...</span>
-      </div>
-    `;
-    this.showDropdown();
-  }
-
-  hideLoading() {
-    this.isLoading = false;
-    this.handleInput();
-  }
-
-  updateDropdownPosition() {
-    if (this.dropdown.classList.contains("hidden")) return;
-
-    const rect = this.container.getBoundingClientRect();
-
-    this.dropdown.style.position = "fixed";
-    this.dropdown.style.top = `${rect.bottom + 4}px`;
-    this.dropdown.style.left = `${rect.left}px`;
-    this.dropdown.style.width = `${rect.width}px`;
-    this.dropdown.style.zIndex = "100";
-
-    this.dropdown.classList.add(
-      "max-h-52",
-      "overflow-y-auto",
-      "scrollbar-thin",
-      "scrollbar-thumb-surface-2",
+  clearDropdownHighlight() {
+    const items = Array.from(
+      this.elements.dropdown?.querySelectorAll(".combobox-item") || [],
     );
+
+    items.forEach((item) => {
+      item.classList.remove("bg-brand/15", "border-brand/20", "text-brand");
+    });
+
+    this.activeIndex = -1;
   }
 
-  showDropdown() {
-    this.dropdown.classList.remove("hidden");
-    this.chevronBtn?.classList.add("rotate-180");
+  highlightItem(index) {
+    const items =
+      this.elements.dropdown.querySelectorAll(".combobox-item") || [];
 
-    this.updateDropdownPosition();
-    this._forceFocusRefresh();
+    items.forEach((el, i) => {
+      if (i === index) {
+        el.classList.add("bg-brand/15", "border-brand/20", "text-brand");
+      } else {
+        el.classList.remove("bg-brand/15", "border-brand/20", "text-brand");
+      }
+    });
 
-    window.addEventListener("scroll", this._onScrollOrResize, true);
-    window.addEventListener("resize", this._onScrollOrResize);
-  }
-
-  _forceFocusRefresh() {
-    if (document.activeElement === this.input) {
-      this.isRefreshingFocus = true;
-
-      this.input.blur();
-      this.input.focus();
-
-      this.isRefreshingFocus = false;
-    }
-
-    this.updateDropdownPosition();
-  }
-
-  hideDropdown() {
-    this.dropdown.classList.add("hidden");
-    this.chevronBtn?.classList.remove("rotate-180");
-    this.clearDropdownHighlight();
-
-    this.input.blur();
-
-    window.removeEventListener("scroll", this._onScrollOrResize, true);
-    window.removeEventListener("resize", this._onScrollOrResize);
-  }
-
-  _handleScrollOrResize(e) {
-    if (e.target === this.dropdown) return;
-    this.hideDropdown();
-  }
-
-  _handleOutsideClick(e) {
-    const isClickInsideContainer = this.container.contains(e.target);
-    const isClickInsideDropdown = this.dropdown.contains(e.target);
-
-    if (!isClickInsideContainer && !isClickInsideDropdown) {
-      this.hideDropdown();
+    if (index >= 0 && index < items.length) {
+      items[index].scrollIntoView({ block: "nearest" });
     }
   }
 
-  getSelectedValues() {
-    return [...this.values];
+  selectItem(item) {
+    if (this.isDestroyed) return;
+
+    const isSelected = this.selectedItems.some((s) => this.isEqual(s, item));
+    if (isSelected) return;
+
+    if (this.options.multiple || this.options.chips) {
+      if (isSelected) return;
+
+      this.selectedItems.push(item);
+      this.renderChips();
+      this.elements.input.value = "";
+      this.searchQuery = "";
+      this.filterItems("");
+      this.updateClearButton();
+
+      if (!this.isOpen) {
+        this.openDropdown();
+      }
+    } else {
+      this.selectedItems = [item];
+      const text = this.getItemText(item);
+      this.elements.input.value = text;
+      this.searchQuery = text;
+      this.closeDropdown();
+      this.updateClearButton();
+    }
+
+    this.updatePosition();
+
+    this.emitChange();
   }
 
-  getTags() {
-    return this.getSelectedValues();
+  removeSelectedItem(item) {
+    if (this.isDestroyed) return;
+
+    if (!this.options.multiple && !this.options.chips) {
+      this.clearAll();
+      return;
+    }
+
+    this.selectedItems = this.selectedItems.filter(
+      (s) => !this.isEqual(s, item),
+    );
+
+    if (item?.isNew) {
+      this.allItems = this.allItems.filter(
+        (i) => this.getItemValue(i) !== this.getItemValue(item),
+      );
+    }
+
+    this.renderChips();
+    this.filterItems(this.searchQuery);
+    this.updateClearButton();
+    this.emitChange();
+
+    if (this.isOpen) {
+      this.renderDropdown();
+      this.updatePosition();
+    }
   }
 
-  reset() {
+  renderChips() {
+    const { chipsContainer } = this.elements;
+    if (!chipsContainer || !this.options.chips) return;
+
+    chipsContainer.innerHTML = "";
+
+    const chipClasses = `combobox-chip flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-brand/10 text-brand font-medium text-xs border border-brand/20 select-none animate-fadeIn ${this.options.chipClass}`;
+
+    this.selectedItems.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = chipClasses;
+
+      if (this.options.chipRemovable) {
+        chip.innerHTML = `
+          <span class="flex flex-row justify-center items-center gap-1">
+            <i class="${this.options.iconClass} text-brand/70 text-xs"></i>
+            ${this.getItemText(item)}
+          </span>
+          <button
+            type="button"
+            class="remove-chip-btn hover:text-red-500 transition cursor-pointer flex items-center justify-center"
+          >
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+          </button>
+        `;
+
+        chip
+          .querySelector(".remove-chip-btn")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.removeSelectedItem(item);
+          });
+      } else {
+        chip.innerHTML = `
+          <span class="flex flex-row justify-center items-center gap-1">
+            <i class="${this.options.iconClass} text-brand/70 text-xs"></i>
+            ${this.getItemText(item)}
+          </span>
+        `;
+      }
+
+      chipsContainer.appendChild(chip);
+    });
+
+    if (this.selectedItems.length > 0) {
+      chipsContainer.classList.replace("hidden", "flex");
+    } else {
+      chipsContainer.classList.replace("flex", "hidden");
+    }
+  }
+
+  createNewItem(value) {
+    if (this.isDestroyed) return;
+
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const exists = this.allItems.some(
+      (item) => this.getItemText(item).toLowerCase() === trimmed.toLowerCase(),
+    );
+
+    if (exists) {
+      const existing = this.allItems.find(
+        (item) =>
+          this.getItemText(item).toLowerCase() === trimmed.toLowerCase(),
+      );
+      this.selectItem(existing);
+      return;
+    }
+
+    let newItem;
+    const firstItem = this.allItems[0];
+    if (firstItem && typeof firstItem === "object" && firstItem !== null) {
+      newItem = {
+        [this.options.itemTitle]: trimmed,
+        [this.options.itemValue]: trimmed,
+        isNew: true,
+      };
+    } else {
+      newItem = {
+        [this.options.itemTitle]: trimmed,
+        [this.options.itemValue]: trimmed,
+        isNew: true,
+      };
+    }
+
+    if (!newItem.isNew) {
+      this.allItems.push(newItem);
+    }
+
+    this.selectItem(newItem);
+
+    if (this.options.multiple || this.options.chips) {
+      this.elements.input.value = "";
+      this.searchQuery = "";
+      this.filterItems("");
+      this.elements.input.focus();
+    }
+  }
+
+  clearAll() {
+    if (this.isDestroyed) return;
+
+    this.selectedItems = [];
+    this.elements.input.value = "";
+    this.searchQuery = "";
+    this.filterItems("");
+    this.updateClearButton();
+    this.renderChips();
+    this.closeDropdown();
+    this.emitChange("clear");
+  }
+
+  updateClearButton() {
+    const { clearBtn, input } = this.elements;
+    const hasValue = input.value.length > 0 || this.selectedItems.length > 0;
+
+    clearBtn.classList.toggle("hidden", !hasValue || !this.options.clearable);
+  }
+
+  handleKeydown(e) {
+    if (this.isDestroyed) return;
+
+    const items = this.elements.dropdown.querySelectorAll(".combobox-item");
+    const total = items.length;
+
+    switch (e.key) {
+      case "Enter":
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.isOpen && this.activeIndex >= 0 && this.activeIndex < total) {
+          const item = this.filteredItems[this.activeIndex];
+          if (item) {
+            this.selectItem(item);
+            if (!this.options.multiple && !this.options.chips) {
+              this.closeDropdown();
+            }
+            return;
+          }
+        }
+        const val = this.elements.input.value.trim();
+        if (val) {
+          this.createNewItem(val);
+          if (!this.options.multiple && !this.options.chips) {
+            this.closeDropdown();
+          }
+        }
+        break;
+
+      case "ArrowDown":
+        e.preventDefault();
+        if (!this.isOpen) {
+          this.openDropdown();
+          return;
+        }
+        if (total > 0) {
+          this.activeIndex = (this.activeIndex + 1) % total;
+          this.highlightItem(this.activeIndex);
+        }
+        break;
+
+      case "ArrowUp":
+        e.preventDefault();
+        if (!this.isOpen) {
+          this.openDropdown();
+          return;
+        }
+        if (total > 0) {
+          this.activeIndex = (this.activeIndex - 1 + total) % total;
+          this.highlightItem(this.activeIndex);
+        }
+        break;
+
+      case "Escape":
+        e.preventDefault();
+        this.closeDropdown();
+        this.elements.input.blur();
+        break;
+
+      case "Backspace":
+        if (
+          (this.options.multiple || this.options.chips) &&
+          this.elements.input.value === "" &&
+          this.selectedItems.length > 0
+        ) {
+          const last = this.selectedItems[this.selectedItems.length - 1];
+          this.removeSelectedItem(last);
+        }
+        break;
+
+      case "Delete":
+        if (
+          (this.options.multiple || this.options.chips) &&
+          this.elements.input.value === "" &&
+          this.selectedItems.length > 0
+        ) {
+          const first = this.selectedItems[0];
+          this.removeSelectedItem(first);
+        }
+        break;
+    }
+  }
+
+  getItemText(item) {
+    if (typeof item === "string") return item;
+    if (item && typeof item === "object") {
+      return (
+        item[this.options.itemTitle] ||
+        item[this.options.itemValue] ||
+        String(item)
+      );
+    }
+    return String(item);
+  }
+
+  getItemValue(item) {
+    if (typeof item === "string") return item;
+    if (item && typeof item === "object") {
+      return item[this.options.itemValue] !== undefined
+        ? item[this.options.itemValue]
+        : item[this.options.itemTitle] || item;
+    }
+    return item;
+  }
+
+  isEqual(a, b) {
+    if (a === b) return true;
+    if (
+      typeof a === "object" &&
+      typeof b === "object" &&
+      a !== null &&
+      b !== null
+    ) {
+      return this.getItemValue(a) === this.getItemValue(b);
+    }
+    return false;
+  }
+
+  isSelected(item) {
+    return this.selectedItems.some((s) => this.isEqual(s, item));
+  }
+
+  emitChange(type = "change") {
+    if (this.isDestroyed) return;
+
+    const values = this.selectedItems.map((item) => this.getItemValue(item));
+    const texts = this.selectedItems.map((item) => this.getItemText(item));
+
+    const detail = {
+      values:
+        this.options.multiple || this.options.chips
+          ? values
+          : values[0] || null,
+      texts:
+        this.options.multiple || this.options.chips ? texts : texts[0] || null,
+      items: this.selectedItems,
+      type: type,
+    };
+
+    this.container.dispatchEvent(
+      new CustomEvent("combobox-change", { detail }),
+    );
+
+    if (type === "change" && this.onChangeCallback) {
+      this.onChangeCallback(detail.values, detail.texts, detail.items);
+    }
+
+    if (type === "clear" && this.onClearCallback) {
+      this.onClearCallback();
+    }
+  }
+
+  onChange(callback) {
+    this.onChangeCallback = callback;
+    return this;
+  }
+
+  onClear(callback) {
+    this.onClearCallback = callback;
+    return this;
+  }
+
+  getValue() {
+    const values = this.selectedItems.map((item) => this.getItemValue(item));
+    return this.options.multiple || this.options.chips
+      ? values
+      : values[0] || null;
+  }
+
+  getSelectedItems() {
+    return this.selectedItems;
+  }
+
+  getSelectedTexts() {
+    return this.selectedItems.map((item) => this.getItemText(item));
+  }
+
+  setItems(items) {
+    if (this.isDestroyed) return;
+    this.allItems = [...items];
+    this.filteredItems = [...items];
+    this.filterItems(this.searchQuery);
+    return this;
+  }
+
+  setValue(value) {
+    if (this.isDestroyed) return;
+
+    const item = this.allItems.find(
+      (item) => this.getItemValue(item) === value,
+    );
+
+    if (item) {
+      this.selectItem(item);
+    } else if (!this.options.multiple && !this.options.chips) {
+      this.elements.input.value = value;
+      this.searchQuery = value;
+    }
+
+    return this;
+  }
+
+  clear() {
     this.clearAll();
+    return this;
   }
 
   destroy() {
-    this.unbindEvents();
-    this.clearBtn?.remove();
-    this.hideDropdown();
+    if (this.isDestroyed) return;
+    this.isDestroyed = true;
+
+    document.removeEventListener("click", this.boundDocumentClick);
+    window.removeEventListener("scroll", this.boundScroll, true);
+    window.removeEventListener("resize", this.boundResize);
+
+    this.container.innerHTML = "";
+
+    this.elements = null;
+    this.allItems = [];
+    this.filteredItems = [];
+    this.selectedItems = [];
+
+    return this;
   }
 }
