@@ -2,6 +2,7 @@ import { loadFromStorage, saveToStorage } from "./storage.model.js";
 
 export const state = {
   tasks: [],
+  tags: [],
   lastDeletedTask: null,
   activeTab: "active",
   matrixMode: "eisenhower",
@@ -19,12 +20,17 @@ export const StateManager = {
     const saved = loadFromStorage();
     if (saved) {
       state.tasks = saved.tasks || [];
+      state.tags = saved.tags || [];
     }
-    return state.tasks;
+    return state;
   },
 
   getTasks() {
     return state.tasks;
+  },
+
+  getTags() {
+    return state.tags;
   },
 
   getFilteredTasks() {
@@ -57,22 +63,14 @@ export const StateManager = {
       const todayStr = today.toISOString().split("T")[0];
 
       list = list.filter((task) => {
-        if (state.dateFilter === "no_date") {
-          return !task.dueDate;
-        }
-
+        if (state.dateFilter === "no_date") return !task.dueDate;
         if (!task.dueDate) return false;
 
         const taskDate = new Date(task.dueDate + "T00:00:00");
 
-        if (state.dateFilter === "today") {
-          return task.dueDate === todayStr;
-        }
-
-        if (state.dateFilter === "overdue") {
+        if (state.dateFilter === "today") return task.dueDate === todayStr;
+        if (state.dateFilter === "overdue")
           return taskDate < today && task.status !== "done";
-        }
-
         if (state.dateFilter === "this_week") {
           const nextWeek = new Date(today);
           nextWeek.setDate(today.getDate() + 7);
@@ -88,18 +86,14 @@ export const StateManager = {
       list = list.filter((task) => {
         const title = (task.title || "").toLowerCase();
         const description = (task.description || "").toLowerCase();
-        const priority = (task.priority || "").toLowerCase();
-        const status = (task.status || "").toLowerCase();
-        const tagsMatch = task.tags?.some((tag) =>
-          tag.toLowerCase().includes(query),
-        );
+
+        const tagsMatch = task.tags?.some((tagId) => {
+          const tagObj = state.tags.find((t) => t.id === tagId);
+          return tagObj ? tagObj.name.toLowerCase().includes(query) : false;
+        });
 
         return (
-          title.includes(query) ||
-          description.includes(query) ||
-          priority.includes(query) ||
-          status.includes(query) ||
-          tagsMatch
+          title.includes(query) || description.includes(query) || tagsMatch
         );
       });
     }
@@ -109,33 +103,21 @@ export const StateManager = {
 
   sortTasks(tasks, sortBy) {
     const priorityWeight = { high: 3, medium: 2, low: 1 };
-
-    const statusWeight = {
-      blocked: 4,
-      in_progress: 3,
-      todo: 2,
-      done: 1,
-    };
+    const statusWeight = { blocked: 4, in_progress: 3, todo: 2, done: 1 };
 
     return [...tasks].sort((a, b) => {
-      if (sortBy === "priority") {
+      if (sortBy === "priority")
         return (
           (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0)
         );
-      }
-
-      if (sortBy === "status") {
+      if (sortBy === "status")
         return (statusWeight[b.status] || 0) - (statusWeight[a.status] || 0);
-      }
-
       if (sortBy === "dueDate") {
         if (!a.dueDate) return 1;
         if (!b.dueDate) return -1;
         return new Date(a.dueDate) - new Date(b.dueDate);
       }
-      if (sortBy === "title") {
-        return a.title.localeCompare(b.title);
-      }
+      if (sortBy === "title") return a.title.localeCompare(b.title);
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
   },
@@ -176,8 +158,9 @@ export const StateManager = {
     state.searchQuery = query;
   },
 
-  save(tasks) {
+  save(tasks = state.tasks, tags = state.tags) {
     state.tasks = tasks;
-    saveToStorage({ tasks: state.tasks });
+    state.tags = tags;
+    saveToStorage({ tasks: state.tasks, tags: state.tags });
   },
 };

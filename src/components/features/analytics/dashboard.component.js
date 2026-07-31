@@ -4,6 +4,8 @@ import {
   isOverdue,
 } from "@/utils/helpers.js";
 
+import { state } from "@/models/state.model";
+
 export const DashboardComponent = {
   render(tasks = []) {
     const activeTasks = tasks.filter((t) => !t.archived);
@@ -46,10 +48,12 @@ export const DashboardComponent = {
 
     // Extract Top Tags Count for Analytic Insight
     const tagCounts = {};
-    activeTasks.forEach((t) => {
-      (t.tags || []).forEach((tag) => {
-        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-      });
+    activeTasks.forEach((task) => {
+      (state.tags.filter((t) => task.tags.includes(t.id)) || []).forEach(
+        (tag) => {
+          tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
+        },
+      );
     });
 
     const sortedTags = Object.entries(tagCounts)
@@ -766,7 +770,10 @@ export const DashboardComponent = {
                                         <div
                                           class="flex flex-wrap items-center gap-1"
                                         >
-                                          ${task.tags
+                                          ${state.tags
+                                            .filter((t) =>
+                                              task.tags.includes(t.id),
+                                            )
                                             .map(
                                               (tag) => `
                                                 <span
@@ -775,7 +782,7 @@ export const DashboardComponent = {
                                                   <i
                                                     class="fa-regular fa-tags"
                                                   ></i>
-                                                  ${tag}
+                                                  ${tag.name}
                                                 </span>
                                               `,
                                             )

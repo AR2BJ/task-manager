@@ -1,4 +1,9 @@
-import { generateId, todayISO } from "@/utils/helpers";
+import {
+  generateId,
+  mapTagIdsToObjects,
+  processTagPipeline,
+  todayISO,
+} from "@/utils/helpers";
 
 import { AutocompleteComponent } from "@/components/ui/autocomplete.component";
 import { ComboboxComponent } from "@/components/ui/combobox.component";
@@ -85,20 +90,13 @@ export const TaskFormController = {
   init(mainController) {
     this.mainController = mainController;
 
-    const tasks = StateManager.getTasks();
-    const existingTags = Array.from(
-      new Set(tasks.flatMap((t) => t.tags || [])),
-    ).map((tag) => ({
-      id: tag,
-      name: tag,
-      icon: "fa-regular fa-tag text-brand/80",
-    }));
+    const existingGlobalTags = StateManager.getTags() || [];
 
     const createTagsContainer = document.getElementById("task-tags-container");
     if (createTagsContainer) {
       createTaskCombobox = new ComboboxComponent(
         createTagsContainer,
-        existingTags,
+        existingGlobalTags,
         {
           placeholder: "Type and select tags...",
           iconClass: "fa-regular fa-tag text-brand/80",
@@ -214,38 +212,25 @@ export const TaskFormController = {
       }
     }
 
-    const tasksList = StateManager.getTasks();
-    const existingTags = Array.from(
-      new Set(tasksList.flatMap((t) => t.tags || [])),
-    ).map((tag) => ({
-      id: tag,
-      name: tag,
-      icon: "fa-regular fa-tag text-brand/80",
-    }));
+    const globalTags = StateManager.getTags() || [];
 
     const editTagsContainer = document.getElementById(
       "edit-task-tags-container",
     );
     if (editTagsContainer) {
-      editTaskCombobox = new ComboboxComponent(
-        editTagsContainer,
-        existingTags,
-        {
-          placeholder: "Type and select tags...",
-          iconClass: "fa-regular fa-tag text-brand/80",
-          itemTitle: "name",
-          itemValue: "id",
-          multiple: true,
-          chips: true,
-        },
-      );
+      editTaskCombobox = new ComboboxComponent(editTagsContainer, globalTags, {
+        placeholder: "Type and select tags...",
+        iconClass: "fa-regular fa-tag text-brand/80",
+        itemTitle: "name",
+        itemValue: "id",
+        multiple: true,
+        chips: true,
+      });
 
       if (Array.isArray(task.tags)) {
-        task.tags.forEach((tag) => {
-          const found = existingTags.find((t) => t.id === tag);
-          if (found) {
-            editTaskCombobox.selectItem(found);
-          }
+        const selectedTagObjects = mapTagIdsToObjects(task.tags, globalTags);
+        selectedTagObjects.forEach((tagObj) => {
+          editTaskCombobox.selectItem(tagObj);
         });
       }
     }
@@ -483,7 +468,16 @@ export const TaskFormController = {
         ? createStatusAutocomplete.getValue()
         : "todo";
       const dueDate = createDatePicker ? createDatePicker.value : null;
-      const tags = createTaskCombobox ? createTaskCombobox.getValue() : [];
+
+      const rawComboboxItems = createTaskCombobox
+        ? createTaskCombobox.getSelectedItems()
+        : [];
+      const currentGlobalTags = StateManager.getTags() || [];
+
+      const { assignedTagIds, updatedGlobalTags } = processTagPipeline(
+        rawComboboxItems,
+        currentGlobalTags,
+      );
 
       if (!title) {
         NotificationService.show({
@@ -508,7 +502,7 @@ export const TaskFormController = {
             dueDate,
             priority,
             status,
-            tags,
+            tags: assignedTagIds,
             subtasks: [],
             archived: false,
             createdAt: todayISO(),
@@ -518,7 +512,7 @@ export const TaskFormController = {
             ? TaskService.createTask(currentTasks, newTaskPayload)
             : [newTaskPayload, ...currentTasks];
 
-          StateManager.save(updatedTasks);
+          StateManager.save(updatedTasks, updatedGlobalTags);
 
           if (titleInput) titleInput.value = "";
           if (descInput) descInput.value = "";
@@ -747,7 +741,16 @@ export const TaskFormController = {
     const updatedStatus = editStatusAutocomplete
       ? editStatusAutocomplete.getValue()
       : "todo";
-    const updatedTags = editTaskCombobox ? editTaskCombobox.getValue() : [];
+
+    const rawComboboxItems = editTaskCombobox
+      ? editTaskCombobox.getSelectedItems()
+      : [];
+    const currentGlobalTags = StateManager.getTags() || [];
+
+    const { assignedTagIds, updatedGlobalTags } = processTagPipeline(
+      rawComboboxItems,
+      currentGlobalTags,
+    );
 
     GlobalLoaderService.show("Updating task record...");
 
@@ -761,7 +764,7 @@ export const TaskFormController = {
           dueDate: updatedDueDate,
           priority: updatedPriority,
           status: updatedStatus,
-          tags: updatedTags,
+          tags: assignedTagIds,
           subtasks: currentModalSubtasks,
         };
 
@@ -773,7 +776,7 @@ export const TaskFormController = {
                 : task,
             );
 
-        StateManager.save(updated);
+        StateManager.save(updated, updatedGlobalTags);
         this.mainController.toggleModal("edit-modal", false);
 
         // Clean up instances

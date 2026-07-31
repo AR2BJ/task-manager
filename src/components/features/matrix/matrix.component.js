@@ -1,4 +1,5 @@
 import { getTaskMatrixAttributes } from "@/utils/helpers.js";
+import { state } from "@/models/state.model";
 
 export const MatrixTaskCardComponent = {
   render(task) {
@@ -109,13 +110,14 @@ export const MatrixTaskCardComponent = {
               task.tags?.length
                 ? `
                     <div class="flex flex-wrap items-center gap-1">
-                      ${task.tags
+                      ${state.tags
+                        .filter((t) => task.tags.includes(t.id))
                         .map(
                           (tag) => `
                             <span
                               class="text-[9px] bg-surface-3/40 text-secondary px-1.5 py-0.5 rounded border border-border/40 whitespace-nowrap flex flex-row justify-center items-center gap-1"
                             >
-                              <i class="fa-regular fa-tags"></i> ${tag}
+                              <i class="fa-regular fa-tags"></i> ${tag.name}
                             </span>
                           `,
                         )

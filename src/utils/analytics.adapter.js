@@ -1,4 +1,5 @@
 import { formatDate } from "./helpers.js";
+import { state } from "@/models/state.model.js";
 
 const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const monthNames = [
@@ -274,16 +275,16 @@ export const AnalyticsAdapter = {
     const tagStats = {};
 
     activeTasks.forEach((task) => {
-      const tags = task.tags || [];
+      const tags = state.tags.filter((t) => task.tags.includes(t.id)) || [];
       const isDone = task.status === "done";
 
       tags.forEach((tag) => {
-        if (!tagStats[tag]) {
-          tagStats[tag] = { total: 0, completed: 0 };
+        if (!tagStats[tag.name]) {
+          tagStats[tag.name] = { total: 0, completed: 0 };
         }
-        tagStats[tag].total += 1;
+        tagStats[tag.name].total += 1;
         if (isDone) {
-          tagStats[tag].completed += 1;
+          tagStats[tag.name].completed += 1;
         }
       });
     });

@@ -1,5 +1,17 @@
 import { generateId, todayISO } from "@/utils/helpers.js";
 
+function sanitizeTagIds(tags) {
+  if (!Array.isArray(tags)) return [];
+  return tags
+    .map((tag) => {
+      if (typeof tag === "object" && tag !== null) {
+        return String(tag.id || tag.value || "");
+      }
+      return String(tag || "").trim();
+    })
+    .filter(Boolean);
+}
+
 export const TaskService = {
   validateTaskLimits(tasks, targetDate, newPriority, excludeTaskId = null) {
     if (!targetDate) return;
@@ -21,8 +33,7 @@ export const TaskService = {
 
     if (sameDateTasks.length >= LIMITS.total) {
       throw new Error(
-        `Daily capacity reached! Maximum total tasks allowed for
-        ${targetDate} is ${LIMITS.total}.`,
+        `Daily capacity reached! Maximum total tasks allowed for ${targetDate} is ${LIMITS.total}.`,
       );
     }
 
@@ -41,8 +52,7 @@ export const TaskService = {
 
     if (currentCount >= maxAllowed) {
       throw new Error(
-        `Priority capacity exceeded! You can only set up to ${maxAllowed}
-        ${targetPriority.toUpperCase()} priority tasks for ${targetDate}.`,
+        `Priority capacity exceeded! You can only set up to ${maxAllowed} ${targetPriority.toUpperCase()} priority tasks for ${targetDate}.`,
       );
     }
   },
@@ -69,15 +79,7 @@ export const TaskService = {
 
     this.validateTaskLimits(currentTasks, taskDate, taskPriority);
 
-    let parsedTags = [];
-    if (Array.isArray(taskData.tags)) {
-      parsedTags = taskData.tags;
-    } else if (typeof taskData.tags === "string") {
-      parsedTags = taskData.tags
-        .split(",")
-        .map((t) => t.trim().toLowerCase())
-        .filter(Boolean);
-    }
+    const parsedTagIds = sanitizeTagIds(taskData.tags);
 
     const newTask = {
       id: generateId(),
@@ -90,7 +92,7 @@ export const TaskService = {
       updatedAt: null,
       completedAt: taskData.status === "done" ? todayISO() : null,
       archived: false,
-      tags: parsedTags,
+      tags: parsedTagIds,
       subtasks: Array.isArray(taskData.subtasks) ? taskData.subtasks : [],
     };
 
@@ -102,7 +104,6 @@ export const TaskService = {
 
     return currentTasks.map((task) => {
       if (task.id !== id) return task;
-
       if (task.archived) return task;
 
       const isCompleted = task.status === "done";
@@ -178,15 +179,10 @@ export const TaskService = {
 
     this.validateTaskLimits(currentTasks, finalDate, targetPriority, id);
 
-    let parsedTags = task.tags;
-    if (Array.isArray(updatedFields.tags)) {
-      parsedTags = updatedFields.tags;
-    } else if (typeof updatedFields.tags === "string") {
-      parsedTags = updatedFields.tags
-        .split(",")
-        .map((t) => t.trim().toLowerCase())
-        .filter(Boolean);
-    }
+    const parsedTagIds =
+      updatedFields.tags !== undefined
+        ? sanitizeTagIds(updatedFields.tags)
+        : task.tags;
 
     return currentTasks.map((t) => {
       if (t.id !== id) return t;
@@ -195,7 +191,7 @@ export const TaskService = {
         ...t,
         ...updatedFields,
         title: cleanedTitle,
-        tags: parsedTags,
+        tags: parsedTagIds,
         updatedAt: todayISO(),
       };
     });

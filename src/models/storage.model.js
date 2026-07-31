@@ -3,6 +3,16 @@ import { formatDate } from "@/utils/helpers.js";
 export const STORAGE_KEY = "task_manager";
 export const STORAGE_VERSION = 1;
 
+function normalizeTag(tag) {
+  if (typeof tag === "string") {
+    return { id: crypto.randomUUID(), name: tag.trim() };
+  }
+  return {
+    id: String(tag.id || crypto.randomUUID()),
+    name: String(tag.name || tag.title || "").trim(),
+  };
+}
+
 function normalizeTask(task) {
   return {
     id: String(task.id || crypto.randomUUID()),
@@ -16,7 +26,9 @@ function normalizeTask(task) {
     completedAt: task.completedAt || null,
     estimatedMinutes: Number(task.estimatedMinutes) || 0,
     archived: Boolean(task.archived),
-    tags: Array.isArray(task.tags) ? task.tags : [],
+    tags: Array.isArray(task.tags)
+      ? task.tags.map((t) => (typeof t === "object" ? t.id : String(t)))
+      : [],
     subtasks: Array.isArray(task.subtasks)
       ? task.subtasks.map((st) => ({
           id: String(st.id || crypto.randomUUID()),
@@ -31,8 +43,11 @@ function normalizeTask(task) {
 
 function migrateData(data) {
   const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+  const tags = Array.isArray(data.tags) ? data.tags : [];
+
   return {
     version: STORAGE_VERSION,
+    tags: tags.map(normalizeTag),
     tasks: tasks.map(normalizeTask),
   };
 }
@@ -43,7 +58,8 @@ export function saveToStorage(data) {
       STORAGE_KEY,
       JSON.stringify({
         version: STORAGE_VERSION,
-        ...data,
+        tags: data.tags || [],
+        tasks: data.tasks || [],
       }),
     );
   } catch (error) {
@@ -59,10 +75,7 @@ export function loadFromStorage() {
     const data = JSON.parse(raw);
     const migrated = migrateData(data);
 
-    return {
-      ...migrated,
-      tasks: (migrated.tasks || []).map(normalizeTask),
-    };
+    return migrated;
   } catch (error) {
     console.error("Failed to load data from localStorage:", error);
     return null;

@@ -79,6 +79,47 @@ export function generateId() {
   return `${timeLow}-${timeMid}-${timeHiAndVersion}-${clockSeqHiAndReserved}-${node}`;
 }
 
+export function processTagPipeline(componentItems = [], existingTags = []) {
+  const updatedGlobalTags = [...existingTags];
+  const assignedTagIds = [];
+
+  componentItems.forEach((item) => {
+    const isNewFlag = typeof item === "object" && (item.isNew || !item.id);
+    const itemTitle = typeof item === "object" ? item.name || item.title : item;
+
+    if (!itemTitle) return;
+
+    let match = updatedGlobalTags.find(
+      (t) => t.name.toLowerCase() === itemTitle.trim().toLowerCase(),
+    );
+
+    if (isNewFlag && !match) {
+      const newTag = {
+        id: crypto.randomUUID(),
+        name: itemTitle.trim(),
+      };
+      updatedGlobalTags.push(newTag);
+      assignedTagIds.push(newTag.id);
+    } else if (match) {
+      assignedTagIds.push(match.id);
+    } else if (typeof item === "object" && item.id) {
+      assignedTagIds.push(item.id);
+    }
+  });
+
+  return {
+    assignedTagIds,
+    updatedGlobalTags,
+  };
+}
+
+export function mapTagIdsToObjects(tagIds = [], globalTags = []) {
+  if (!Array.isArray(tagIds)) return [];
+  return tagIds
+    .map((id) => globalTags.find((t) => t.id === id))
+    .filter(Boolean);
+}
+
 export function formatDate(date) {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
     date = new Date();

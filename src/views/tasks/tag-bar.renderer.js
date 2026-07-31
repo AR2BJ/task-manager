@@ -4,16 +4,14 @@ export function renderTagFilterBar() {
   const scrollContainer = document.getElementById("task-filter-scroll");
   if (!scrollContainer) return;
 
-  const tasks = StateManager.getTasks();
+  const globalTags = StateManager.getTags() || [];
 
-  // Extract all unique tags across tasks
-  const uniqueTags = Array.from(
-    new Set(tasks.flatMap((t) => t.tags || [])),
-  ).sort();
+  const sortedTags = [...globalTags].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
 
   const selectedTag = state.selectedTag || "all";
 
-  // Build HTMl for "All Tasks" + each unique tag button
   let html = `
     <button
       data-tag="all"
@@ -27,11 +25,12 @@ export function renderTagFilterBar() {
     </button>
   `;
 
-  uniqueTags.forEach((tag) => {
-    const isSelected = selectedTag === tag;
+  sortedTags.forEach((tag) => {
+    const isSelected = selectedTag === tag.id;
+
     html += `
       <button
-        data-tag="${tag}"
+        data-tag="${tag.id}"
         class="tag-filter-btn h-8 shrink-0 whitespace-nowrap rounded-lg px-3.5 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
           isSelected
             ? "bg-brand/80 text-white shadow-brand/10 shadow-sm"
@@ -44,7 +43,7 @@ export function renderTagFilterBar() {
               isSelected ? "text-white" : "text-brand/70"
             } text-xs"
           ></i>
-          ${tag}
+          ${tag.name}
         </span>
       </button>
     `;

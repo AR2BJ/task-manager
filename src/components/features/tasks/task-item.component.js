@@ -5,6 +5,8 @@ import {
   openSubtasksState,
 } from "@/utils/helpers.js";
 
+import { state } from "@/models/state.model";
+
 export const TaskItemComponent = {
   render(task) {
     const isCompleted = task.status === "done";
@@ -144,14 +146,14 @@ export const TaskItemComponent = {
                 </span>
 
                 ${dueDateBadge}
-                ${(task.tags || [])
+                ${(state.tags.filter((t) => task.tags.includes(t.id)) || [])
                   .map(
                     (tag) => `
                       <span
                         class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-secondary tracking-wider"
                       >
                         <i class="fa-regular fa-tag"></i>
-                        ${tag}
+                        ${tag.name}
                       </span>
                     `,
                   )
