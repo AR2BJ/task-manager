@@ -245,7 +245,6 @@ export const TasksView = {
                   >
                   <div
                     id="date-filter-autocomplete-wrapper"
-                    class="w-full lg:w-36"
                   ></div>
                 </div>
 
@@ -256,7 +255,6 @@ export const TasksView = {
                   >
                   <div
                     id="sort-autocomplete-wrapper"
-                    class="w-full lg:w-36"
                   ></div>
                 </div>
               </div>

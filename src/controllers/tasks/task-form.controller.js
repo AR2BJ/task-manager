@@ -31,37 +31,41 @@ let currentModalSubtasks = [];
 
 const PRIORITY_OPTIONS = [
   {
+    title: "Low Priority",
     value: "low",
-    label: "Low Priority",
     icon: "fa-solid fa-flag text-lime-400",
   },
   {
+    title: "Medium Priority",
     value: "medium",
-    label: "Medium Priority",
     icon: "fa-solid fa-flag text-amber-400",
   },
   {
+    title: "High Priority",
     value: "high",
-    label: "High Priority",
     icon: "fa-solid fa-flag text-red-400",
   },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "todo", label: "To Do", icon: "fa-regular fa-square text-sky-400" },
   {
+    title: "To Do",
+    value: "todo",
+    icon: "fa-regular fa-square text-sky-400",
+  },
+  {
+    title: "In Progress",
     value: "in_progress",
-    label: "In Progress",
     icon: "fa-regular fa-arrow-progress text-orange-400",
   },
   {
+    title: "Done",
     value: "done",
-    label: "Done",
     icon: "fa-regular fa-square-check text-emerald-400",
   },
   {
+    title: "Blocked",
     value: "blocked",
-    label: "Blocked",
     icon: "fa-regular fa-ban text-pink-400",
   },
 ];
@@ -81,23 +85,33 @@ export const TaskFormController = {
   init(mainController) {
     this.mainController = mainController;
 
-    createTaskCombobox = new ComboboxComponent({
-      containerId: "task-tags-container",
-      inputId: "task-tags-input",
-      dropdownId: "tags-combobox-dropdown",
-      chevronBtnId: "task-tags-input-chevron-btn",
-      iconClass: "fa-regular fa-tag",
-      itemTypeLabel: "Tag",
-      options: () => {
-        const tasks = StateManager.getTasks();
-        return Array.from(new Set(tasks.flatMap((t) => t.tags || []))).sort();
-      },
-    });
+    const tasks = StateManager.getTasks();
+    const existingTags = Array.from(
+      new Set(tasks.flatMap((t) => t.tags || [])),
+    ).map((tag) => ({
+      id: tag,
+      name: tag,
+      icon: "fa-regular fa-tag text-brand/80",
+    }));
+
+    const createTagsContainer = document.getElementById("task-tags-container");
+    if (createTagsContainer) {
+      createTaskCombobox = new ComboboxComponent(
+        createTagsContainer,
+        existingTags,
+        {
+          placeholder: "Type and select tags...",
+          iconClass: "fa-regular fa-tag text-brand/80",
+          itemTitle: "name",
+          itemValue: "id",
+          multiple: true,
+          chips: true,
+        },
+      );
+    }
 
     this.setupDatePicker("create");
-
     this.setupCreateAutocompletes();
-
     this.bindFormEvents();
     this.bindSubtaskEvents();
     this.bindAccordionEvents();
@@ -108,32 +122,49 @@ export const TaskFormController = {
     const statusWrapper = document.getElementById("create-status-wrapper");
 
     if (priorityWrapper) {
-      createPriorityAutocomplete = new AutocompleteComponent({
-        id: "task-priority-autocomplete",
-        placeholder: "Select Priority...",
-        value: "low",
-        options: PRIORITY_OPTIONS,
-      });
-      priorityWrapper.innerHTML = createPriorityAutocomplete.render();
-      createPriorityAutocomplete.bindEvents();
+      createPriorityAutocomplete = new AutocompleteComponent(
+        priorityWrapper,
+        PRIORITY_OPTIONS,
+        {
+          placeholder: "Select Priority...",
+          itemTitle: "title",
+          itemValue: "value",
+          itemIcon: "icon",
+        },
+      );
+
+      createPriorityAutocomplete.setValue("low");
     }
 
     if (statusWrapper) {
-      createStatusAutocomplete = new AutocompleteComponent({
-        id: "task-status-autocomplete",
-        placeholder: "Select Status...",
-        value: "todo",
-        options: STATUS_OPTIONS,
-      });
-      statusWrapper.innerHTML = createStatusAutocomplete.render();
-      createStatusAutocomplete.bindEvents();
+      createStatusAutocomplete = new AutocompleteComponent(
+        statusWrapper,
+        STATUS_OPTIONS,
+        {
+          placeholder: "Select Status...",
+          itemTitle: "title",
+          itemValue: "value",
+          itemIcon: "icon",
+        },
+      );
+      // Set default value
+      createStatusAutocomplete.setValue("todo");
     }
   },
 
   populateEditModal(taskId) {
-    if (editTaskCombobox) editTaskCombobox.destroy();
-    if (editPriorityAutocomplete) editPriorityAutocomplete.destroy();
-    if (editStatusAutocomplete) editStatusAutocomplete.destroy();
+    if (editTaskCombobox) {
+      editTaskCombobox.destroy();
+      editTaskCombobox = null;
+    }
+    if (editPriorityAutocomplete) {
+      editPriorityAutocomplete.destroy();
+      editPriorityAutocomplete = null;
+    }
+    if (editStatusAutocomplete) {
+      editStatusAutocomplete.destroy();
+      editStatusAutocomplete = null;
+    }
 
     this.resetAccordionToFirstItem();
 
@@ -152,46 +183,72 @@ export const TaskFormController = {
     const statusWrapper = document.getElementById("edit-status-wrapper");
 
     if (priorityWrapper) {
-      editPriorityAutocomplete = new AutocompleteComponent({
-        id: "edit-priority-autocomplete",
-        placeholder: "Select Priority...",
-        value: task.priority || "low",
-        background: "surface",
-        options: PRIORITY_OPTIONS,
-      });
-      priorityWrapper.innerHTML = editPriorityAutocomplete.render();
-      editPriorityAutocomplete.bindEvents();
+      editPriorityAutocomplete = new AutocompleteComponent(
+        priorityWrapper,
+        PRIORITY_OPTIONS,
+        {
+          placeholder: "Select Priority...",
+          itemTitle: "title",
+          itemValue: "value",
+          itemIcon: "icon",
+        },
+      );
+      if (task.priority) {
+        editPriorityAutocomplete.setValue(task.priority);
+      }
     }
 
     if (statusWrapper) {
-      editStatusAutocomplete = new AutocompleteComponent({
-        id: "edit-status-autocomplete",
-        placeholder: "Select Status...",
-        value: task.status || "todo",
-        background: "surface",
-        options: STATUS_OPTIONS,
-      });
-      statusWrapper.innerHTML = editStatusAutocomplete.render();
-      editStatusAutocomplete.bindEvents();
+      editStatusAutocomplete = new AutocompleteComponent(
+        statusWrapper,
+        STATUS_OPTIONS,
+        {
+          placeholder: "Select Status...",
+          itemTitle: "title",
+          itemValue: "value",
+          itemIcon: "icon",
+        },
+      );
+      if (task.status) {
+        editStatusAutocomplete.setValue(task.status);
+      }
     }
 
-    editTaskCombobox = new ComboboxComponent({
-      containerId: "edit-task-tags-container",
-      inputId: "edit-task-tags-input",
-      dropdownId: "edit-tags-combobox-dropdown",
-      chevronBtnId: "edit-task-tags-chevron-btn",
-      initialValues: Array.isArray(task.tags) ? [...task.tags] : [],
-      iconClass: "fa-regular fa-tag",
-      itemTypeLabel: "Tag",
-      options: () => {
-        const tasksList = StateManager.getTasks();
-        return Array.from(
-          new Set(tasksList.flatMap((t) => t.tags || [])),
-        ).sort();
-      },
-    });
+    const tasksList = StateManager.getTasks();
+    const existingTags = Array.from(
+      new Set(tasksList.flatMap((t) => t.tags || [])),
+    ).map((tag) => ({
+      id: tag,
+      name: tag,
+      icon: "fa-regular fa-tag text-brand/80",
+    }));
 
-    editTaskCombobox.bindEvents();
+    const editTagsContainer = document.getElementById(
+      "edit-task-tags-container",
+    );
+    if (editTagsContainer) {
+      editTaskCombobox = new ComboboxComponent(
+        editTagsContainer,
+        existingTags,
+        {
+          placeholder: "Type and select tags...",
+          iconClass: "fa-regular fa-tag text-brand/80",
+          itemTitle: "name",
+          itemValue: "id",
+          multiple: true,
+          chips: true,
+        },
+      );
+
+      if (Array.isArray(task.tags)) {
+        task.tags.forEach((tag) => {
+          const found = existingTags.find((t) => t.id === tag);
+          if (found) {
+            editTaskCombobox.selectItem(found);
+          }
+        });
+      }
+    }
 
     this.setupDatePicker("edit", task.dueDate || "");
 
@@ -239,7 +296,7 @@ export const TaskFormController = {
 
     container.innerHTML = `
       <div
-        class="w-full h-full max-h-55 sm:max-h-50 lg:max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin  bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
+        class="w-full h-full max-h-55 sm:max-h-50 lg:max-h-48 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface rounded-2xl border border-border/60 p-2.5 flex flex-col justify-start gap-2.5"
       >
         ${currentModalSubtasks
           .map(
@@ -426,9 +483,7 @@ export const TaskFormController = {
         ? createStatusAutocomplete.getValue()
         : "todo";
       const dueDate = createDatePicker ? createDatePicker.value : null;
-      const tags = createTaskCombobox
-        ? createTaskCombobox.getSelectedValues()
-        : [];
+      const tags = createTaskCombobox ? createTaskCombobox.getValue() : [];
 
       if (!title) {
         NotificationService.show({
@@ -470,7 +525,7 @@ export const TaskFormController = {
 
           createPriorityAutocomplete?.setValue("low");
           createStatusAutocomplete?.setValue("todo");
-          createTaskCombobox?.reset();
+          createTaskCombobox?.clear();
           createDatePicker?.reset();
 
           this.mainController.refreshUI();
@@ -692,13 +747,7 @@ export const TaskFormController = {
     const updatedStatus = editStatusAutocomplete
       ? editStatusAutocomplete.getValue()
       : "todo";
-    const updatedTags = editTaskCombobox
-      ? editTaskCombobox.getSelectedValues()
-      : [];
-
-    if (editTaskCombobox) editTaskCombobox.destroy();
-    if (editPriorityAutocomplete) editPriorityAutocomplete.destroy();
-    if (editStatusAutocomplete) editStatusAutocomplete.destroy();
+    const updatedTags = editTaskCombobox ? editTaskCombobox.getValue() : [];
 
     GlobalLoaderService.show("Updating task record...");
 
@@ -727,11 +776,24 @@ export const TaskFormController = {
         StateManager.save(updated);
         this.mainController.toggleModal("edit-modal", false);
 
+        // Clean up instances
+        if (editTaskCombobox) {
+          editTaskCombobox.destroy();
+          editTaskCombobox = null;
+        }
+        if (editPriorityAutocomplete) {
+          editPriorityAutocomplete.destroy();
+          editPriorityAutocomplete = null;
+        }
+        if (editStatusAutocomplete) {
+          editStatusAutocomplete.destroy();
+          editStatusAutocomplete = null;
+        }
+        if (editDatePicker) {
+          editDatePicker = null;
+        }
+
         pendingEditId = null;
-        editTaskCombobox = null;
-        editDatePicker = null;
-        editPriorityAutocomplete = null;
-        editStatusAutocomplete = null;
         currentModalSubtasks = [];
 
         this.mainController.refreshUI();

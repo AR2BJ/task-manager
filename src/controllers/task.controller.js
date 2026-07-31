@@ -52,103 +52,119 @@ export const TaskController = {
     const sortWrapper = document.getElementById("sort-autocomplete-wrapper");
 
     if (dateWrapper) {
-      this.dateFilterAutocomplete = new AutocompleteComponent({
-        id: "task-date-filter-autocomplete",
-        placeholder: "Select Date...",
-        value: state.dateFilter || "all",
-        height: "8",
-        options: [
-          {
-            value: "all",
-            label: "All Dates",
-            icon: "fa-regular fa-calendar text-emerald-400",
-          },
-          {
-            value: "overdue",
-            label: "Overdue",
-            icon: "fa-regular fa-clock text-rose-400",
-          },
-          {
-            value: "today",
-            label: "Today",
-            icon: "fa-regular fa-calendar-day text-brand",
-          },
-          {
-            value: "this_week",
-            label: "This Week",
-            icon: "fa-regular fa-calendar-week text-amber-400",
-          },
-          {
-            value: "no_date",
-            label: "No Due Date",
-            icon: "fa-regular fa-calendar-xmark text-slate-400",
-          },
-        ],
-        onChange: (selectedVal) => {
-          GlobalLoaderService.show("Filtering tasks by date...");
-          setTimeout(() => {
-            try {
-              StateManager.setDateFilter(selectedVal);
-              this.refreshUI();
-            } finally {
-              GlobalLoaderService.hide();
-            }
-          }, 10);
+      const dateOptions = [
+        {
+          value: "all",
+          title: "All Dates",
+          icon: "fa-regular fa-calendar text-emerald-400",
         },
-      });
+        {
+          value: "overdue",
+          title: "Overdue",
+          icon: "fa-regular fa-clock text-rose-400",
+        },
+        {
+          value: "today",
+          title: "Today",
+          icon: "fa-regular fa-calendar-day text-brand",
+        },
+        {
+          value: "this_week",
+          title: "This Week",
+          icon: "fa-regular fa-calendar-week text-amber-400",
+        },
+        {
+          value: "no_date",
+          title: "No Due Date",
+          icon: "fa-regular fa-calendar-xmark text-slate-400",
+        },
+      ];
 
-      dateWrapper.innerHTML = this.dateFilterAutocomplete.render();
-      this.dateFilterAutocomplete.bindEvents();
+      this.dateFilterAutocomplete = new AutocompleteComponent(
+        dateWrapper,
+        dateOptions,
+        {
+          placeholder: "Select Date...",
+          itemTitle: "title",
+          itemValue: "value",
+          itemIcon: "icon",
+          inputClass: "h-5! pb-0! w-full lg:w-36 text-xs sm:text-sm",
+          onChange: (selectedVal) => {
+            GlobalLoaderService.show("Filtering tasks by date...");
+            setTimeout(() => {
+              try {
+                StateManager.setDateFilter(selectedVal);
+                this.refreshUI();
+              } finally {
+                GlobalLoaderService.hide();
+              }
+            }, 10);
+          },
+        },
+      );
+
+      // Set initial value
+      if (state.dateFilter) {
+        this.dateFilterAutocomplete.setValue(state.dateFilter);
+      }
     }
 
     if (sortWrapper) {
-      this.sortAutocomplete = new AutocompleteComponent({
-        id: "task-sort-autocomplete",
-        placeholder: "Sort By...",
-        value: state.sortBy || "priority",
-        height: "8",
-        options: [
-          {
-            value: "priority",
-            label: "Priority",
-            icon: "fa-regular fa-arrow-down-short-wide text-brand",
-          },
-          {
-            value: "dueDate",
-            label: "Due Date",
-            icon: "fa-regular fa-calendar text-emerald-400",
-          },
-          {
-            value: "status",
-            label: "Status",
-            icon: "fa-regular fa-bar-progress text-amber-400",
-          },
-          {
-            value: "createdAt",
-            label: "Date Created",
-            icon: "fa-regular fa-clock text-rose-400",
-          },
-          {
-            value: "title",
-            label: "Title (A-Z)",
-            icon: "fa-regular fa-arrow-down-a-z text-indigo-400",
-          },
-        ],
-        onChange: (selectedVal) => {
-          GlobalLoaderService.show("Sorting tasks...");
-          setTimeout(() => {
-            try {
-              StateManager.setSortBy(selectedVal);
-              this.refreshUI();
-            } finally {
-              GlobalLoaderService.hide();
-            }
-          }, 10);
+      const sortOptions = [
+        {
+          value: "priority",
+          title: "Priority",
+          icon: "fa-regular fa-arrow-down-short-wide text-brand",
         },
-      });
+        {
+          value: "dueDate",
+          title: "Due Date",
+          icon: "fa-regular fa-calendar text-emerald-400",
+        },
+        {
+          value: "status",
+          title: "Status",
+          icon: "fa-regular fa-bar-progress text-amber-400",
+        },
+        {
+          value: "createdAt",
+          title: "Date Created",
+          icon: "fa-regular fa-clock text-rose-400",
+        },
+        {
+          value: "title",
+          title: "Title (A-Z)",
+          icon: "fa-regular fa-arrow-down-a-z text-indigo-400",
+        },
+      ];
 
-      sortWrapper.innerHTML = this.sortAutocomplete.render();
-      this.sortAutocomplete.bindEvents();
+      this.sortAutocomplete = new AutocompleteComponent(
+        sortWrapper,
+        sortOptions,
+        {
+          placeholder: "Sort By...",
+          itemTitle: "title",
+          itemValue: "value",
+          itemIcon: "icon",
+          inputClass: "h-5! pb-0! w-full lg:w-36 text-xs sm:text-sm",
+          onChange: (selectedVal) => {
+            GlobalLoaderService.show("Sorting tasks...");
+            setTimeout(() => {
+              try {
+                StateManager.setSortBy(selectedVal);
+                this.refreshUI();
+              } finally {
+                GlobalLoaderService.hide();
+              }
+            }, 10);
+          },
+        },
+      );
+
+      // Set initial value
+      if (state.sortBy) {
+        this.sortAutocomplete.setValue(state.sortBy);
+      }
     }
   },
 
