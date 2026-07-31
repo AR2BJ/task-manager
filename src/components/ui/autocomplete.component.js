@@ -35,8 +35,8 @@ export class AutocompleteComponent {
     this.selectedItems = [];
     this.isOpen = false;
     this.activeIndex = -1;
-    this.searchQuery = ""; // فقط برای فیلتر کردن
-    this.inputValue = ""; // مقدار نمایش داده شده در input
+    this.searchQuery = "";
+    this.inputValue = "";
     this.isDestroyed = false;
 
     this.render();
@@ -118,9 +118,27 @@ export class AutocompleteComponent {
   }
 
   bindEvents() {
-    const { input, dropdown, clearBtn } = this.elements;
+    const { input, dropdown, clearBtn, chipsContainer } = this.elements;
 
     input.addEventListener("focus", () => this.handleFocus());
+    input.addEventListener("blur", (e) => {
+      setTimeout(() => {
+        const activeElement = document.activeElement;
+        const isChipButton =
+          activeElement?.closest?.(".remove-chip-btn") ||
+          activeElement?.closest?.(".autocomplete-chip") ||
+          activeElement?.closest?.(".combobox-chip");
+
+        const isDropdown =
+          activeElement?.closest?.("#autocomplete-dropdown") ||
+          activeElement?.closest?.("#combobox-dropdown");
+
+        if (!isChipButton && !isDropdown) {
+          this.closeDropdown();
+        }
+      }, 100);
+    });
+
     input.addEventListener("click", (e) => {
       e.stopPropagation();
       this.handleFocus();
@@ -133,6 +151,33 @@ export class AutocompleteComponent {
       e.stopPropagation();
       e.preventDefault();
       this.clearAll();
+    });
+
+    chipsContainer?.addEventListener("mousedown", (e) => {
+      const removeBtn = e.target.closest(".remove-chip-btn");
+      if (removeBtn) {
+        e.preventDefault();
+      }
+    });
+
+    chipsContainer?.addEventListener("click", (e) => {
+      const removeBtn = e.target.closest(".remove-chip-btn");
+      if (!removeBtn) return;
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      const chip = removeBtn.closest(".autocomplete-chip");
+      if (!chip) return;
+
+      const itemText = chip.querySelector(".chip-text")?.textContent;
+      const item = this.selectedItems.find(
+        (i) => this.getItemText(i) === itemText,
+      );
+
+      if (item) {
+        this.removeSelectedItem(item);
+      }
     });
 
     this.boundDocumentClick = (e) => {
@@ -193,15 +238,12 @@ export class AutocompleteComponent {
 
   handleFocus() {
     if (this.isDestroyed) return;
-    // وقتی فوکوس میشه، فقط dropdown رو باز کن
-    // ولی searchQuery رو پاک میکنیم تا همه آیتم‌ها نمایش داده بشن
     this.searchQuery = "";
     this.openDropdown();
   }
 
   handleInput() {
     if (this.isDestroyed) return;
-    // کاربر داره تایپ میکنه، پس inputValue و searchQuery رو به‌روز میکنیم
     this.inputValue = this.elements.input.value;
     this.searchQuery = this.inputValue;
     this.filterItems(this.searchQuery);
@@ -226,12 +268,9 @@ export class AutocompleteComponent {
 
     this.updatePosition();
 
-    // اگر searchQuery وجود داره (یعنی کاربر تایپ کرده)، فیلتر رو اعمال کن
-    // در غیر این صورت همه آیتم‌ها رو نشون بده
     if (this.searchQuery && this.searchQuery.trim() !== "") {
       this.filterItems(this.searchQuery);
     } else {
-      // همه آیتم‌ها رو نشون بده
       this.filteredItems = [...this.allItems];
       if (this.options.multiple || this.options.chips) {
         this.filteredItems = this.filteredItems.filter(
@@ -416,11 +455,10 @@ export class AutocompleteComponent {
 
       this.selectedItems = [item];
       const text = this.getItemText(item);
-      // فقط inputValue رو مقداردهی میکنیم، searchQuery رو خالی میذاریم
       this.inputValue = text;
       this.elements.input.value = text;
-      this.searchQuery = ""; // مهم: searchQuery رو خالی می‌کنیم تا همه آیتم‌ها نمایش داده بشن
-      this.filterItems(""); // فیلتر رو خالی می‌کنیم
+      this.searchQuery = "";
+      this.filterItems("");
       this.closeDropdown();
       this.updateClearButton();
     }
@@ -469,7 +507,7 @@ export class AutocompleteComponent {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
             <i class="${icon} text-brand/70 text-xs"></i>
-            ${this.getItemText(item)}
+            <span class="chip-text">${this.getItemText(item)}</span>
           </span>
           <button
             type="button"
@@ -478,14 +516,6 @@ export class AutocompleteComponent {
             <i class="fa-solid fa-xmark text-[10px]"></i>
           </button>
         `;
-
-        chip
-          .querySelector(".remove-chip-btn")
-          .addEventListener("click", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            this.removeSelectedItem(item);
-          });
       } else {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">

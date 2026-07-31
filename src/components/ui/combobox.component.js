@@ -117,9 +117,27 @@ export class ComboboxComponent {
   }
 
   bindEvents() {
-    const { input, dropdown, clearBtn } = this.elements;
+    const { input, dropdown, clearBtn, chipsContainer } = this.elements;
 
     input.addEventListener("focus", () => this.handleFocus());
+    input.addEventListener("blur", (e) => {
+      setTimeout(() => {
+        const activeElement = document.activeElement;
+        const isChipButton =
+          activeElement?.closest?.(".remove-chip-btn") ||
+          activeElement?.closest?.(".autocomplete-chip") ||
+          activeElement?.closest?.(".combobox-chip");
+
+        const isDropdown =
+          activeElement?.closest?.("#autocomplete-dropdown") ||
+          activeElement?.closest?.("#combobox-dropdown");
+
+        if (!isChipButton && !isDropdown) {
+          this.closeDropdown();
+        }
+      }, 100);
+    });
+
     input.addEventListener("click", (e) => {
       e.stopPropagation();
       this.handleFocus();
@@ -132,6 +150,33 @@ export class ComboboxComponent {
       e.stopPropagation();
       e.preventDefault();
       this.clearAll();
+    });
+
+    chipsContainer?.addEventListener("mousedown", (e) => {
+      const removeBtn = e.target.closest(".remove-chip-btn");
+      if (removeBtn) {
+        e.preventDefault();
+      }
+    });
+
+    chipsContainer?.addEventListener("click", (e) => {
+      const removeBtn = e.target.closest(".remove-chip-btn");
+      if (!removeBtn) return;
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      const chip = removeBtn.closest(".combobox-chip");
+      if (!chip) return;
+
+      const itemText = chip.querySelector(".chip-text")?.textContent;
+      const item = this.selectedItems.find(
+        (i) => this.getItemText(i) === itemText,
+      );
+
+      if (item) {
+        this.removeSelectedItem(item);
+      }
     });
 
     this.boundDocumentClick = (e) => {
@@ -467,7 +512,7 @@ export class ComboboxComponent {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
             <i class="${icon} text-brand/70 text-xs"></i>
-            ${this.getItemText(item)}
+            <span class="chip-text">${this.getItemText(item)}</span>
           </span>
           <button
             type="button"
@@ -476,14 +521,6 @@ export class ComboboxComponent {
             <i class="fa-solid fa-xmark text-[10px]"></i>
           </button>
         `;
-
-        chip
-          .querySelector(".remove-chip-btn")
-          .addEventListener("click", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            this.removeSelectedItem(item);
-          });
       } else {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
