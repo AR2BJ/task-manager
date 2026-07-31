@@ -47,61 +47,64 @@ export class ComboboxComponent {
 
   render() {
     this.container.innerHTML = `
-    <div class="relative flex flex-col justify-center items-stretch gap-1">
-      <div
-        id="combobox-container"
-        class="relative min-h-10 w-full flex flex-wrap items-center content-start gap-1.5 rounded-xl border border-border bg-surface-2 py-1.75 ps-2.5 pe-20 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition group cursor-pointer ${
-          this.options.containerClass
-        }"
-      >
-        <div id="combobox-chips" class="flex flex-wrap gap-1.5"></div>
-
-        <input
-          id="combobox-input"
-          type="text"
-          placeholder="${
-            this.options.placeholder
-              ? this.options.placeholder
-              : "Typing and press Enter..."
-          }"
-          class="flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none ${
-            this.options.inputClass
-          }"
-          autocomplete="off"
-        />
-
-        <button
-          id="combobox-clear-btn"
-          type="button"
-          class="absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10 ${
-            this.options.clearButtonClass
-          }"
-          title="Clear all"
+      <div class="relative flex flex-col justify-center items-stretch gap-1">
+        <div
+          id="combobox-container"
+          class="${
+            this.options.containerClass
+          } relative min-h-10 w-full flex flex-wrap items-center content-start gap-1.5 rounded-xl border border-border bg-surface-2 py-1.75 ps-2.5 pe-20 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition group cursor-pointer"
         >
-          <i class="fa-solid fa-xmark-large text-[8px]"></i>
-        </button>
+          <div
+            id="combobox-chips"
+            class="flex flex-wrap gap-1.5"
+          ></div>
 
-        <button
-          type="button"
-          id="combobox-arrow"
-          class="absolute right-3 top-1/2 -translate-y-1/2 flex text-secondary hover:text-primary transition duration-200 pointer-events-none z-10"
-          tabindex="-1"
-        >
-          <i
-            id="combobox-arrow-icon"
-            class="fa-solid fa-chevron-down text-xs"
-          ></i>
-        </button>
+          <input
+            id="combobox-input"
+            type="text"
+            placeholder="${
+              this.options.placeholder
+                ? this.options.placeholder
+                : "Typing and press Enter..."
+            }"
+            class="${
+              this.options.inputClass
+            } flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none"
+            autocomplete="off"
+          />
+
+          <button
+            id="combobox-clear-btn"
+            type="button"
+            class="${
+              this.options.clearButtonClass
+            } absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10"
+            title="Clear all"
+          >
+            <i class="fa-solid fa-xmark-large text-[8px]"></i>
+          </button>
+
+          <button
+            type="button"
+            id="combobox-arrow"
+            class="absolute right-3 top-1/2 -translate-y-1/2 flex text-secondary hover:text-primary transition duration-200 pointer-events-none z-10"
+            tabindex="-1"
+          >
+            <i
+              id="combobox-arrow-icon"
+              class="fa-solid fa-chevron-down text-xs"
+            ></i>
+          </button>
+        </div>
+
+        <div
+          id="combobox-dropdown"
+          class="${
+            this.options.dropdownClass
+          } hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
+        ></div>
       </div>
-
-      <div
-        id="combobox-dropdown"
-        class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2 ${
-          this.options.dropdownClass
-        }"
-      ></div>
-    </div>
-  `;
+    `;
 
     this.elements = {
       container: this.container.querySelector("#combobox-container"),
@@ -331,7 +334,7 @@ export class ComboboxComponent {
             class="combobox-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none"
           >
             <span class="flex items-center gap-1.5">
-              <i class="${icon} text-brand/70 text-xs"></i>
+              <i class="${icon} text-xs"></i>
               ${this.getItemText(item)}
             </span>
             <span class="text-[10px] text-muted"
@@ -501,7 +504,7 @@ export class ComboboxComponent {
 
     chipsContainer.innerHTML = "";
 
-    const chipClasses = `combobox-chip flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-brand/10 text-brand font-medium text-xs border border-brand/20 select-none animate-fadeIn ${this.options.chipClass}`;
+    const chipClasses = `${this.options.chipClass} combobox-chip flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-brand/10 text-brand font-medium text-xs border border-brand/20 select-none animate-fadeIn`;
 
     this.selectedItems.forEach((item) => {
       const chip = document.createElement("span");
@@ -511,7 +514,7 @@ export class ComboboxComponent {
       if (this.options.chipRemovable) {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
-            <i class="${icon} text-brand/70 text-xs"></i>
+            <i class="${icon} text-xs"></i>
             <span class="chip-text">${this.getItemText(item)}</span>
           </span>
           <button
@@ -524,7 +527,7 @@ export class ComboboxComponent {
       } else {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
-            <i class="${icon} text-brand/70 text-xs"></i>
+            <i class="${icon} text-xs"></i>
             ${this.getItemText(item)}
           </span>
         `;
