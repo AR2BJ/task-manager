@@ -1,388 +1,771 @@
 export class AutocompleteComponent {
-  constructor({
-    id,
-    options = [],
-    value = "",
-    height = "11",
-    background = "surface-2",
-    placeholder = "Select option...",
-    onChange,
-  }) {
-    this.id = id;
-    this.options = options;
-    this.value = value;
-    this.height = height;
-    this.background = background;
-    this.placeholder = placeholder;
-    this.onChange = onChange;
+  constructor(container, items = [], options = {}) {
+    const defaults = {
+      placeholder: "Type to search...",
+      itemTitle: "title",
+      itemValue: "value",
+      itemIcon: "icon",
+      clearable: false,
+      autoSelectFirst: false,
+      multiple: false,
+      chips: false,
+      chipRemovable: true,
+      iconClass: "fa-regular fa-list",
+      containerClass: "",
+      inputClass: "",
+      dropdownClass: "",
+      chipClass: "",
+      clearButtonClass: "",
+      onChange: null,
+      onClear: null,
+    };
 
-    this.isOpen = false;
-    this.focusedIndex = -1;
+    this.options = { ...defaults, ...options };
+    this.container =
+      typeof container === "string"
+        ? document.getElementById(container)
+        : container;
 
-    this._onOutsideClick = this._handleOutsideClick.bind(this);
-    this._onScrollOrResize = this._handleScrollOrResize.bind(this);
-  }
-
-  _getInputElement() {
-    return document.getElementById(this.id);
-  }
-
-  _getDropdownElement() {
-    return document.getElementById(`${this.id}-dropdown`);
-  }
-
-  _getContainerElement() {
-    return document.getElementById(`${this.id}-container`);
-  }
-
-  _getChevronButtonElement() {
-    return document.getElementById(`${this.id}-chevron-btn`);
-  }
-
-  _roundedValue(height) {
-    const h = Number(height);
-
-    switch (true) {
-      case h >= 10:
-        return "xl";
-      case h >= 8:
-        return "lg";
-      case h >= 6:
-        return "md";
-      case h >= 4:
-        return "sm";
-      case h >= 2:
-        return "xs";
-      default:
-        return "xl";
+    if (!this.container) {
+      throw new Error("Autocomplete: Container element not found!");
     }
+
+    this.allItems = [...items];
+    this.filteredItems = [...items];
+    this.selectedItems = [];
+    this.isOpen = false;
+    this.activeIndex = -1;
+    this.searchQuery = ""; // فقط برای فیلتر کردن
+    this.inputValue = ""; // مقدار نمایش داده شده در input
+    this.isDestroyed = false;
+
+    this.render();
+    this.bindEvents();
+
+    if (this.options.onChange) this.onChange(this.options.onChange);
+    if (this.options.onClear) this.onClear(this.options.onClear);
   }
 
   render() {
-    const selectedOption = this.options.find((opt) => opt.value === this.value);
-    const initialLabel = selectedOption ? selectedOption.label : "";
-
-    return `
+    this.container.innerHTML = `
+    <div class="relative flex flex-col justify-center items-stretch gap-1">
       <div
-        id="${this.id}-container"
-        class="relative w-full"
+        id="autocomplete-container"
+        class="relative min-h-10 w-full flex flex-wrap items-center content-start gap-1.5 rounded-xl border border-border bg-surface-2 p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition group cursor-pointer ${
+          this.options.containerClass
+        }"
       >
-        <div class="relative flex items-center">
-          <input
-            type="text"
-            id="${this.id}"
-            value="${initialLabel}"
-            placeholder="${this.placeholder}"
-            autocomplete="off"
-            class="h-${this.height} w-full rounded-${this._roundedValue(
-              this.height,
-            )} border border-border bg-${
-              this.background
-            } pl-4 pr-10 text-sm text-primary placeholder:text-secondary/70 transition focus:border-brand/80 focus:outline-none cursor-pointer"
-          />
-          <button
-            type="button"
-            id="${this.id}-chevron-btn"
-            class="flex absolute right-3 text-secondary hover:text-primary transition pointer-events-none"
-            tabindex="-1"
-          >
-            <i
-              class="fa-solid fa-chevron-down text-xs"
-              id="${this.id}-chevron-icon"
-            ></i>
-          </button>
-        </div>
+        <div id="autocomplete-chips" class="flex flex-wrap gap-1.5"></div>
+
+        <input
+          id="autocomplete-input"
+          type="text"
+          placeholder="${
+            this.options.placeholder
+              ? this.options.placeholder
+              : "Type to search..."
+          }"
+          class="flex-1 min-w-25 pe-10 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none ${
+            this.options.inputClass
+          }"
+          autocomplete="off"
+        />
+
+        <button
+          id="autocomplete-clear-btn"
+          type="button"
+          class="absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10 ${
+            this.options.clearButtonClass
+          }"
+          title="Clear"
+        >
+          <i class="fa-solid fa-xmark-large text-[8px]"></i>
+        </button>
+
+        <button
+          type="button"
+          id="autocomplete-arrow"
+          class="absolute right-3 top-1/2 -translate-y-1/2 flex text-secondary hover:text-primary transition duration-200 pointer-events-none z-10"
+          tabindex="-1"
+        >
+          <i
+            id="autocomplete-arrow-icon"
+            class="fa-solid fa-chevron-down text-xs"
+          ></i>
+        </button>
       </div>
-    `;
+
+      <div
+        id="autocomplete-dropdown"
+        class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2 ${
+          this.options.dropdownClass
+        }"
+      ></div>
+    </div>
+  `;
+
+    this.elements = {
+      container: this.container.querySelector("#autocomplete-container"),
+      input: this.container.querySelector("#autocomplete-input"),
+      clearBtn: this.container.querySelector("#autocomplete-clear-btn"),
+      arrow: this.container.querySelector("#autocomplete-arrow"),
+      dropdown: this.container.querySelector("#autocomplete-dropdown"),
+      chipsContainer: this.container.querySelector("#autocomplete-chips"),
+    };
+
+    this.updateClearButton();
+    this.renderChips();
   }
 
-  _createDropdownInBody() {
-    let dropdown = this._getDropdownElement();
-    if (dropdown) return dropdown;
+  bindEvents() {
+    const { input, dropdown, clearBtn } = this.elements;
 
-    dropdown = document.createElement("div");
-    dropdown.id = `${this.id}-dropdown`;
-    dropdown.className = `hidden fixed z-100 p-1.5 bg-surface border border-border rounded-${this._roundedValue(this.height)} shadow-xl backdrop-blur-md max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 transition-opacity duration-200`;
+    input.addEventListener("focus", () => this.handleFocus());
+    input.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.handleFocus();
+    });
 
-    document.body.appendChild(dropdown);
-    return dropdown;
+    input.addEventListener("input", () => this.handleInput());
+    input.addEventListener("keydown", (e) => this.handleKeydown(e));
+
+    clearBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.clearAll();
+    });
+
+    this.boundDocumentClick = (e) => {
+      if (!this.container.contains(e.target)) {
+        this.closeDropdown();
+      }
+    };
+    document.addEventListener("click", this.boundDocumentClick);
+
+    this.boundScroll = () => {
+      if (this.isOpen) this.closeDropdown();
+    };
+    window.addEventListener("scroll", this.boundScroll, true);
+
+    dropdown.addEventListener("mousedown", (e) => e.preventDefault());
+
+    dropdown.addEventListener("click", (e) => {
+      const el = e.target.closest(".autocomplete-item");
+      if (!el) return;
+      e.stopPropagation();
+      e.preventDefault();
+      const value = el.getAttribute("data-value");
+      if (value === undefined || value === null) return;
+
+      const found = this.allItems.find(
+        (i) => String(this.getItemValue(i)) === String(value),
+      );
+      if (found) {
+        this.selectItem(found);
+      }
+    });
+
+    this.boundResize = () => {
+      if (this.isOpen) this.closeDropdown();
+    };
+    window.addEventListener("resize", this.boundResize);
   }
 
-  _updatePosition() {
-    if (!this.isOpen) return;
+  updatePosition() {
+    if (!this.isOpen || !this.elements) return;
 
-    const input = this._getInputElement();
-    const dropdown = this._getDropdownElement();
-
-    if (!input || !dropdown) return;
-
-    const rect = input.getBoundingClientRect();
-
-    if (rect.width === 0 && rect.height === 0) return;
+    const rect = this.elements.container.getBoundingClientRect();
+    const dropdown = this.elements.dropdown;
 
     dropdown.style.position = "fixed";
     dropdown.style.top = `${rect.bottom + 4}px`;
     dropdown.style.left = `${rect.left}px`;
     dropdown.style.width = `${rect.width}px`;
     dropdown.style.zIndex = "100";
+
+    dropdown.classList.add(
+      "max-h-52",
+      "overflow-y-auto",
+      "scrollbar-thin",
+      "scrollbar-thumb-surface-2",
+    );
   }
 
-  bindEvents() {
-    const input = this._getInputElement();
-    const dropdown = this._createDropdownInBody();
+  handleFocus() {
+    if (this.isDestroyed) return;
+    // وقتی فوکوس میشه، فقط dropdown رو باز کن
+    // ولی searchQuery رو پاک میکنیم تا همه آیتم‌ها نمایش داده بشن
+    this.searchQuery = "";
+    this.openDropdown();
+  }
 
-    if (!input || !dropdown) return;
+  handleInput() {
+    if (this.isDestroyed) return;
+    // کاربر داره تایپ میکنه، پس inputValue و searchQuery رو به‌روز میکنیم
+    this.inputValue = this.elements.input.value;
+    this.searchQuery = this.inputValue;
+    this.filterItems(this.searchQuery);
+    this.updateClearButton();
 
-    input.addEventListener("input", (e) => {
-      const query = e.target.value.trim().toLowerCase();
-      this.renderDropdown(query);
-      this.showDropdown();
+    if (!this.isOpen) {
+      this.openDropdown();
+    }
+  }
+
+  openDropdown() {
+    if (this.isOpen || this.isDestroyed) return;
+
+    this.isOpen = true;
+    this.filteredItems = [...this.allItems];
+
+    if (this.options.multiple || this.options.chips) {
+      this.filteredItems = this.filteredItems.filter(
+        (item) => !this.selectedItems.some((s) => this.isEqual(item, s)),
+      );
+    }
+
+    this.updatePosition();
+
+    // اگر searchQuery وجود داره (یعنی کاربر تایپ کرده)، فیلتر رو اعمال کن
+    // در غیر این صورت همه آیتم‌ها رو نشون بده
+    if (this.searchQuery && this.searchQuery.trim() !== "") {
+      this.filterItems(this.searchQuery);
+    } else {
+      // همه آیتم‌ها رو نشون بده
+      this.filteredItems = [...this.allItems];
+      if (this.options.multiple || this.options.chips) {
+        this.filteredItems = this.filteredItems.filter(
+          (item) => !this.selectedItems.some((s) => this.isEqual(item, s)),
+        );
+      }
+      this.renderDropdown(this.filteredItems, "");
+    }
+
+    this.elements.dropdown.classList.remove("hidden");
+    this.elements.arrow.classList.add("rotate-180");
+    this.activeIndex = -1;
+  }
+
+  closeDropdown() {
+    if (!this.isOpen || this.isDestroyed) return;
+
+    this.isOpen = false;
+    this.elements.dropdown.classList.add("hidden");
+    this.elements.arrow.classList.remove("rotate-180");
+    this.activeIndex = -1;
+    this.updatePosition();
+  }
+
+  filterItems(query) {
+    const q = query.toLowerCase().trim();
+
+    if (!q) {
+      this.filteredItems = [...this.allItems];
+    } else {
+      this.filteredItems = this.allItems.filter((item) => {
+        const text = this.getItemText(item).toLowerCase();
+        return text.includes(q);
+      });
+    }
+
+    if (this.options.multiple || this.options.chips) {
+      this.filteredItems = this.filteredItems.filter(
+        (item) => !this.selectedItems.some((s) => this.isEqual(item, s)),
+      );
+    }
+
+    this.renderDropdown(this.filteredItems, q);
+  }
+
+  renderDropdown(items, query) {
+    const dropdown = this.elements.dropdown;
+    this.activeIndex = -1;
+    this.clearDropdownHighlight();
+
+    let html = "";
+
+    if (items.length > 0) {
+      html += items
+        .map((item) => {
+          const isSelected = this.selectedItems.some((s) =>
+            this.isEqual(s, item),
+          );
+          const icon = this.getItemIcon(item);
+          return `
+            <div
+              data-value="${this.getItemValue(item)}"
+              class="autocomplete-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none ${
+                isSelected ? "bg-brand/10 text-brand" : ""
+              }"
+            >
+              <span class="flex items-center gap-1.5">
+                <i class="${icon} text-xs"></i>
+                ${this.getItemText(item)}
+              </span>
+              ${
+                isSelected
+                  ? `<i class="fa-solid fa-check text-brand text-xs"></i>`
+                  : ""
+              }
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    if (html.length === 0) {
+      this.renderEmptyState(
+        query ? `No results found for "${query}"` : "No items available",
+      );
+      return;
+    }
+
+    dropdown.innerHTML = html;
+    this.highlightSelectedItem();
+
+    if (!dropdown.classList.contains("hidden")) {
+      this.updatePosition();
+    }
+  }
+
+  highlightSelectedItem() {
+    const items = Array.from(
+      this.elements.dropdown?.querySelectorAll(".autocomplete-item") || [],
+    );
+
+    items.forEach((item) => {
+      const value = item.getAttribute("data-value");
+      const isSelected = this.selectedItems.some(
+        (s) => String(this.getItemValue(s)) === value,
+      );
+      if (isSelected) {
+        item.classList.add("bg-brand/10", "text-brand");
+      } else {
+        item.classList.remove("bg-brand/10", "text-brand");
+      }
+    });
+  }
+
+  renderEmptyState(message) {
+    this.activeIndex = -1;
+    this.clearDropdownHighlight();
+
+    this.elements.dropdown.innerHTML = `
+      <div
+        class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none"
+      >
+        <i class="fa-regular fa-circle-info text-brand/70"></i>
+        <span>${message}</span>
+      </div>
+    `;
+  }
+
+  clearDropdownHighlight() {
+    const items = Array.from(
+      this.elements.dropdown?.querySelectorAll(".autocomplete-item") || [],
+    );
+
+    items.forEach((item) => {
+      item.classList.remove("bg-brand/15", "border-brand/20", "text-brand");
     });
 
-    input.addEventListener("focus", () => {
-      this.renderDropdown("");
-      this.showDropdown();
-    });
+    this.activeIndex = -1;
+  }
 
-    input.addEventListener("click", () => {
-      if (!this.isOpen) {
-        this.renderDropdown("");
-        this.showDropdown();
+  highlightItem(index) {
+    const items =
+      this.elements.dropdown.querySelectorAll(".autocomplete-item") || [];
+
+    items.forEach((el, i) => {
+      if (i === index) {
+        el.classList.add("bg-brand/15", "border-brand/20", "text-brand");
+      } else {
+        el.classList.remove("bg-brand/15", "border-brand/20", "text-brand");
       }
     });
 
-    input.addEventListener("keydown", (e) => this._handleKeyDown(e, dropdown));
-
-    dropdown.addEventListener("mousedown", (e) => {
-      const item = e.target.closest(".autocomplete-item");
-      if (!item) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-      this._selectItem(item);
-    });
-
-    document.addEventListener("mousedown", this._onOutsideClick);
+    if (index >= 0 && index < items.length) {
+      items[index].scrollIntoView({ block: "nearest" });
+    }
   }
 
-  _handleKeyDown(e, dropdown) {
-    const items = dropdown.querySelectorAll(".autocomplete-item");
-    if (!items.length) return;
+  selectItem(item) {
+    if (this.isDestroyed) return;
+
+    const isSelected = this.selectedItems.some((s) => this.isEqual(s, item));
+
+    if (this.options.multiple || this.options.chips) {
+      if (isSelected) return;
+
+      this.selectedItems.push(item);
+      this.renderChips();
+      this.elements.input.value = "";
+      this.inputValue = "";
+      this.searchQuery = "";
+      this.filterItems("");
+      this.updateClearButton();
+
+      if (!this.isOpen) {
+        this.openDropdown();
+      }
+    } else {
+      if (isSelected) {
+        this.removeSelectedItem(item);
+        return;
+      }
+
+      this.selectedItems = [item];
+      const text = this.getItemText(item);
+      // فقط inputValue رو مقداردهی میکنیم، searchQuery رو خالی میذاریم
+      this.inputValue = text;
+      this.elements.input.value = text;
+      this.searchQuery = ""; // مهم: searchQuery رو خالی می‌کنیم تا همه آیتم‌ها نمایش داده بشن
+      this.filterItems(""); // فیلتر رو خالی می‌کنیم
+      this.closeDropdown();
+      this.updateClearButton();
+    }
+
+    this.updatePosition();
+    this.emitChange();
+  }
+
+  removeSelectedItem(item) {
+    if (this.isDestroyed) return;
+
+    if (!this.options.multiple && !this.options.chips) {
+      this.clearAll();
+      return;
+    }
+
+    this.selectedItems = this.selectedItems.filter(
+      (s) => !this.isEqual(s, item),
+    );
+
+    this.renderChips();
+    this.filterItems(this.searchQuery);
+    this.updateClearButton();
+    this.emitChange();
+
+    if (this.isOpen) {
+      this.renderDropdown(this.filteredItems, this.searchQuery);
+      this.updatePosition();
+    }
+  }
+
+  renderChips() {
+    const { chipsContainer } = this.elements;
+    if (!chipsContainer || !this.options.chips) return;
+
+    chipsContainer.innerHTML = "";
+
+    const chipClasses = `autocomplete-chip flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-brand/10 text-brand font-medium text-xs border border-brand/20 select-none animate-fadeIn ${this.options.chipClass}`;
+
+    this.selectedItems.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = chipClasses;
+      const icon = this.getItemIcon(item);
+
+      if (this.options.chipRemovable) {
+        chip.innerHTML = `
+          <span class="flex flex-row justify-center items-center gap-1">
+            <i class="${icon} text-brand/70 text-xs"></i>
+            ${this.getItemText(item)}
+          </span>
+          <button
+            type="button"
+            class="remove-chip-btn hover:text-red-500 transition cursor-pointer flex items-center justify-center"
+          >
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+          </button>
+        `;
+
+        chip
+          .querySelector(".remove-chip-btn")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.removeSelectedItem(item);
+          });
+      } else {
+        chip.innerHTML = `
+          <span class="flex flex-row justify-center items-center gap-1">
+            <i class="${icon} text-brand/70 text-xs"></i>
+            ${this.getItemText(item)}
+          </span>
+        `;
+      }
+
+      chipsContainer.appendChild(chip);
+    });
+
+    if (this.selectedItems.length > 0) {
+      chipsContainer.classList.remove("hidden");
+      chipsContainer.classList.add("flex");
+    } else {
+      chipsContainer.classList.remove("flex");
+      chipsContainer.classList.add("hidden");
+    }
+  }
+
+  clearAll() {
+    if (this.isDestroyed) return;
+
+    this.selectedItems = [];
+    this.elements.input.value = "";
+    this.inputValue = "";
+    this.searchQuery = "";
+    this.filterItems("");
+    this.updateClearButton();
+    this.renderChips();
+    this.closeDropdown();
+    this.emitChange("clear");
+  }
+
+  updateClearButton() {
+    const { clearBtn, input } = this.elements;
+    const hasValue = input.value.length > 0 || this.selectedItems.length > 0;
+
+    clearBtn.classList.toggle("hidden", !hasValue || !this.options.clearable);
+  }
+
+  handleKeydown(e) {
+    if (this.isDestroyed) return;
+
+    const items = this.elements.dropdown.querySelectorAll(".autocomplete-item");
+    const total = items.length;
 
     switch (e.key) {
+      case "Enter":
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.isOpen && this.activeIndex >= 0 && this.activeIndex < total) {
+          const item = this.filteredItems[this.activeIndex];
+          if (item) {
+            this.selectItem(item);
+            if (!this.options.multiple && !this.options.chips) {
+              this.closeDropdown();
+            }
+            return;
+          }
+        }
+        break;
+
       case "ArrowDown":
         e.preventDefault();
-
         if (!this.isOpen) {
-          this.showDropdown();
+          this.openDropdown();
           return;
         }
-
-        this.focusedIndex = (this.focusedIndex + 1) % items.length;
-        this._highlightItem(items);
+        if (total > 0) {
+          this.activeIndex = (this.activeIndex + 1) % total;
+          this.highlightItem(this.activeIndex);
+        }
         break;
 
       case "ArrowUp":
         e.preventDefault();
-
-        if (!this.isOpen) return;
-
-        this.focusedIndex =
-          (this.focusedIndex - 1 + items.length) % items.length;
-        this._highlightItem(items);
-        break;
-
-      case "Enter":
-        e.preventDefault();
-
         if (!this.isOpen) {
-          this.showDropdown();
+          this.openDropdown();
           return;
         }
-
-        const index = this.focusedIndex >= 0 ? this.focusedIndex : 0;
-        this.focusedIndex = index;
-        this._highlightItem(items);
-        this._selectItem(items[index]);
+        if (total > 0) {
+          this.activeIndex = (this.activeIndex - 1 + total) % total;
+          this.highlightItem(this.activeIndex);
+        }
         break;
 
       case "Escape":
-        this.hideDropdown();
+        e.preventDefault();
+        this.closeDropdown();
+        this.elements.input.blur();
+        break;
+
+      case "Backspace":
+        if (
+          (this.options.multiple || this.options.chips) &&
+          this.elements.input.value === "" &&
+          this.selectedItems.length > 0
+        ) {
+          const last = this.selectedItems[this.selectedItems.length - 1];
+          this.removeSelectedItem(last);
+        } else if (
+          !this.options.multiple &&
+          !this.options.chips &&
+          this.elements.input.value === "" &&
+          this.selectedItems.length > 0
+        ) {
+          this.removeSelectedItem(this.selectedItems[0]);
+        }
+        break;
+
+      case "Delete":
+        if (
+          (this.options.multiple || this.options.chips) &&
+          this.elements.input.value === "" &&
+          this.selectedItems.length > 0
+        ) {
+          const first = this.selectedItems[0];
+          this.removeSelectedItem(first);
+        }
         break;
     }
   }
 
-  _highlightItem(items) {
-    items.forEach((item, idx) => {
-      if (idx === this.focusedIndex) {
-        item.classList.add("bg-brand/15", "text-brand");
-        item.scrollIntoView({ block: "nearest" });
-      } else {
-        item.classList.remove("bg-brand/15", "text-brand");
+  getItemText(item) {
+    if (typeof item === "string") return item;
+    if (item && typeof item === "object") {
+      return (
+        item[this.options.itemTitle] ||
+        item[this.options.itemValue] ||
+        String(item)
+      );
+    }
+    return String(item);
+  }
+
+  getItemValue(item) {
+    if (typeof item === "string") return item;
+    if (item && typeof item === "object") {
+      return item[this.options.itemValue] !== undefined
+        ? item[this.options.itemValue]
+        : item[this.options.itemTitle] || item;
+    }
+    return item;
+  }
+
+  getItemIcon(item) {
+    if (typeof item === "string") {
+      return this.options.iconClass;
+    }
+
+    if (item && typeof item === "object") {
+      const icon = item[this.options.itemIcon];
+      if (icon) {
+        return icon;
       }
-    });
+    }
+
+    return this.options.iconClass;
   }
 
-  _selectItem(item) {
-    if (!item) return;
-
-    const value = item.dataset.value;
-    const label = item.dataset.label;
-    this.selectOption(value, label);
+  isEqual(a, b) {
+    if (a === b) return true;
+    if (
+      typeof a === "object" &&
+      typeof b === "object" &&
+      a !== null &&
+      b !== null
+    ) {
+      return this.getItemValue(a) === this.getItemValue(b);
+    }
+    return false;
   }
 
-  renderDropdown(query = "") {
-    const dropdown = this._getDropdownElement();
-    if (!dropdown) return;
+  isSelected(item) {
+    return this.selectedItems.some((s) => this.isEqual(s, item));
+  }
 
-    const filtered = this.options.filter((opt) =>
-      opt.label.toLowerCase().includes(query),
+  emitChange(type = "change") {
+    if (this.isDestroyed) return;
+
+    const values = this.selectedItems.map((item) => this.getItemValue(item));
+    const texts = this.selectedItems.map((item) => this.getItemText(item));
+
+    const detail = {
+      values:
+        this.options.multiple || this.options.chips
+          ? values
+          : values[0] || null,
+      texts:
+        this.options.multiple || this.options.chips ? texts : texts[0] || null,
+      items: this.selectedItems,
+      type: type,
+    };
+
+    this.container.dispatchEvent(
+      new CustomEvent("autocomplete-change", { detail }),
     );
 
-    if (filtered.length === 0) {
-      dropdown.innerHTML = `
-        <div
-          class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none"
-        >
-          <i class="fa-regular fa-circle-info text-brand/70"></i>
-          <span>No matching items found for "${query}"</span>
-        </div>
-      `;
-      return;
+    if (type === "change" && this.onChangeCallback) {
+      this.onChangeCallback(detail.values, detail.texts, detail.items);
     }
 
-    this.focusedIndex = -1;
-    let html = "";
-
-    filtered.forEach((opt) => {
-      const isSelected = opt.value === this.value;
-      const iconHTML = opt.icon ? `<i class="${opt.icon} text-xs"></i>` : "";
-
-      html += `
-        <div
-          data-value="${opt.value}"
-          data-label="${opt.label}"
-          class="autocomplete-item px-3.5 py-2 rounded-${this._roundedValue(
-            String(Number(this.height) - 2),
-          )} text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition ${
-            isSelected ? "bg-brand/10 text-brand font-bold" : ""
-          }"
-        >
-          <span class="flex items-center gap-2">
-            ${iconHTML} ${opt.label}
-          </span>
-          ${
-            isSelected
-              ? `<i class="fa-solid fa-check text-xs text-brand"></i>`
-              : ""
-          }
-        </div>
-      `;
-    });
-
-    dropdown.innerHTML = html;
-  }
-
-  showDropdown() {
-    const dropdown = this._getDropdownElement();
-    const chevronBtn = this._getChevronButtonElement();
-
-    if (!dropdown) return;
-
-    this.isOpen = true;
-    dropdown.classList.remove("hidden");
-    chevronBtn?.classList.add("rotate-180");
-
-    this._updatePosition();
-
-    window.addEventListener("scroll", this._onScrollOrResize, true);
-    window.addEventListener("resize", this._onScrollOrResize);
-  }
-
-  hideDropdown() {
-    const dropdown = this._getDropdownElement();
-    const chevronBtn = this._getChevronButtonElement();
-    const input = this._getInputElement();
-
-    if (!dropdown) return;
-
-    this.isOpen = false;
-
-    if (input) input.blur();
-
-    dropdown.classList.add("hidden");
-    chevronBtn?.classList.remove("rotate-180");
-
-    window.removeEventListener("scroll", this._onScrollOrResize, true);
-    window.removeEventListener("resize", this._onScrollOrResize);
-
-    const currentOption = this.options.find((opt) => opt.value === this.value);
-    if (input) {
-      input.value = currentOption ? currentOption.label : "";
+    if (type === "clear" && this.onClearCallback) {
+      this.onClearCallback();
     }
   }
 
-  selectOption(val, label) {
-    this.value = val;
-    const input = this._getInputElement();
-
-    if (input) input.value = label;
-
-    if (this.onChange) {
-      this.onChange(val);
-    }
-
-    this.hideDropdown();
+  onChange(callback) {
+    this.onChangeCallback = callback;
+    return this;
   }
 
-  _handleScrollOrResize(e) {
-    const dropdown = this._getDropdownElement();
-    if (e.target === dropdown) return;
-    this.hideDropdown();
-  }
-
-  _handleOutsideClick(e) {
-    const container = this._getContainerElement();
-    const dropdown = this._getDropdownElement();
-
-    if (
-      container &&
-      !container.contains(e.target) &&
-      dropdown &&
-      !dropdown.contains(e.target)
-    ) {
-      this.hideDropdown();
-    }
+  onClear(callback) {
+    this.onClearCallback = callback;
+    return this;
   }
 
   getValue() {
-    return this.value;
+    const values = this.selectedItems.map((item) => this.getItemValue(item));
+    return this.options.multiple || this.options.chips
+      ? values
+      : values[0] || null;
   }
 
-  setValue(val) {
-    this.value = val;
-    const selected = this.options.find((opt) => opt.value === val);
-    const input = this._getInputElement();
+  getSelectedItems() {
+    return this.selectedItems;
+  }
 
-    if (input) {
-      input.value = selected ? selected.label : "";
+  getSelectedTexts() {
+    return this.selectedItems.map((item) => this.getItemText(item));
+  }
+
+  setItems(items) {
+    if (this.isDestroyed) return;
+    this.allItems = [...items];
+    this.filteredItems = [...items];
+    this.filterItems(this.searchQuery);
+    return this;
+  }
+
+  setValue(value) {
+    if (this.isDestroyed) return;
+
+    const item = this.allItems.find(
+      (item) => this.getItemValue(item) === value,
+    );
+
+    if (item) {
+      this.selectItem(item);
+    } else if (!this.options.multiple && !this.options.chips) {
+      this.elements.input.value = value;
+      this.inputValue = value;
+      this.searchQuery = "";
     }
+
+    return this;
   }
 
-  reset() {
-    this.value = "";
-    const input = this._getInputElement();
-
-    if (input) input.value = "";
-    this.hideDropdown();
+  clear() {
+    this.clearAll();
+    return this;
   }
 
   destroy() {
-    const dropdown = this._getDropdownElement();
-    if (dropdown) dropdown.remove();
+    if (this.isDestroyed) return;
+    this.isDestroyed = true;
 
-    document.removeEventListener("mousedown", this._onOutsideClick);
-    window.removeEventListener("scroll", this._onScrollOrResize, true);
-    window.removeEventListener("resize", this._onScrollOrResize);
+    document.removeEventListener("click", this.boundDocumentClick);
+    window.removeEventListener("scroll", this.boundScroll, true);
+    window.removeEventListener("resize", this.boundResize);
+
+    this.container.innerHTML = "";
+
+    this.elements = null;
+    this.allItems = [];
+    this.filteredItems = [];
+    this.selectedItems = [];
+
+    return this;
   }
 }

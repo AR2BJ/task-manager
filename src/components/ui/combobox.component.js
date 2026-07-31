@@ -9,7 +9,7 @@ export class ComboboxComponent {
       multiple: true,
       chips: true,
       chipRemovable: true,
-      iconClass: "fa-regular fa-tag",
+      iconClass: "fa-regular fa-list",
       containerClass: "",
       inputClass: "",
       dropdownClass: "",
@@ -63,7 +63,7 @@ export class ComboboxComponent {
               ? this.options.placeholder
               : "Typing and press Enter..."
           }"
-          class="flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-1 h-7 cursor-text focus:outline-none ${
+          class="flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none ${
             this.options.inputClass
           }"
           autocomplete="off"
