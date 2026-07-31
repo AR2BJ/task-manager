@@ -4,6 +4,7 @@ export class ComboboxComponent {
       placeholder: "Type and press Enter...",
       itemTitle: "title",
       itemValue: "value",
+      itemIcon: "icon",
       clearable: true,
       autoSelectFirst: false,
       multiple: true,
@@ -277,22 +278,23 @@ export class ComboboxComponent {
 
     if (items.length > 0) {
       html += items
-        .map(
-          (item) => `
+        .map((item) => {
+          const icon = this.getItemIcon(item);
+          return `
           <div
             data-value="${this.getItemValue(item)}"
             class="combobox-item px-3.5 py-2 text-xs font-medium text-primary hover:bg-brand/10 hover:text-brand cursor-pointer flex items-center justify-between transition border-b border-border/30 last:border-none"
           >
             <span class="flex items-center gap-1.5">
-              <i class="${this.options.iconClass} text-brand/70 text-xs"></i>
+              <i class="${icon} text-brand/70 text-xs"></i>
               ${this.getItemText(item)}
             </span>
             <span class="text-[10px] text-muted"
               >Existing Item</span
             >
           </div>
-        `,
-        )
+        `;
+        })
         .join("");
     }
 
@@ -459,11 +461,12 @@ export class ComboboxComponent {
     this.selectedItems.forEach((item) => {
       const chip = document.createElement("span");
       chip.className = chipClasses;
+      const icon = this.getItemIcon(item);
 
       if (this.options.chipRemovable) {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
-            <i class="${this.options.iconClass} text-brand/70 text-xs"></i>
+            <i class="${icon} text-brand/70 text-xs"></i>
             ${this.getItemText(item)}
           </span>
           <button
@@ -484,7 +487,7 @@ export class ComboboxComponent {
       } else {
         chip.innerHTML = `
           <span class="flex flex-row justify-center items-center gap-1">
-            <i class="${this.options.iconClass} text-brand/70 text-xs"></i>
+            <i class="${icon} text-brand/70 text-xs"></i>
             ${this.getItemText(item)}
           </span>
         `;
@@ -672,6 +675,21 @@ export class ComboboxComponent {
         : item[this.options.itemTitle] || item;
     }
     return item;
+  }
+
+  getItemIcon(item) {
+    if (typeof item === "string") {
+      return this.options.iconClass;
+    }
+
+    if (item && typeof item === "object") {
+      const icon = item[this.options.itemIcon];
+      if (icon) {
+        return icon;
+      }
+    }
+
+    return this.options.iconClass;
   }
 
   isEqual(a, b) {
