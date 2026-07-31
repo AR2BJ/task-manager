@@ -57,7 +57,7 @@ export class AutocompleteComponent {
         >
           <div
             id="autocomplete-chips"
-            class="flex flex-wrap gap-1.5"
+            class="hidden flex-wrap gap-1.5"
           ></div>
 
           <input
@@ -70,7 +70,7 @@ export class AutocompleteComponent {
             }"
             class="${
               this.options.inputClass
-            } flex-1 min-w-25 pe-10 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none"
+            } flex-1 min-w-25 ps-2 pe-10 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-pointer focus:outline-none"
             autocomplete="off"
           />
 
@@ -121,10 +121,16 @@ export class AutocompleteComponent {
   }
 
   bindEvents() {
-    const { input, dropdown, clearBtn, chipsContainer } = this.elements;
+    const { container, input, dropdown, clearBtn, chipsContainer } =
+      this.elements;
+
+    container.addEventListener("click", (e) => {
+      e.stopPropagation();
+      input.focus();
+    });
 
     input.addEventListener("focus", () => this.handleFocus());
-    input.addEventListener("blur", (e) => {
+    input.addEventListener("blur", () => {
       setTimeout(() => {
         const activeElement = document.activeElement;
         const isChipButton =
@@ -323,6 +329,8 @@ export class AutocompleteComponent {
     const dropdown = this.elements.dropdown;
     this.activeIndex = -1;
     this.clearDropdownHighlight();
+
+    if (!items) return;
 
     let html = "";
 

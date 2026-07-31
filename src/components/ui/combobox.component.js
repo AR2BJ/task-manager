@@ -56,7 +56,7 @@ export class ComboboxComponent {
         >
           <div
             id="combobox-chips"
-            class="flex flex-wrap gap-1.5"
+            class="hidden flex-wrap gap-1.5"
           ></div>
 
           <input
@@ -120,10 +120,16 @@ export class ComboboxComponent {
   }
 
   bindEvents() {
-    const { input, dropdown, clearBtn, chipsContainer } = this.elements;
+    const { container, input, dropdown, clearBtn, chipsContainer } =
+      this.elements;
+
+    container.addEventListener("click", (e) => {
+      e.stopPropagation();
+      input.focus();
+    });
 
     input.addEventListener("focus", () => this.handleFocus());
-    input.addEventListener("blur", (e) => {
+    input.addEventListener("blur", () => {
       setTimeout(() => {
         const activeElement = document.activeElement;
         const isChipButton =
@@ -321,6 +327,8 @@ export class ComboboxComponent {
 
     this.activeIndex = -1;
     this.clearDropdownHighlight();
+
+    if (!items) return;
 
     let html = "";
 
