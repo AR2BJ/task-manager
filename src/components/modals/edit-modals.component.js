@@ -153,38 +153,7 @@ export const EditModalsComponent = {
                   >
                     Tags
                   </label>
-
-                  <div class="relative flex items-center">
-                    <div
-                      id="edit-task-tags-container"
-                      class="max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-surface w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
-                    >
-                      <input
-                        id="edit-task-tags-input"
-                        type="text"
-                        placeholder="Type tag and press Enter..."
-                        class="flex-1 min-w-30 ps-2 pe-10 truncate bg-transparent text-xs lg:text-sm text-primary placeholder:text-secondary/70 outline-none h-7 pb-1 cursor-text focus:outline-none"
-                        autocomplete="off"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      id="edit-task-tags-chevron-btn"
-                      class="flex absolute right-3 text-secondary hover:text-primary transition duration-200 pointer-events-none"
-                      tabindex="-1"
-                    >
-                      <i
-                        id="edit-task-tags-chevron-icon"
-                        class="fa-solid fa-chevron-down text-xs"
-                      ></i>
-                    </button>
-                  </div>
-
-                  <div
-                    id="edit-tags-combobox-dropdown"
-                    class="hidden max-h-40 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
-                  ></div>
+                  <div id="edit-task-tags-container"></div>
                 </div>
 
                 <div class="grid grid-cols-1 gap-3.5 lg:grid-cols-2 mt-3.5">
@@ -195,10 +164,7 @@ export const EditModalsComponent = {
                     >
                       Priority Level
                     </label>
-                    <div
-                      id="edit-priority-wrapper"
-                      class="w-full"
-                    ></div>
+                    <div id="edit-priority-wrapper"></div>
                   </div>
 
                   <div class="w-full">
@@ -208,10 +174,7 @@ export const EditModalsComponent = {
                     >
                       Task Status
                     </label>
-                    <div
-                      id="edit-status-wrapper"
-                      class="w-full"
-                    ></div>
+                    <div id="edit-status-wrapper"></div>
                   </div>
                 </div>
               </div>

@@ -65,8 +65,8 @@ export const TasksView = {
               <kbd class="flex items-center pointer-events-none">
                 <span
                   class="px-1.25 py-1 text-[9px] font-mono bg-surface-2 border border-border text-muted rounded-md shadow-2xs flex flex-row justify-center items-center"
-                  ><i class="fa-regular fa-slash-forward"></i></span
-                >
+                  ><i class="fa-regular fa-slash-forward"></i
+                ></span>
               </kbd>
             </div>
           </div>
@@ -151,10 +151,7 @@ export const TasksView = {
                   >
                     Priority Level
                   </label>
-                  <div
-                    id="create-priority-wrapper"
-                    class="w-full"
-                  ></div>
+                  <div id="create-priority-wrapper"></div>
                 </div>
 
                 <div class="w-full">
@@ -164,10 +161,7 @@ export const TasksView = {
                   >
                     Task Status
                   </label>
-                  <div
-                    id="create-status-wrapper"
-                    class="w-full"
-                  ></div>
+                  <div id="create-status-wrapper"></div>
                 </div>
               </div>
 
@@ -178,35 +172,7 @@ export const TasksView = {
                 >
                   Tags
                 </label>
-                <div class="relative flex items-center">
-                  <div
-                    id="task-tags-container"
-                    class="max-h-16.5 overflow-y-auto scrollbar-thin scrollbar-thumb-surface w-full flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-surface-2 p-2 pe-10 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition cursor-pointer"
-                  >
-                    <input
-                      id="task-tags-input"
-                      type="text"
-                      placeholder="Type tag and press Enter..."
-                      class="flex-1 min-w-30 ps-2 pe-10 truncate bg-transparent text-sm text-primary  placeholder:text-secondary/70 outline-none h-7 pb-1 cursor-text focus:outline-none"
-                      autocomplete="off"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    id="task-tags-input-chevron-btn"
-                    class="flex absolute right-3 text-secondary hover:text-primary transition duration-200 pointer-events-none"
-                    tabindex="-1"
-                  >
-                    <i
-                      id="task-tags-input-chevron-icon"
-                      class="fa-solid fa-chevron-down text-xs"
-                    ></i>
-                  </button>
-                </div>
-                <div
-                  id="tags-combobox-dropdown"
-                  class="hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
-                ></div>
+                <div id="task-tags-container"></div>
               </div>
 
               <div
