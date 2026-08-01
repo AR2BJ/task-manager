@@ -10,7 +10,9 @@ export function renderTagFilterBar() {
     a.name.localeCompare(b.name),
   );
 
-  const selectedTag = state.selectedTag || "all";
+  const selectedTag = state.selectedTag;
+
+  if (!sortedTags.length) state.selectedTag = "all";
 
   let html = `
     <button

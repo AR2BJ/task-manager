@@ -808,6 +808,7 @@ export const TaskFormController = {
         currentModalSubtasks = [];
 
         this.mainController.refreshUI();
+        this.refreshUI();
 
         NotificationService.show({
           type: "success",

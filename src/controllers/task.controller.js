@@ -200,8 +200,8 @@ export const TaskController = {
     MatrixController.dispatchRender();
     this.updateNavigationDOM();
 
-    TaskFormController.init(this);
-    TaskActionController.init(this);
+    TaskFormController.refreshUI();
+    SettingsController.renderTagsList();
 
     clearOpenSubtasksState();
 

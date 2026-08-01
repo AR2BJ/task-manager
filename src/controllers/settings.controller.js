@@ -5,7 +5,6 @@ import { formatDate, generateId } from "@/utils/helpers";
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
 import { TaskController } from "./task.controller";
-import { TaskFormController } from "./tasks/task-form.controller";
 import { generateDynamicMockData } from "@/utils/seed-generator";
 
 export const SettingsController = {
@@ -113,8 +112,17 @@ export const SettingsController = {
 
     if (tags.length === 0) {
       container.innerHTML = `
-        <div class="text-center py-4 border border-dashed border-border rounded-xl">
-          <p class="text-xs text-secondary">No custom tags created yet.</p>
+        <div
+          class="w-full h-full min-h-40 sm:min-h-30 lg:min-h-20 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface-2 rounded-2xl border border-dashed border-border p-4 text-center flex flex-col justify-center items-center"
+        >
+          <div class="h-full flex flex-col justify-center items-center">
+            <div class="text-3xl">
+              <i class="fa-regular fa-tags text-brand/80"></i>
+            </div>
+            <p class="mt-3 text-secondary max-w-sm mx-auto text-sm">
+              No tags defined yet.
+            </p>
+          </div>
         </div>
       `;
       return;
@@ -123,39 +131,42 @@ export const SettingsController = {
     container.innerHTML = tags
       .map(
         (tag) => `
-        <div
-          data-tag-id="${tag.id}"
-          class="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-2 border border-border/80 transition"
-        >
-          <div class="flex items-center gap-2 min-w-0 flex-1">
-            <i class="fa-regular fa-tag text-brand/80 text-xs shrink-0"></i>
-            <input
-              type="text"
-              value="${(tag.name || "").replace(/"/g, "&quot;")}"
-              data-action="edit-tag-name"
-              class="tag-name-input bg-transparent text-xs sm:text-sm font-medium text-primary outline-none border-b border-transparent focus:border-brand/50 transition w-full truncate"
-              readonly
-            />
-          </div>
+          <div
+            data-tag-id="${tag.id}"
+            class="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-2 border border-border/80 transition"
+          >
+            <div class="flex items-center gap-1 min-w-0 flex-1">
+              <i class="fa-regular fa-tag text-brand/80 text-xs shrink-0"></i>
+              <input
+                type="text"
+                value="${(tag.name || "").replace(/"/g, "&quot;")}"
+                data-action="edit-tag-name"
+                class="tag-name-input bg-transparent rounded-lg p-1 text-xs sm:text-sm font-medium text-primary outline-none border border-transparent transition w-full truncate"
+                readonly
+              />
+            </div>
 
-          <div class="flex items-center gap-1 shrink-0">
-            <button
-              data-action="toggle-edit"
-              class="p-1.5 hover:bg-surface-3 rounded-lg text-secondary hover:text-primary transition cursor-pointer"
-              title="Edit tag name"
-            >
-              <i class="fa-regular fa-pen-to-square text-xs"></i>
-            </button>
-            <button
-              data-action="delete-tag"
-              class="p-1.5 hover:bg-red-500/10 rounded-lg text-secondary hover:text-red-500 transition cursor-pointer"
-              title="Delete tag"
-            >
-              <i class="fa-regular fa-trash-can text-xs"></i>
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+              <button
+                data-action="toggle-edit"
+                class="edit-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
+                title="Edit tag name"
+              >
+                <i
+                  class="fa-regular fa-pen-to-square text-xs text-brand/80"
+                ></i>
+              </button>
+              <button
+                data-action="delete-tag"
+                class="delete-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
+              >
+                <i
+                  class="fa-regular fa-trash-can text-red-500/80 text-xs"
+                ></i>
+              </button>
+            </div>
           </div>
-        </div>
-      `,
+        `,
       )
       .join("");
   },
@@ -199,7 +210,6 @@ export const SettingsController = {
     input.value = "";
     this.renderTagsList();
     TaskController.refreshUI();
-    TaskFormController.refreshUI();
 
     NotificationService.show({
       type: "success",
@@ -227,9 +237,12 @@ export const SettingsController = {
         const isReadonly = nameInput.hasAttribute("readonly");
         if (isReadonly) {
           nameInput.removeAttribute("readonly");
+          nameInput.classList.replace("bg-transparent", "bg-surface");
+          nameInput.classList.add("focus:border-brand/50", "ps-2");
           nameInput.focus();
           nameInput.select();
-          btn.innerHTML = `<i class="fa-regular fa-floppy-disk text-xs text-emerald-500"></i>`;
+          btn.setAttribute("title", "Save tag name");
+          btn.innerHTML = `<i class="fa-regular fa-floppy-disk text-xs text-brand/80"></i>`;
         } else {
           this.handleSaveTagEdit(tagId, nameInput.value, btn, nameInput);
         }
@@ -274,7 +287,6 @@ export const SettingsController = {
 
       this.renderTagsList();
       TaskController.refreshUI();
-      TaskFormController.refreshUI();
 
       NotificationService.show({
         type: "success",
@@ -306,7 +318,6 @@ export const SettingsController = {
     StateManager.save(updatedTasks, updatedTags);
     this.renderTagsList();
     TaskController.refreshUI();
-    TaskFormController.refreshUI();
 
     NotificationService.show({
       type: "info",
