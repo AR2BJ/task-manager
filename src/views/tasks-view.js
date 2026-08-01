@@ -261,7 +261,7 @@ export const TasksView = {
 
               <div
                 id="task-count-badge"
-                class="shrink-0 flex justify-center items-center gap-1.5 px-3 py-1 bg-surface-3 rounded-lg text-xs font-bold text-primary select-none w-full sm:w-36 lg:w-auto"
+                class="shrink-0 flex justify-center items-center gap-1.5 px-4 py-2 bg-surface-3 rounded-lg text-xs font-bold text-primary select-none w-full sm:w-36 lg:w-auto"
               >
                 0 Tasks
               </div>

@@ -65,13 +65,13 @@ export const MatrixTaskCardComponent = {
           ${
             task.description
               ? `<p
-                    class="block lg:hidden text-[11px] text-tertiary line-clamp-1 font-normal mb-2 truncate leading-tight cursor-pointer"
+                    class="block xl:hidden text-[11px] text-tertiary line-clamp-1 font-normal mb-2 truncate leading-tight cursor-pointer"
                     data-tooltip-title="${task.description}"
                   >
                     ${task.description}
                   </p>
                   <p
-                    class="hidden lg:flex text-[11px] text-tertiary line-clamp-1 font-normal mb-2 leading-tight"
+                    class="hidden xl:flex text-[11px] text-tertiary line-clamp-1 font-normal mb-2 leading-tight"
                     title="${task.description}"
                   >
                     ${task.description}

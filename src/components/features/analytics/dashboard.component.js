@@ -478,11 +478,14 @@ export const DashboardComponent = {
                 <h4
                   class="text-lg font-bold text-primary flex items-center gap-2"
                 >
-                  <i class="fa-regular fa-arrow-down-small-big text-amber-400 text-xl"></i>
+                  <i
+                    class="fa-regular fa-arrow-down-small-big text-amber-400 text-xl"
+                  ></i>
                   Priority Breakdown
                 </h4>
                 <p class="text-xs text-secondary mt-1">
-                  Proportional distribution of active tasks classified by severity tier.
+                  Proportional distribution of active tasks classified by
+                  severity tier.
                 </p>
               </div>
               <span
@@ -539,11 +542,14 @@ export const DashboardComponent = {
                 <h4
                   class="text-lg font-bold text-primary flex items-center gap-2"
                 >
-                  <i class="fa-regular fa-bar-progress text-emerald-400 text-xl"></i>
+                  <i
+                    class="fa-regular fa-bar-progress text-emerald-400 text-xl"
+                  ></i>
                   Status Breakdown
                 </h4>
                 <p class="text-xs text-secondary mt-1">
-                  Lifecycle stage mapping showing task allocation across execution states.
+                  Lifecycle stage mapping showing task allocation across
+                  execution states.
                 </p>
               </div>
               <span
@@ -767,6 +773,23 @@ export const DashboardComponent = {
                               >
                                 ${task.title}
                               </h5>
+
+                              ${
+                                task.description
+                                  ? `<p
+                                        class="block md:hidden text-[11px] text-tertiary line-clamp-1 font-normal mb-2 truncate leading-tight cursor-pointer"
+                                        data-tooltip-title="${task.description}"
+                                      >
+                                        ${task.description}
+                                      </p>
+                                      <p
+                                        class="hidden md:flex text-[11px] text-tertiary line-clamp-1 font-normal mb-2 leading-tight"
+                                        title="${task.description}"
+                                      >
+                                        ${task.description}
+                                      </p>`
+                                  : ""
+                              }
 
                               <div
                                 class="flex items-center gap-4 text-[11px] text-secondary/80 font-medium flex-wrap"
