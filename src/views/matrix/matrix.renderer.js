@@ -46,7 +46,7 @@ export function renderEisenhowerGrid(tasks) {
         </div>
 
         <div
-          class="flex-1 space-y-2.5 overflow-y-auto max-h-120 min-h-35 pr-1.5 scrollbar-thin scrollbar-thumb-surface-3"
+          class="flex-1 flex flex-col justify-start space-y-2.5 overflow-y-auto min-h-31 max-h-31 pr-1.5 scrollbar-thin scrollbar-thumb-surface-3"
         >
           ${
             taskList.length > 0
@@ -55,17 +55,17 @@ export function renderEisenhowerGrid(tasks) {
                   .join("")
               : `
                   <div
-                    class="max-h-32 bg-surface border border-dashed border-border rounded-xl p-4 text-center"
+                    class="w-full h-full bg-surface border border-dashed border-border rounded-xl p-4 text-center flex flex-col justify-center items-center"
                   >
-                    <div class="text-3xl mb-2">
+                    <div class="text-2xl mb-2">
                       <i
-                        class="fa-regular fa-clipboard-list-check text-brand/80"
+                        class="fa-regular fa-clipboard-list-check text-brand/60"
                       ></i>
                     </div>
-                    <h2 class="text-sm font-bold text-primary">
+                    <h2 class="text-xs font-bold text-primary">
                       No tasks in this quadrant
                     </h2>
-                    <p class="text-xs mt-1 text-secondary max-w-sm mx-auto">
+                    <p class="text-[10px] mt-1 text-secondary max-w-sm mx-auto">
                       You're all caught up! Create a new task to get started.
                     </p>
                   </div>
@@ -167,13 +167,17 @@ export function renderAbcdeList(tasks) {
 
   return `
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"
+      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 w-full"
     >
       ${categories
         .map((cat, idx) => {
           const list = groups[cat.key];
           const colSpanClass =
-            idx === 3 ? "lg:col-span-1" : idx === 4 ? "lg:col-span-2" : "";
+            idx < 4
+              ? "col-span-2 md:col-span-1"
+              : idx === 4
+                ? "col-span-2 2xl:col-span-1"
+                : "";
 
           return `
             <div
@@ -205,7 +209,7 @@ export function renderAbcdeList(tasks) {
               </div>
 
               <div
-                class="flex-1 space-y-2.5 overflow-y-auto max-h-125 min-h-35 pr-1 scrollbar-thin scrollbar-thumb-surface-3"
+                class="flex-1 flex flex-col justify-start space-y-2.5 overflow-y-auto min-h-31 max-h-31 pr-1 scrollbar-thin scrollbar-thumb-surface-3"
               >
                 ${
                   list.length > 0
@@ -215,17 +219,19 @@ export function renderAbcdeList(tasks) {
                         )
                         .join("")
                     : `<div
-                        class="max-h-32 bg-surface border border-dashed border-border rounded-xl p-4 text-center"
+                        class="w-full h-full bg-surface border border-dashed border-border rounded-xl p-4 text-center flex flex-col justify-center items-center"
                       >
                         <div class="text-2xl mb-2">
                           <i
-                            class="fa-regular fa-clipboard-list-check text-brand/80"
+                            class="fa-regular fa-clipboard-list-check text-brand/60"
                           ></i>
                         </div>
                         <h2 class="text-xs font-bold text-primary">
                           No tasks in this quadrant
                         </h2>
-                        <p class="text-[10px] mt-1 text-secondary max-w-sm mx-auto">
+                        <p
+                          class="text-[10px] mt-1 text-secondary max-w-sm mx-auto"
+                        >
                           You're all caught up! Create a new task to get
                           started.
                         </p>

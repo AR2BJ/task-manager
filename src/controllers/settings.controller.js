@@ -117,7 +117,7 @@ export const SettingsController = {
         >
           <div class="h-full flex flex-col justify-center items-center">
             <div class="text-3xl">
-              <i class="fa-regular fa-tags text-brand/80"></i>
+              <i class="fa-regular fa-tags text-brand/60"></i>
             </div>
             <p class="mt-3 text-secondary max-w-sm mx-auto text-sm">
               No tags defined yet.

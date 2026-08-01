@@ -626,12 +626,20 @@ export const DashboardComponent = {
                 tasks.length === 0
                   ? `
                       <div
-                        class="text-center py-12 text-secondary text-sm bg-surface rounded-xl border border-dashed border-border/80 flex flex-col items-center justify-center gap-2"
+                        class="min-h-80 bg-surface-2 border border-dashed border-border rounded-2xl p-16 text-center"
                       >
-                        <i
-                          class="fa-regular fa-box-open text-3xl opacity-30"
-                        ></i>
-                        <span>No tasks found in repository.</span>
+                        <div class="text-6xl mb-6">
+                          <i
+                            class="fa-regular fa-clipboard-list-check text-brand/60"
+                          ></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-primary">
+                          No active tasks
+                        </h2>
+                        <p class="mt-3 text-secondary max-w-sm mx-auto">
+                          You're all caught up! Create a new task to get
+                          started.
+                        </p>
                       </div>
                     `
                   : tasks

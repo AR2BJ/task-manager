@@ -23,7 +23,7 @@ export const MatrixTaskCardComponent = {
 
     return `
       <div
-        class="group relative flex flex-col justify-between p-3 rounded-xl bg-surface hover:bg-surface-2 border border-border/60 hover:border-brand/40 transition-all duration-200 shadow-sm overflow-hidden"
+        class="group relative min-h-31 flex flex-col justify-between p-3 rounded-xl bg-surface hover:bg-surface-2 border border-border/60 hover:border-brand/40 transition-all duration-200 shadow-sm overflow-hidden"
       >
         <div class="absolute top-0 left-0 bottom-0 w-1 ${statusAccent}"></div>
 

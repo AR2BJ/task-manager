@@ -404,7 +404,7 @@ export class AutocompleteComponent {
       <div
         class="px-3.5 py-3 text-xs text-muted text-center flex items-center justify-center gap-1 select-none"
       >
-        <i class="fa-regular fa-circle-info text-brand/70"></i>
+        <i class="fa-regular fa-circle-info text-brand/60"></i>
         <span>${message}</span>
       </div>
     `;

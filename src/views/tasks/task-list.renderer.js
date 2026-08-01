@@ -20,17 +20,17 @@ export function renderTaskList(tasks, activeTab = "active") {
 
   const emptyStateConfig = {
     active: {
-      icon: "<i class='fa-regular fa-clipboard-list-check text-brand/80'></i>",
+      icon: "<i class='fa-regular fa-clipboard-list-check text-brand/60'></i>",
       title: "No active tasks",
       description: "You're all caught up! Create a new task to get started.",
     },
     completed: {
-      icon: "<i class='fa-regular fa-circle-check text-brand/80'></i>",
+      icon: "<i class='fa-regular fa-circle-check text-brand/60'></i>",
       title: "No completed tasks",
       description: "Mark tasks as finished to track your progress here.",
     },
     archived: {
-      icon: "<i class='fa-regular fa-box-open text-brand/80'></i>",
+      icon: "<i class='fa-regular fa-box-open text-brand/60'></i>",
       title: "No archived tasks",
       description:
         "Tasks moved to archive will appear here for record-keeping.",
