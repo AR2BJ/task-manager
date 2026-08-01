@@ -1,6 +1,7 @@
 import { StateManager, state } from "@/models/state.model.js";
 
 import { AnalyticsController } from "./analytics.controller.js";
+import { CalendarController } from "./calendar.controller.js";
 import { GlobalLoaderService } from "@/services/loader.service.js";
 import { MatrixController } from "./matrix.controller.js";
 import { TaskController } from "./task.controller.js";
@@ -24,6 +25,9 @@ export class NavigationController {
     document.getElementById("nav-analytics")?.addEventListener("click", () => {
       this.setActiveTab("analytics");
     });
+    document.getElementById("nav-calendar")?.addEventListener("click", () => {
+      this.setActiveTab("calendar");
+    });
     document.getElementById("nav-matrix")?.addEventListener("click", () => {
       this.setActiveTab("matrix");
     });
@@ -39,6 +43,11 @@ export class NavigationController {
       .getElementById("mobile-analytics")
       ?.addEventListener("click", () => {
         this.setActiveTab("analytics");
+      });
+    document
+      .getElementById("mobile-calendar")
+      ?.addEventListener("click", () => {
+        this.setActiveTab("calendar");
       });
     document.getElementById("mobile-matrix")?.addEventListener("click", () => {
       this.setActiveTab("matrix");
@@ -129,41 +138,68 @@ export class NavigationController {
           dispatchAsyncClick("tab-archived");
           return;
         }
+        // NavigationController.js
+
         if (["1", "2", "3"].includes(event.key)) {
           const currentSection = document.querySelector("section:not(.hidden)");
-          if (currentSection && currentSection.id === "analytics-view") {
+          if (!currentSection) return;
+
+          if (currentSection.id === "analytics-view") {
             const chartViewButtons = Array.from(
               document.querySelectorAll(
                 "#heatmap-mobile-menu button, #chart-view-switcher button, button[data-view]",
               ),
-            ).filter((btn) => {
-              const style = window.getComputedStyle(btn);
-              return (
+            ).filter(
+              (btn) =>
                 !btn.disabled &&
-                style.display !== "none" &&
-                style.visibility !== "hidden"
-              );
-            });
+                window.getComputedStyle(btn).display !== "none",
+            );
 
-            const index = parseInt(event.key, 10) - 1;
-            const targetButton = chartViewButtons[index];
-
+            const targetButton = chartViewButtons[parseInt(event.key, 10) - 1];
             if (targetButton) {
               event.preventDefault();
               setTimeout(() => targetButton.click(), 10);
+            }
+          }
+
+          if (currentSection.id === "calendar-view") {
+            const calendarTabs = [
+              document.getElementById("btn-calendar-day"),
+              document.getElementById("btn-calendar-month"),
+              document.getElementById("btn-calendar-year"),
+            ];
+
+            const targetBtn = calendarTabs[parseInt(event.key, 10) - 1];
+            if (targetBtn) {
+              event.preventDefault();
+              setTimeout(() => targetBtn.click(), 10);
+            }
+          }
+
+          if (currentSection.id === "matrix-view") {
+            const matrixTabs = [
+              document.getElementById("btn-matrix-eisenhower"),
+              document.getElementById("btn-matrix-abcde"),
+            ];
+
+            const targetBtn = matrixTabs[parseInt(event.key, 10) - 1];
+            if (targetBtn) {
+              event.preventDefault();
+              setTimeout(() => targetBtn.click(), 10);
             }
           }
         }
       }
 
       if (event.shiftKey) {
-        if (["t", "a", "m", "s"].includes(key)) {
+        if (["t", "a", "c", "m", "s"].includes(key)) {
           event.preventDefault();
 
           const viewNames = {
             t: "Tasks Dashboard",
             a: "Analytical Metrics",
             m: "Priority Matrix",
+            c: "Calendar View",
             s: "System Settings",
           };
           const targetTab =
@@ -173,7 +209,9 @@ export class NavigationController {
                 ? "analytics"
                 : key === "m"
                   ? "matrix"
-                  : "settings";
+                  : key === "c"
+                    ? "calendar"
+                    : "settings";
 
           GlobalLoaderService.show(`Navigating to ${viewNames[key]}...`);
 
@@ -293,6 +331,10 @@ export class NavigationController {
 
     if (tabType === "analytics") {
       AnalyticsController.dispatchRender(StateManager.getTasks());
+    }
+
+    if (tabType === "calendar") {
+      CalendarController.dispatchRender();
     }
 
     if (tabType === "matrix") {

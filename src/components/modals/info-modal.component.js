@@ -1,4 +1,4 @@
-export const HELP_SHORTCUTS = [
+const HELP_SHORTCUTS = [
   {
     category: "Navigation",
     items: [
@@ -11,6 +11,11 @@ export const HELP_SHORTCUTS = [
         label: "Go to Analytics Dashboard",
         icon: "fa-chart-mixed",
         keys: [["Shift"], ["A"]],
+      },
+      {
+        label: "Go to Calendar View",
+        icon: "fa-calendar",
+        keys: [["Shift"], ["C"]],
       },
       {
         label: "Go to Matrix Priorities",
@@ -76,6 +81,16 @@ export const HELP_SHORTCUTS = [
         label: "Switch Chart View (Weekly / Monthly / Yearly)",
         icon: "fa-chart-line",
         keys: [["Alt"], ["1 - 3"]],
+      },
+      {
+        label: "Switch Calendar View (Daily / Monthly / Yearly)",
+        icon: "fa-calendar-days",
+        keys: [["Alt"], ["1 - 3"]],
+      },
+      {
+        label: "Switch Matrix View (Eisenhower / ABCD)",
+        icon: "fa-table-cells",
+        keys: [["Alt"], ["1", "2"]],
       },
       {
         label: "Quick Tags Select (Tasks View)",

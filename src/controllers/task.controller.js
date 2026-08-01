@@ -4,6 +4,8 @@ import { clearOpenSubtasksState, openSubtasksState } from "@/utils/helpers.js";
 import { AnalyticsController } from "./analytics.controller.js";
 import { AnalyticsView } from "@/views/analytics-view.js";
 import { AutocompleteComponent } from "@/components/ui/autocomplete.component.js";
+import { CalendarController } from "./calendar.controller.js";
+import { CalendarView } from "@/views/calendar-view.js";
 import { DeleteModalsComponent } from "@/components/modals/delete-modals.component.js";
 import { DesktopNavComponent } from "@/components/layout/desktop-nav.component.js";
 import { EditModalsComponent } from "@/components/modals/edit-modals.component.js";
@@ -175,6 +177,7 @@ export const TaskController = {
       "mobile-nav-container": MobileNavComponent.render,
       "tasks-view-container": TasksView.render,
       "analytics-view-container": AnalyticsView.render,
+      "calendar-view-container": CalendarView.render,
       "matrix-view-container": MatrixView.render,
       "settings-view-container": SettingsViewComponent.render,
       "help-modal-container": InfoModalComponent.render,
@@ -198,6 +201,7 @@ export const TaskController = {
 
     AnalyticsController.dispatchRender(allTasks);
     MatrixController.dispatchRender();
+    CalendarController.dispatchRender();
     this.updateNavigationDOM();
 
     TaskFormController.refreshUI();
@@ -426,7 +430,7 @@ export const TaskController = {
       handleTabClick("archived", "Loading Archived Tasks..."),
     );
 
-    const navButtons = ["tasks", "analytics", "matrix", "settings"];
+    const navButtons = ["tasks", "analytics", "calendar", "matrix", "settings"];
     navButtons.forEach((v) => {
       const desktopBtn = document.getElementById(`nav-${v}`);
       const mobileBtn = document.getElementById(`mobile-${v}`);
@@ -646,7 +650,7 @@ export const TaskController = {
   },
 
   updateNavigationDOM() {
-    const views = ["tasks", "analytics", "matrix", "settings"];
+    const views = ["tasks", "analytics", "calendar", "matrix", "settings"];
     const currentView = state.currentView;
 
     views.forEach((v) => {
@@ -678,6 +682,9 @@ export const TaskController = {
       }
       if (currentView === "matrix") {
         MatrixController.updateTabStyles(state.matrixMode);
+      }
+      if (currentView === "calendar") {
+        MatrixController.updateTabStyles(state.calendarMode);
       }
     });
 

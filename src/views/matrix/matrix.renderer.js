@@ -1,4 +1,4 @@
-import { MatrixTaskCardComponent } from "@/components/features/matrix/matrix.component.js";
+import { MatrixTaskCardComponent } from "@/components/features/matrix/matrix-task-card.component";
 import { getTaskMatrixAttributes } from "@/utils/helpers.js";
 
 export function renderEisenhowerGrid(tasks) {
@@ -83,28 +83,28 @@ export function renderEisenhowerGrid(tasks) {
         "Urgent & Important",
         q1,
         { bg: "bg-red-500/10", text: "text-red-400" },
-        "fa-solid fa-fire",
+        "fa-regular fa-fire",
       )}
       ${renderSection(
         "Schedule (Q2)",
         "Not Urgent but Important",
         q2,
         { bg: "bg-sky-500/10", text: "text-sky-400" },
-        "fa-solid fa-calendar-check",
+        "fa-regular fa-calendar-check",
       )}
       ${renderSection(
         "Delegate (Q3)",
         "Urgent but Not Important",
         q3,
         { bg: "bg-amber-500/10", text: "text-amber-400" },
-        "fa-solid fa-user-gear",
+        "fa-regular fa-user-gear",
       )}
       ${renderSection(
         "Eliminate (Q4)",
         "Neither Urgent nor Important",
         q4,
         { bg: "bg-slate-500/10", text: "text-slate-400" },
-        "fa-solid fa-trash-can",
+        "fa-regular fa-trash-can",
       )}
     </div>
   `;

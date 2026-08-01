@@ -82,7 +82,7 @@ export class AutocompleteComponent {
             } absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10"
             title="Clear"
           >
-            <i class="fa-solid fa-xmark-large text-[8px]"></i>
+            <i class="fa-regular fa-xmark-large text-[8px]"></i>
           </button>
 
           <button
@@ -93,7 +93,7 @@ export class AutocompleteComponent {
           >
             <i
               id="autocomplete-arrow-icon"
-              class="fa-solid fa-chevron-down text-xs"
+              class="fa-regular fa-chevron-down text-xs"
             ></i>
           </button>
         </div>
@@ -354,7 +354,7 @@ export class AutocompleteComponent {
               </span>
               ${
                 isSelected
-                  ? `<i class="fa-solid fa-check text-brand text-xs"></i>`
+                  ? `<i class="fa-regular fa-check text-brand text-xs"></i>`
                   : ""
               }
             </div>
@@ -443,6 +443,7 @@ export class AutocompleteComponent {
     if (this.isDestroyed) return;
 
     const isSelected = this.selectedItems.some((s) => this.isEqual(s, item));
+    if (isSelected) return;
 
     if (this.options.multiple || this.options.chips) {
       if (isSelected) return;
@@ -459,22 +460,17 @@ export class AutocompleteComponent {
         this.openDropdown();
       }
     } else {
-      if (isSelected) {
-        this.removeSelectedItem(item);
-        return;
-      }
-
       this.selectedItems = [item];
       const text = this.getItemText(item);
       this.inputValue = text;
       this.elements.input.value = text;
-      this.searchQuery = "";
-      this.filterItems("");
+      this.searchQuery = text;
       this.closeDropdown();
       this.updateClearButton();
     }
 
     this.updatePosition();
+
     this.emitChange();
   }
 
@@ -524,7 +520,7 @@ export class AutocompleteComponent {
             type="button"
             class="remove-chip-btn hover:text-red-500 transition cursor-pointer flex items-center justify-center"
           >
-            <i class="fa-solid fa-xmark text-[10px]"></i>
+            <i class="fa-regular fa-xmark text-[10px]"></i>
           </button>
         `;
       } else {

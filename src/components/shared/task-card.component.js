@@ -1,10 +1,8 @@
-import { getTaskMatrixAttributes } from "@/utils/helpers.js";
-import { state } from "@/models/state.model";
+import { state } from "@/models/state.model.js";
 
-export const MatrixTaskCardComponent = {
-  render(task) {
-    const { importance, urgency, priorityScore } =
-      getTaskMatrixAttributes(task);
+export const TaskCardComponent = {
+  render(task, options = {}) {
+    const { headerExtraHtml = "", footerExtraHtml = "" } = options;
 
     const statusAccent =
       {
@@ -42,11 +40,7 @@ export const MatrixTaskCardComponent = {
               </span>
             </div>
 
-            <span
-              class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-light text-brand shrink-0"
-            >
-              Score: ${priorityScore}
-            </span>
+            ${headerExtraHtml}
           </div>
 
           <h4
@@ -83,14 +77,7 @@ export const MatrixTaskCardComponent = {
         <div
           class="flex flex-wrap items-center justify-between pt-2 mt-1 border-t border-border/40 text-[10px] text-secondary pl-1.5 gap-2"
         >
-          <div class="flex items-center gap-2 font-semibold shrink-0">
-            <span class="text-tertiary"
-              >Imp: <strong class="text-primary">${importance}</strong></span
-            >
-            <span class="text-tertiary"
-              >Urg: <strong class="text-primary">${urgency}</strong></span
-            >
-          </div>
+          ${footerExtraHtml || "<div></div>"}
 
           <div class="flex flex-wrap items-center gap-1.5 justify-start lg:justify-end">
             ${

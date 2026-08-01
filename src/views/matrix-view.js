@@ -11,14 +11,11 @@ export const MatrixView = {
               id="matrix-header-title"
               class="text-lg sm:text-xl font-bold text-primary flex items-center gap-2"
             >
-              <i class="fa-solid fa-table-cells text-brand"></i>
-              Eisenhower Matrix
             </h1>
             <p 
               id="matrix-header-description" 
               class="text-xs sm:text-sm text-secondary mt-1"
             >
-              Categorize tasks into 4 urgent/important quadrants for high-impact productivity.
             </p>
           </div>
         

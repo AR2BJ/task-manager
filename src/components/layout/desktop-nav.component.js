@@ -37,6 +37,14 @@ export const DesktopNavComponent = {
           </button>
 
           <button
+            id="nav-calendar"
+            class="nav-item justify-center"
+            title="Calendar"
+          >
+            <i class="fa-regular fa-calendar text-lg"></i>
+          </button>
+          
+          <button
             id="nav-matrix"
             class="nav-item justify-center"
             title="Matrix"

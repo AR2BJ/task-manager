@@ -59,7 +59,7 @@ export const TasksView = {
                 class="hidden opacity-0 scale-75 h-5 w-5 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-2 hover:bg-surface-4 text-secondary hover:text-primary transition-all duration-200 ease-out"
                 title="Clear Search"
               >
-                <i class="fa-solid fa-xmark text-[10px]"></i>
+                <i class="fa-regular fa-xmark text-[10px]"></i>
               </button>
 
               <kbd class="flex items-center pointer-events-none">

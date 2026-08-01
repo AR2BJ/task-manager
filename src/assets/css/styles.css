@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "./calendar.css";
+@import "./loading.css";
 
 /* ============================= */
 /* THEME TOKENS START */

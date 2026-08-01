@@ -21,6 +21,14 @@ export const MobileNavComponent = {
         </button>
         
         <button
+          id="mobile-calendar"
+          class="mobile-nav-btn flex flex-col items-center justify-center gap-2 text-secondary"
+        >
+          <i class="fa-regular fa-calendar text-2xl"></i>
+          <span class="text-xs font-medium tracking-wide">Calendar</span>
+        </button>
+        
+        <button
           id="mobile-matrix"
           class="mobile-nav-btn flex flex-col items-center justify-center gap-2 text-secondary"
         >

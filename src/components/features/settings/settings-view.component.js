@@ -206,7 +206,7 @@ export const SettingsViewComponent = {
                   id="sett-seed-spinner"
                   class="hidden"
                 >
-                  <i class="fa-solid fa-spinner fa-spin text-sm"></i>
+                  <i class="fa-regular fa-spinner fa-spin text-sm"></i>
                 </div>
 
                 <span

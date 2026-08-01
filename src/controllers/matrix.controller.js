@@ -11,13 +11,13 @@ export class MatrixController {
       title: "Eisenhower Matrix",
       description:
         "Categorize tasks into 4 urgent/important quadrants for high-impact productivity.",
-      iconClass: "fa-solid fa-table-cells-large text-brand",
+      icon: "fa-table-cells-large",
     },
     abcde: {
       title: "ABCDE Method",
       description:
         "Prioritize tasks systematically from highest impact (A) to delegable/eliminable (D/E).",
-      iconClass: "fa-solid fa-list-ol text-brand",
+      icon: "fa-list-ol",
     },
   };
 
@@ -47,7 +47,7 @@ export class MatrixController {
   static switchMode(mode) {
     if (state.matrixMode === mode) return;
 
-    StateManager.setMode(mode);
+    StateManager.setMatrixMode(mode);
     this.updateTabStyles(mode);
     this.updateHeaderData(mode);
     this.dispatchRender();
@@ -61,7 +61,7 @@ export class MatrixController {
     if (!config) return;
 
     if (titleEl) {
-      titleEl.innerHTML = `<i class="${config.iconClass}"></i> ${config.title}`;
+      titleEl.innerHTML = `<i class="fa-regular ${config.icon} text-brand"></i> ${config.title}`;
     }
 
     if (descEl) {
@@ -79,6 +79,7 @@ export class MatrixController {
       window.matrixTabResizeObserver = new ResizeObserver(() => {
         requestAnimationFrame(() => {
           this.updateTabStyles(state.matrixMode);
+          this.updateHeaderData(state.matrixMode);
         });
       });
     }
@@ -160,6 +161,7 @@ export class MatrixController {
 
     requestAnimationFrame(() => {
       this.updateTabStyles(state.matrixMode);
+      this.updateHeaderData(state.matrixMode);
     });
   }
 }

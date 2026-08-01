@@ -1,3 +1,4 @@
+import { CalendarController } from "@/controllers/calendar.controller";
 import { GlobalLoaderService } from "@/services/loader.service";
 import { MatrixController } from "@/controllers/matrix.controller";
 import { NavigationController } from "@/controllers/navigation.controller.js";
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   NavigationController.init();
   TaskController.init();
+  CalendarController.init();
   MatrixController.init();
   SettingsController.init();
 

@@ -81,7 +81,7 @@ export class ComboboxComponent {
             } absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10"
             title="Clear all"
           >
-            <i class="fa-solid fa-xmark-large text-[8px]"></i>
+            <i class="fa-regular fa-xmark-large text-[8px]"></i>
           </button>
 
           <button
@@ -92,7 +92,7 @@ export class ComboboxComponent {
           >
             <i
               id="combobox-arrow-icon"
-              class="fa-solid fa-chevron-down text-xs"
+              class="fa-regular fa-chevron-down text-xs"
             ></i>
           </button>
         </div>
@@ -372,7 +372,7 @@ export class ComboboxComponent {
             }"
           >
             <span class="flex items-center gap-1.5">
-              <i class="fa-solid fa-plus text-xs"></i>
+              <i class="fa-regular fa-plus text-xs"></i>
               Create "${query}"
             </span>
             <span class="text-[10px] text-brand/80 font-bold"
@@ -529,7 +529,7 @@ export class ComboboxComponent {
             type="button"
             class="remove-chip-btn hover:text-red-500 transition cursor-pointer flex items-center justify-center"
           >
-            <i class="fa-solid fa-xmark text-[10px]"></i>
+            <i class="fa-regular fa-xmark text-[10px]"></i>
           </button>
         `;
       } else {

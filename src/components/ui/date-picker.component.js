@@ -122,14 +122,14 @@ export class DatePickerComponent {
             id="${this.id}-prev-btn"
             class="p-1 text-secondary hover:text-primary hover:bg-surface-2 rounded-md transition cursor-pointer"
           >
-            <i class="fa-solid fa-chevron-left text-xs"></i>
+            <i class="fa-regular fa-chevron-left text-xs"></i>
           </button>
           <button
             type="button"
             id="${this.id}-next-btn"
             class="p-1 text-secondary hover:text-primary hover:bg-surface-2 rounded-md transition cursor-pointer"
           >
-            <i class="fa-solid fa-chevron-right text-xs"></i>
+            <i class="fa-regular fa-chevron-right text-xs"></i>
           </button>
         </div>
       </div>
