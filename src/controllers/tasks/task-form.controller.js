@@ -115,6 +115,14 @@ export const TaskFormController = {
     this.bindAccordionEvents();
   },
 
+  refreshUI() {
+    if (createTaskCombobox) {
+      const updatedGlobalTags = StateManager.getTags() || [];
+      createTaskCombobox.setItems(updatedGlobalTags);
+      editTaskCombobox?.setItems(updatedGlobalTags);
+    }
+  },
+
   setupCreateAutocompletes() {
     const priorityWrapper = document.getElementById("create-priority-wrapper");
     const statusWrapper = document.getElementById("create-status-wrapper");

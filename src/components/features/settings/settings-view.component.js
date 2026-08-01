@@ -25,6 +25,7 @@ export const SettingsViewComponent = {
             </p>
           </div>
 
+          <!-- Theme Settings -->
           <div
             class="bg-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-sm border border-border"
           >
@@ -73,6 +74,50 @@ export const SettingsViewComponent = {
                 <i class="fa-regular fa-moon text-base"></i>
                 <span>Dark Mode</span>
               </button>
+            </div>
+          </div>
+
+          <div
+            class="bg-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-sm border border-border"
+          >
+            <div class="flex items-center gap-3 border-b border-border pb-3">
+              <div
+                class="w-8 h-8 rounded-lg bg-brand/10 text-brand/80 flex items-center justify-center shrink-0"
+              >
+                <i class="fa-regular fa-tags text-sm"></i>
+              </div>
+              <div class="min-w-0">
+                <h3
+                  class="text-sm sm:text-base font-semibold text-primary truncate"
+                >
+                  Global Tag Management
+                </h3>
+                <p class="text-[11px] sm:text-xs text-secondary truncate">
+                  Create, edit, or remove workspace tags globally.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-2 items-center">
+              <input
+                type="text"
+                id="sett-new-tag-input"
+                placeholder="Enter new tag name..."
+                class="flex-1 bg-surface-2 border border-border rounded-xl px-3.5 py-2 text-xs sm:text-sm text-primary placeholder:text-muted focus:outline-none focus:border-brand/80 transition"
+              />
+              <button
+                id="sett-add-tag-btn"
+                class="px-4 py-2 bg-brand/80 hover:bg-brand text-white font-medium text-xs sm:text-sm rounded-xl transition cursor-pointer shrink-0 flex items-center gap-1.5"
+              >
+                <i class="fa-regular fa-plus"></i>
+                <span>Add Tag</span>
+              </button>
+            </div>
+
+            <div
+              id="sett-tags-list"
+              class="flex flex-col gap-2 mt-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 pr-1"
+            >
             </div>
           </div>
 
@@ -154,7 +199,6 @@ export const SettingsViewComponent = {
                   class="flex"
                 >
                   <i
-                    id="sett-seed-icon"
                     class="fa-regular fa-flask text-sm transition-transform duration-200"
                   ></i>
                 </div>
@@ -207,6 +251,7 @@ export const SettingsViewComponent = {
             </div>
           </div>
 
+          <!-- Automation Rules -->
           <div
             class="bg-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-sm border border-border"
           >
@@ -253,6 +298,7 @@ export const SettingsViewComponent = {
             </div>
           </div>
 
+          <!-- Factory Reset -->
           <div
             class="bg-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-sm border border-border"
           >

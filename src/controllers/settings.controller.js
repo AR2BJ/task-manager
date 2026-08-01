@@ -1,10 +1,11 @@
 import { STORAGE_KEY, STORAGE_VERSION } from "@/models/storage.model";
 import { StateManager, state } from "@/models/state.model.js";
+import { formatDate, generateId } from "@/utils/helpers";
 
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
 import { TaskController } from "./task.controller";
-import { formatDate } from "@/utils/helpers";
+import { TaskFormController } from "./tasks/task-form.controller";
 import { generateDynamicMockData } from "@/utils/seed-generator";
 
 export const SettingsController = {
@@ -12,6 +13,7 @@ export const SettingsController = {
 
   init() {
     this.bindSettingsEvents();
+    this.renderTagsList();
   },
 
   bindSettingsEvents() {
@@ -32,6 +34,22 @@ export const SettingsController = {
     });
 
     this.syncThemeControls(localStorage.getItem("theme") || "light");
+
+    // Tag Events
+    document
+      .getElementById("sett-add-tag-btn")
+      ?.addEventListener("click", () => this.handleAddTag());
+
+    document
+      .getElementById("sett-new-tag-input")
+      ?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.handleAddTag();
+        }
+      });
+
+    this.bindTagListActions();
 
     document
       .getElementById("sett-export-btn")
@@ -84,6 +102,216 @@ export const SettingsController = {
 
     window.addEventListener("resize", () => {
       this.syncThemeControls(localStorage.getItem("theme") || "light");
+    });
+  },
+
+  renderTagsList() {
+    const container = document.getElementById("sett-tags-list");
+    if (!container) return;
+
+    const tags = StateManager.getTags() || [];
+
+    if (tags.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-4 border border-dashed border-border rounded-xl">
+          <p class="text-xs text-secondary">No custom tags created yet.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = tags
+      .map(
+        (tag) => `
+        <div
+          data-tag-id="${tag.id}"
+          class="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-2 border border-border/80 transition"
+        >
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <i class="fa-regular fa-tag text-brand/80 text-xs shrink-0"></i>
+            <input
+              type="text"
+              value="${(tag.name || "").replace(/"/g, "&quot;")}"
+              data-action="edit-tag-name"
+              class="tag-name-input bg-transparent text-xs sm:text-sm font-medium text-primary outline-none border-b border-transparent focus:border-brand/50 transition w-full truncate"
+              readonly
+            />
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0">
+            <button
+              data-action="toggle-edit"
+              class="p-1.5 hover:bg-surface-3 rounded-lg text-secondary hover:text-primary transition cursor-pointer"
+              title="Edit tag name"
+            >
+              <i class="fa-regular fa-pen-to-square text-xs"></i>
+            </button>
+            <button
+              data-action="delete-tag"
+              class="p-1.5 hover:bg-red-500/10 rounded-lg text-secondary hover:text-red-500 transition cursor-pointer"
+              title="Delete tag"
+            >
+              <i class="fa-regular fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        </div>
+      `,
+      )
+      .join("");
+  },
+
+  handleAddTag() {
+    const input = document.getElementById("sett-new-tag-input");
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) {
+      NotificationService.show({
+        type: "error",
+        message: "Tag name cannot be empty.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    const currentTags = StateManager.getTags() || [];
+    const exists = currentTags.some(
+      (t) => t.name.toLowerCase() === name.toLowerCase(),
+    );
+
+    if (exists) {
+      NotificationService.show({
+        type: "error",
+        message: "A tag with this name already exists.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    const newTag = {
+      id: generateId(),
+      name,
+    };
+
+    const updatedTags = [...currentTags, newTag];
+    StateManager.save(StateManager.getTasks(), updatedTags);
+
+    input.value = "";
+    this.renderTagsList();
+    TaskController.refreshUI();
+    TaskFormController.refreshUI();
+
+    NotificationService.show({
+      type: "success",
+      message: `Tag "#${name}" created successfully.`,
+      duration: 3000,
+    });
+  },
+
+  bindTagListActions() {
+    const container = document.getElementById("sett-tags-list");
+    if (!container) return;
+
+    container.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+
+      const tagCard = btn.closest("[data-tag-id]");
+      if (!tagCard) return;
+
+      const tagId = tagCard.dataset.tagId;
+      const action = btn.dataset.action;
+      const nameInput = tagCard.querySelector(".tag-name-input");
+
+      if (action === "toggle-edit") {
+        const isReadonly = nameInput.hasAttribute("readonly");
+        if (isReadonly) {
+          nameInput.removeAttribute("readonly");
+          nameInput.focus();
+          nameInput.select();
+          btn.innerHTML = `<i class="fa-regular fa-floppy-disk text-xs text-emerald-500"></i>`;
+        } else {
+          this.handleSaveTagEdit(tagId, nameInput.value, btn, nameInput);
+        }
+      } else if (action === "delete-tag") {
+        this.handleDeleteTag(tagId);
+      }
+    });
+
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.classList.contains("tag-name-input")) {
+        e.preventDefault();
+        const tagCard = e.target.closest("[data-tag-id]");
+        const tagId = tagCard?.dataset.tagId;
+        const btn = tagCard?.querySelector('[data-action="toggle-edit"]');
+        if (tagId && btn) {
+          this.handleSaveTagEdit(tagId, e.target.value, btn, e.target);
+        }
+      }
+    });
+  },
+
+  handleSaveTagEdit(tagId, newNameRaw, btn, nameInput) {
+    const newName = newNameRaw.trim();
+    if (!newName) {
+      NotificationService.show({
+        type: "error",
+        message: "Tag name cannot be empty.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    const currentTags = StateManager.getTags() || [];
+    const tag = currentTags.find((t) => t.id === tagId);
+
+    if (tag) {
+      tag.name = newName;
+      StateManager.save(StateManager.getTasks(), currentTags);
+
+      nameInput.setAttribute("readonly", "true");
+      btn.innerHTML = `<i class="fa-regular fa-pen-to-square text-xs"></i>`;
+
+      this.renderTagsList();
+      TaskController.refreshUI();
+      TaskFormController.refreshUI();
+
+      NotificationService.show({
+        type: "success",
+        message: "Tag updated successfully.",
+        duration: 3000,
+      });
+    }
+  },
+
+  handleDeleteTag(tagId) {
+    const currentTags = StateManager.getTags() || [];
+    const targetTag = currentTags.find((t) => t.id === tagId);
+
+    if (!targetTag) return;
+
+    const updatedTags = currentTags.filter((t) => t.id !== tagId);
+
+    const currentTasks = StateManager.getTasks() || [];
+    const updatedTasks = currentTasks.map((task) => {
+      if (Array.isArray(task.tags) && task.tags.includes(tagId)) {
+        return {
+          ...task,
+          tags: task.tags.filter((id) => id !== tagId),
+        };
+      }
+      return task;
+    });
+
+    StateManager.save(updatedTasks, updatedTags);
+    this.renderTagsList();
+    TaskController.refreshUI();
+    TaskFormController.refreshUI();
+
+    NotificationService.show({
+      type: "info",
+      message: `Tag "#${targetTag.name}" deleted.`,
+      duration: 3000,
     });
   },
 
@@ -154,7 +382,7 @@ export const SettingsController = {
     const dateStr = formatDate(new Date());
 
     if (format === "json") {
-      fileContent = JSON.stringify(tasks, null, 2);
+      fileContent = JSON.stringify(localData, null, 2);
       fileName = `Tasks_Backup_${dateStr}_v${STORAGE_VERSION}.json`;
       contentType = "application/json";
     } else if (format === "markdown") {
@@ -297,180 +525,6 @@ export const SettingsController = {
     });
   },
 
-  _parseMarkdownToTasks(text) {
-    const tasks = [];
-    // Regex matching: ## #️⃣ {id} followed by ### 🎯 {title} and block content
-    const blockRegex =
-      /## #️⃣ ([^\n]+)\n### 🎯 ([^\n]+)\n([\s\S]*?)(?=\n## #️⃣ |\n*$)/g;
-
-    let match;
-    while ((match = blockRegex.exec(text)) !== null) {
-      const [, id, title, block] = match;
-      const lines = block
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
-
-      let description = "";
-      let status = "todo";
-      let priority = "low";
-      let dueDate = null;
-      let estimatedMinutes = 0;
-      let tags = [];
-      let createdAt = formatDate(new Date());
-      let updatedAt = formatDate(new Date());
-      let completedAt = null;
-      let archived = false;
-      const subtasks = [];
-
-      lines.forEach((line) => {
-        if (line.includes("- **Description:**")) {
-          const val = line.split("- **Description:**")[1]?.trim();
-          description = val === "N/A" ? "" : val || "";
-        } else if (line.includes("- **Status:**")) {
-          status = line.split("- **Status:**")[1]?.trim() || "todo";
-        } else if (line.includes("- **Priority:**")) {
-          priority = line.split("- **Priority:**")[1]?.trim() || "low";
-        } else if (line.includes("- **Due Date:**")) {
-          const val = line.split("📅 ")[1]?.trim();
-          dueDate = !val || val === "None" ? null : val;
-        } else if (line.includes("- **Estimated Time:**")) {
-          const val = line.split("⏱️ ")[1]?.trim();
-          estimatedMinutes = parseInt(val) || 0;
-        } else if (line.includes("- **Tags:**")) {
-          const rawTags = line.split("🏷️ ")[1]?.trim() || "";
-          tags =
-            rawTags === "None"
-              ? []
-              : rawTags
-                  .split(" ")
-                  .map((t) => t.replace(/^#/, "").trim())
-                  .filter(Boolean);
-        } else if (line.includes("- **Created At:**")) {
-          createdAt = line.split("⏰ ")[1]?.trim() || formatDate(new Date());
-        } else if (line.includes("- **Updated At:**")) {
-          updatedAt = line.split("🔄 ")[1]?.trim() || formatDate(new Date());
-        } else if (line.includes("- **Completed At:**")) {
-          const val = line.split("✅ ")[1]?.trim();
-          completedAt = !val || val === "N/A" ? null : val;
-        } else if (line.includes("- **Archived:**")) {
-          archived = line.includes("📦 Yes");
-        } else if (/^- \[[ xX]\]/.test(line)) {
-          // Parsing Subtasks
-          const completed = /^- \[[xX]\]/.test(line);
-          const rawContent = line.replace(/^- \[[ xX]\]\s*/, "").trim();
-
-          // Extract Subtask Title and ID if present: "Title (ID: xxx)"
-          const idMatch = rawContent.match(/(.*?)\s*\(ID:\s*([^\)]+)\)$/);
-          const stTitle = idMatch ? idMatch[1].trim() : rawContent;
-          const stId = idMatch ? idMatch[2].trim() : crypto.randomUUID();
-
-          subtasks.push({
-            id: String(stId),
-            title: stTitle,
-            completed: Boolean(completed),
-            createdAt,
-            updatedAt,
-          });
-        }
-      });
-
-      tasks.push({
-        id: String(id.trim()),
-        title: title.trim(),
-        description,
-        status,
-        priority,
-        dueDate,
-        estimatedMinutes: Number(estimatedMinutes) || 0,
-        tags,
-        createdAt,
-        updatedAt,
-        completedAt,
-        archived,
-        subtasks,
-      });
-    }
-
-    return tasks;
-  },
-
-  _parseCSVToTasks(text) {
-    const lines = text
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0);
-    if (lines.length <= 1) return [];
-
-    const tasks = lines
-      .slice(1)
-      .map((line) => {
-        const matches =
-          line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
-        if (matches.length < 12) return null;
-
-        const clean = (index) =>
-          matches[index]?.replace(/^"|"$/g, "").replace(/""/g, '"') || "";
-
-        const id = clean(0);
-        const title = clean(1) || "Untitled Task";
-        const description = clean(2);
-        const status = clean(3) || "todo";
-        const priority = clean(4) || "low";
-        const dueDate = clean(5) || null;
-        const estimatedMinutes = parseInt(clean(6)) || 0;
-        const tags = clean(7)
-          ? clean(7)
-              .split(";")
-              .map((t) => t.trim())
-              .filter(Boolean)
-          : [];
-        const createdAt = clean(8) || formatDate(new Date());
-        const updatedAt = clean(9) || formatDate(new Date());
-        const completedAt = clean(10) || null;
-        const archived = clean(11) === "Yes";
-
-        // Deserialize Subtasks from string: "[X] Subtask Title | [ ] Subtask 2"
-        const rawSubtasks = clean(12);
-        const subtasks = rawSubtasks
-          ? rawSubtasks
-              .split("|")
-              .map((stStr) => {
-                const trimmed = stStr.trim();
-                const completed = /^\[[xX]\]/.test(trimmed);
-                const stTitle = trimmed.replace(/^\[[ xX]\]\s*/, "").trim();
-                return {
-                  id: crypto.randomUUID(),
-                  title: stTitle,
-                  completed,
-                  createdAt,
-                  updatedAt,
-                };
-              })
-              .filter((st) => st.title.length > 0)
-          : [];
-
-        return {
-          id: String(id),
-          title,
-          description,
-          status,
-          priority,
-          dueDate: dueDate === "None" ? null : dueDate,
-          estimatedMinutes,
-          tags,
-          createdAt,
-          updatedAt,
-          completedAt: completedAt === "N/A" ? null : completedAt,
-          archived,
-          subtasks,
-        };
-      })
-      .filter((task) => task !== null);
-
-    return tasks;
-  },
-
   processImportedFile(file) {
     const fileName = file.name.toLowerCase();
     let format = "";
@@ -503,29 +557,21 @@ export const SettingsController = {
         try {
           const rawContent = event.target.result;
           let importedTasks = [];
+          let importedTags = [];
 
           if (format === "json") {
             const parsedJson = JSON.parse(rawContent);
             importedTasks = Array.isArray(parsedJson)
               ? parsedJson
               : parsedJson.tasks || [];
-          } else if (format === "markdown") {
-            importedTasks = this._parseMarkdownToTasks(rawContent);
-          } else if (format === "csv") {
-            importedTasks = this._parseCSVToTasks(rawContent);
+            importedTags = parsedJson.tags || [];
           }
 
           if (!Array.isArray(importedTasks) || importedTasks.length === 0) {
             throw new Error("No structured data could be extracted.");
           }
 
-          const parsedData = {
-            version: STORAGE_VERSION,
-            tasks: importedTasks,
-          };
-
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
-          StateManager.save(parsedData.tasks);
+          StateManager.save(importedTasks, importedTags);
 
           state.activeTab = "active";
           state.currentView = "tasks";
@@ -535,6 +581,7 @@ export const SettingsController = {
           renderTaskList(StateManager.getFilteredTasks(), state.activeTab);
 
           TaskController.refreshUI();
+          this.renderTagsList();
 
           NotificationService.show({
             type: "success",
@@ -594,7 +641,7 @@ export const SettingsController = {
       try {
         const dynamicMockData = generateDynamicMockData(mockDataCount);
 
-        StateManager.save(dynamicMockData.tasks);
+        StateManager.save(dynamicMockData.tasks, dynamicMockData.tags || []);
 
         state.activeTab = "active";
         state.currentView = "tasks";
@@ -603,6 +650,7 @@ export const SettingsController = {
           await import("@/views/tasks/task-list.renderer.js");
         renderTaskList(StateManager.getFilteredTasks(), state.activeTab);
         TaskController.refreshUI();
+        this.renderTagsList();
 
         setTimeout(() => {
           NotificationService.show({
@@ -640,6 +688,7 @@ export const SettingsController = {
   resetSession() {
     StateManager.init();
     TaskController.refreshUI();
+    this.renderTagsList();
   },
 
   syncAutoArchiveToggle() {
@@ -763,9 +812,8 @@ export const SettingsController = {
 
   async executeApplicationReset() {
     const previousPayload = localStorage.getItem(STORAGE_KEY);
-    const previousTasks = StateManager.getTasks().map((task) => ({
-      ...task,
-    }));
+    const previousTasks = StateManager.getTasks().map((task) => ({ ...task }));
+    const previousTags = StateManager.getTags().map((tag) => ({ ...tag }));
 
     this.closeResetModal();
 
@@ -776,6 +824,7 @@ export const SettingsController = {
         localStorage.removeItem(STORAGE_KEY);
 
         state.tasks = [];
+        state.tags = [];
         state.activeTab = "active";
         state.currentView = "tasks";
 
@@ -784,6 +833,7 @@ export const SettingsController = {
         renderTaskList([], state.activeTab);
 
         TaskController.refreshUI();
+        this.renderTagsList();
 
         NotificationService.show({
           type: "error",
@@ -802,8 +852,9 @@ export const SettingsController = {
                   localStorage.removeItem(STORAGE_KEY);
                 }
 
-                StateManager.save(previousTasks || []);
+                StateManager.save(previousTasks || [], previousTags || []);
                 state.tasks = previousTasks || [];
+                state.tags = previousTags || [];
 
                 state.activeTab = "active";
                 state.currentView = "tasks";
@@ -812,6 +863,7 @@ export const SettingsController = {
                   await import("@/views/tasks/task-list.renderer.js");
                 reloadList(StateManager.getFilteredTasks(), state.activeTab);
                 TaskController.refreshUI();
+                this.renderTagsList();
               } finally {
                 GlobalLoaderService.hide();
               }

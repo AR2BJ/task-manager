@@ -195,9 +195,13 @@ export const TaskController = {
     const filteredTasks = StateManager.getFilteredTasks();
 
     renderTaskList(filteredTasks, state.activeTab);
+
     AnalyticsController.dispatchRender(allTasks);
     MatrixController.dispatchRender();
     this.updateNavigationDOM();
+
+    TaskFormController.init(this);
+    TaskActionController.init(this);
 
     clearOpenSubtasksState();
 
