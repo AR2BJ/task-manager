@@ -145,8 +145,8 @@ export function renderDayList(currentDate, tasks) {
         ${
           dayTasks.length > 0
             ? dayTasks.map((task) => TaskCardComponent.render(task)).join("")
-            : `<div class="col-span-full py-12 text-center flex flex-col items-center justify-center gap-2 text-tertiary">
-              <i class="fa-regular fa-calendar-xmark text-2xl text-brand/40"></i>
+            : `<div class="col-span-full py-12 text-center flex flex-col items-center justify-center gap-3 text-tertiary">
+              <i class="fa-regular fa-calendar-xmark text-4xl text-brand/60"></i>
               <p class="text-xs font-semibold">No tasks scheduled for this date.</p>
             </div>`
         }

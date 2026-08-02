@@ -1,6 +1,8 @@
+import { formatDate, generateId, todayISO } from "@/utils/helpers";
+
 export class DatePickerComponent {
   constructor({
-    id,
+    id = `datepicker-${generateId()}`,
     value = "",
     placeholder = "YYYY-MM-DD",
     background = "surface-2",
@@ -18,7 +20,7 @@ export class DatePickerComponent {
     this.totalPages = 4;
     this.maxYear = this.minYear + this.yearsPerPage * this.totalPages - 1;
 
-    const initialDate = value ? new Date(value) : new Date();
+    const initialDate = value ? this._parseLocalDate(value) : new Date();
     let parsedYear = isNaN(initialDate.getTime())
       ? this.minYear
       : initialDate.getFullYear();
@@ -66,6 +68,12 @@ export class DatePickerComponent {
 
     this._updatePosition = this._updatePosition.bind(this);
     this._onScrollOrResize = this._handleScrollOrResize.bind(this);
+  }
+
+  _parseLocalDate(dateStr) {
+    if (!dateStr || !this.isValidDate(dateStr)) return new Date(NaN);
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
   }
 
   render() {
@@ -365,6 +373,14 @@ export class DatePickerComponent {
       }
     });
 
+    popover.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+    });
+
+    input.addEventListener("blur", () => {
+      togglePopover(false);
+    });
+
     const togglePopover = (show) => {
       this.isOpen = typeof show === "boolean" ? show : !this.isOpen;
       if (this.isOpen) {
@@ -453,20 +469,30 @@ export class DatePickerComponent {
       e.stopPropagation();
       this.reset();
       if (this.onChange) this.onChange("");
-      togglePopover(false);
+
+      if (input) {
+        input.blur();
+      }
     });
 
     todayBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
+      const todayStr = todayISO();
+
+      this.value = todayStr;
       const now = new Date();
-      const todayStr = now.toISOString().split("T")[0];
       input.value = todayStr;
       this.value = todayStr;
       this.currentYear = now.getFullYear();
       this.currentMonth = now.getMonth();
       this.viewMode = "days";
+
       if (this.onChange) this.onChange(todayStr);
-      togglePopover(false);
+
+      if (input) {
+        input.value = todayStr;
+        input.blur();
+      }
     });
 
     document.addEventListener("click", (e) => {
@@ -530,7 +556,7 @@ export class DatePickerComponent {
     ).getDate();
 
     let gridHTML = `<div class="grid grid-cols-7 gap-1">`;
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = todayISO();
 
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const day = prevMonthTotalDays - i;
@@ -604,16 +630,12 @@ export class DatePickerComponent {
         this.value = selectedDate;
 
         const input = document.getElementById(this.id);
-        if (input) input.value = selectedDate;
+        if (input) {
+          input.value = selectedDate;
+          input.blur();
+        }
 
         if (this.onChange) this.onChange(selectedDate);
-
-        const popover = document.getElementById(`${this.id}-popover`);
-        if (popover) popover.classList.add("hidden");
-
-        window.removeEventListener("scroll", this._onScrollOrResize, true);
-        window.removeEventListener("resize", this._onScrollOrResize);
-        this.isOpen = false;
       });
     });
   }
@@ -693,10 +715,13 @@ export class DatePickerComponent {
   isValidDate(dateString) {
     const regEx = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateString.match(regEx)) return false;
-    const d = new Date(dateString);
-    const dNum = d.getTime();
-    if (!dNum && dNum !== 0) return false;
-    return d.toISOString().slice(0, 10) === dateString;
+    const [y, m, d] = dateString.split("-").map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    return (
+      dateObj.getFullYear() === y &&
+      dateObj.getMonth() === m - 1 &&
+      dateObj.getDate() === d
+    );
   }
 
   reset() {
