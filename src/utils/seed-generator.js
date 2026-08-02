@@ -27,7 +27,8 @@ const TASK_DESCRIPTIONS = [
 
 const PRIORITIES = ["low", "medium", "high"];
 const STATUSES = ["todo", "in_progress", "done", "blocked"];
-const AVAILABLE_TAGS = [
+
+const DEFAULT_TAG_NAMES = [
   "dev",
   "backend",
   "frontend",
@@ -73,17 +74,17 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomTags() {
-  const maxCount = Math.min(3, AVAILABLE_TAGS.length);
+function getRandomTagIds(availableTagObjects) {
+  const maxCount = Math.min(3, availableTagObjects.length);
   const count = getRandomInt(1, maxCount);
-  const shuffled = [...AVAILABLE_TAGS];
+  const shuffled = [...availableTagObjects];
 
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 
-  return shuffled.slice(0, count);
+  return shuffled.slice(0, count).map((tag) => tag.id);
 }
 
 function getRandomSubtasks() {
@@ -118,14 +119,19 @@ export function generateDynamicMockData(count = 20) {
     return result;
   };
 
-  const tasks = [];
+  const tags = DEFAULT_TAG_NAMES.map((name) => ({
+    id: generateId(),
+    name,
+  }));
 
+  const tasks = [];
   const capacityTracker = {};
 
   for (let i = 1; i <= count; i++) {
     const title = `${getRandomElement(TASK_TITLES)} (#${i})`;
     const id = generateId();
-    const tags = getRandomTags();
+
+    const taskTagIds = getRandomTagIds(tags);
     const description = getRandomElement(TASK_DESCRIPTIONS);
 
     const daysAgoCreated = getRandomInt(1, 60);
@@ -201,7 +207,7 @@ export function generateDynamicMockData(count = 20) {
       updatedAt: null,
       completedAt,
       archived,
-      tags,
+      tags: taskTagIds,
       estimatedMinutes: getRandomElement([15, 30, 45, 60, 120]),
       subtasks,
       completedSubtaskIdsBeforeDone,
@@ -211,5 +217,6 @@ export function generateDynamicMockData(count = 20) {
   return {
     version: STORAGE_VERSION,
     tasks,
+    tags,
   };
 }

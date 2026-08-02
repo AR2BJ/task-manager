@@ -444,6 +444,8 @@ export const TaskController = {
           try {
             StateManager.setView(v);
 
+            clearOpenSubtasksState();
+
             navButtons.forEach((nav) => {
               const dEl = document.getElementById(`nav-${nav}`);
               const mEl = document.getElementById(`mobile-${nav}`);
@@ -687,8 +689,6 @@ export const TaskController = {
         MatrixController.updateTabStyles(state.calendarMode);
       }
     });
-
-    clearOpenSubtasksState();
   },
 
   setupTabIndicatorObserver() {

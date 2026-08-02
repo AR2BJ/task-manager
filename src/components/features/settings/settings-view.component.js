@@ -1,4 +1,5 @@
 import { SettingsResetComponent } from "@/components/modals/settings-reset-modal.component.js";
+import { TagDeleteModalComponent } from "@/components/modals/delete-tag-modal.component";
 
 export const SettingsViewComponent = {
   render() {
@@ -152,7 +153,7 @@ export const SettingsViewComponent = {
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
-                  id="sett-export-btn"
+                  id="sett-export-json-btn"
                   class="w-full px-3 py-2.5 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
                 >
                   <i
@@ -172,7 +173,7 @@ export const SettingsViewComponent = {
                 </button>
 
                 <button
-                  id="sett-export-notion-btn"
+                  id="sett-export-csv-btn"
                   class="w-full px-3 py-2.5 bg-surface-2 hover:bg-surface-3 border border-border rounded-xl text-primary text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer group"
                 >
                   <i
@@ -348,6 +349,7 @@ export const SettingsViewComponent = {
         </div>
 
         ${SettingsResetComponent.render()}
+        ${TagDeleteModalComponent.render()}
       </section>
     `;
   },

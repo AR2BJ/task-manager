@@ -1,6 +1,6 @@
 import { STORAGE_KEY, STORAGE_VERSION } from "@/models/storage.model";
 import { StateManager, state } from "@/models/state.model.js";
-import { formatDate, generateId } from "@/utils/helpers";
+import { formatDate, generateId, todayISO } from "@/utils/helpers";
 
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
@@ -9,10 +9,12 @@ import { generateDynamicMockData } from "@/utils/seed-generator";
 
 export const SettingsController = {
   keydownHandler: null,
+  pendingDeleteTagId: null,
 
   init() {
     this.bindSettingsEvents();
     this.renderTagsList();
+    this.initTagDeleteModalEvents();
   },
 
   bindSettingsEvents() {
@@ -51,7 +53,7 @@ export const SettingsController = {
     this.bindTagListActions();
 
     document
-      .getElementById("sett-export-btn")
+      .getElementById("sett-export-json-btn")
       ?.addEventListener("click", () => this.handleDataExport("json"));
 
     document
@@ -59,7 +61,7 @@ export const SettingsController = {
       ?.addEventListener("click", () => this.handleDataExport("markdown"));
 
     document
-      .getElementById("sett-export-notion-btn")
+      .getElementById("sett-export-csv-btn")
       ?.addEventListener("click", () => this.handleDataExport("notion"));
 
     this.initImportDropzone();
@@ -109,6 +111,7 @@ export const SettingsController = {
     if (!container) return;
 
     const tags = StateManager.getTags() || [];
+    const tasks = StateManager.getTasks() || [];
 
     if (tags.length === 0) {
       container.innerHTML = `
@@ -129,8 +132,12 @@ export const SettingsController = {
     }
 
     container.innerHTML = tags
-      .map(
-        (tag) => `
+      .map((tag) => {
+        const usageCount = tasks.filter(
+          (task) => Array.isArray(task.tags) && task.tags.includes(tag.id),
+        ).length;
+
+        return `
           <div
             data-tag-id="${tag.id}"
             class="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-2 border border-border/80 transition"
@@ -147,6 +154,18 @@ export const SettingsController = {
             </div>
 
             <div class="flex items-center gap-1 shrink-0">
+              <div
+                class="min-w-20 flex items-center gap-1 px-2 py-1.75 rounded-md sm:rounded-lg bg-surface border border-border text-[10px] sm:text-xs font-semibold text-secondary"
+                title="Used in ${usageCount} task${usageCount === 1 ? "" : "s"}"
+              >
+                <i
+                  class="fa-regular fa-list-check text-xs text-brand/80"
+                ></i>
+                <span
+                  >${usageCount} ${usageCount <= 1 ? "task" : "tasks"}</span
+                >
+              </div>
+
               <button
                 data-action="toggle-edit"
                 class="edit-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
@@ -160,14 +179,12 @@ export const SettingsController = {
                 data-action="delete-tag"
                 class="delete-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
               >
-                <i
-                  class="fa-regular fa-trash-can text-red-500/80 text-xs"
-                ></i>
+                <i class="fa-regular fa-trash-can text-red-500/80 text-xs"></i>
               </button>
             </div>
           </div>
-        `,
-      )
+        `;
+      })
       .join("");
   },
 
@@ -213,7 +230,8 @@ export const SettingsController = {
 
     NotificationService.show({
       type: "success",
-      message: `Tag "#${name}" created successfully.`,
+      message: `Tag "${name}" created successfully.`,
+      icon: "fa-check",
       duration: 3000,
     });
   },
@@ -291,16 +309,71 @@ export const SettingsController = {
       NotificationService.show({
         type: "success",
         message: "Tag updated successfully.",
+        icon: "fa-check",
         duration: 3000,
       });
     }
   },
 
+  initTagDeleteModalEvents() {
+    const cancelBtn = document.getElementById("cancel-tag-delete");
+    const confirmBtn = document.getElementById("confirm-tag-delete");
+
+    cancelBtn?.addEventListener("click", () => this.closeTagDeleteModal());
+    confirmBtn?.addEventListener("click", () => this.executeDeleteTag());
+  },
+
+  openTagDeleteModal(tagId) {
+    const currentTags = StateManager.getTags() || [];
+    const targetTag = currentTags.find((t) => t.id === tagId);
+    if (!targetTag) return;
+
+    const currentTasks = StateManager.getTasks() || [];
+    const usageCount = currentTasks.filter(
+      (task) => Array.isArray(task.tags) && task.tags.includes(tagId),
+    ).length;
+
+    this.pendingDeleteTagId = tagId;
+
+    const modal = document.getElementById("tag-delete-modal");
+    const msgEl = document.getElementById("tag-delete-modal-msg");
+
+    if (msgEl) {
+      if (usageCount > 0) {
+        msgEl.innerHTML = `Are you sure you want to delete <strong class="text-primary">"<i class="fa-regular fa-tag text-sm me-1"></i>${targetTag.name}"</strong>? <br/><br/> It is currently used in <span class="text-red-500 font-semibold">${usageCount} task(s)</span>.`;
+      } else {
+        msgEl.innerHTML = `Are you sure you want to delete <strong class="text-primary">"<i class="fa-regular fa-tag text-sm me-1"></i>${targetTag.name}"</strong>?`;
+      }
+    }
+
+    modal?.classList.replace("hidden", "flex");
+    document.body.classList.add("overflow-hidden");
+  },
+
+  closeTagDeleteModal() {
+    const modal = document.getElementById("tag-delete-modal");
+    if (!modal) return;
+
+    modal.classList.replace("flex", "hidden");
+    document.body.classList.remove("overflow-hidden");
+    this.pendingDeleteTagId = null;
+  },
+
   handleDeleteTag(tagId) {
+    this.openTagDeleteModal(tagId);
+  },
+
+  executeDeleteTag() {
+    const tagId = this.pendingDeleteTagId;
+    if (!tagId) return;
+
     const currentTags = StateManager.getTags() || [];
     const targetTag = currentTags.find((t) => t.id === tagId);
 
-    if (!targetTag) return;
+    if (!targetTag) {
+      this.closeTagDeleteModal();
+      return;
+    }
 
     const updatedTags = currentTags.filter((t) => t.id !== tagId);
 
@@ -316,12 +389,15 @@ export const SettingsController = {
     });
 
     StateManager.save(updatedTasks, updatedTags);
+    this.closeTagDeleteModal();
+
     this.renderTagsList();
     TaskController.refreshUI();
 
     NotificationService.show({
       type: "info",
-      message: `Tag "#${targetTag.name}" deleted.`,
+      message: `Tag "${targetTag.name}" deleted.`,
+      icon: "fa-tag",
       duration: 3000,
     });
   },
@@ -374,8 +450,9 @@ export const SettingsController = {
   handleDataExport(format = "json") {
     const localData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     const tasks = localData?.tasks || [];
+    const tags = localData?.tags || [];
 
-    if (tasks.length === 0) {
+    if (tasks.length === 0 && tags.length === 0) {
       NotificationService.show({
         type: "info",
         message: "There is no data to export.",
@@ -397,15 +474,26 @@ export const SettingsController = {
       fileName = `Tasks_Backup_${dateStr}_v${STORAGE_VERSION}.json`;
       contentType = "application/json";
     } else if (format === "markdown") {
-      fileContent = `# 📊 Task Manager Workspace Progress Report Generated:
-      ${new Date().toLocaleDateString()} --- `;
+      fileContent = `# 📊 Task Manager Workspace Progress Report - **Export
+      Date:** ${new Date().toISOString()} - **Storage Version:**
+      ${STORAGE_VERSION} --- ## 🏷️ TAG REGISTRY `;
+      if (tags.length === 0) {
+        fileContent += `_No tags defined._\n\n`;
+      } else {
+        tags.forEach((tag) => {
+          fileContent += `- Tag: ${tag.name} (ID: ${tag.id})\n`;
+        });
+        fileContent += `\n`;
+      }
+
+      fileContent += `---\n\n## 📝 TASKS LIST\n\n`;
 
       tasks.forEach((task) => {
-        const tagsFormatted = (task.tags || []).map((t) => `#${t}`).join(" ");
+        const tagsFormatted = (task.tags || []).join(",");
 
         fileContent += `## #️⃣ ${task.id}\n`;
         fileContent += `### 🎯 ${task.title}\n`;
-        fileContent += `- **Description:** ${task.description || "N/A"} `;
+        fileContent += `- **Description:** ${task.description || "N/A"}\n`;
         fileContent += `- **Status:** ${task.status}\n`;
         fileContent += `- **Priority:** ${task.priority}\n`;
         fileContent += `- **Due Date:** 📅 ${task.dueDate || "None"}\n`;
@@ -416,10 +504,9 @@ export const SettingsController = {
         fileContent += `- **Completed At:** ✅ ${task.completedAt || "N/A"}\n`;
         fileContent += `- **Archived:** ${task.archived ? "📦 Yes" : "⚡ No"}\n\n`;
 
-        fileContent += `#### 📋 Subtasks
-        (${(task.subtasks || []).filter((st) => st.completed).length}/${
+        fileContent += `#### 📋 Subtasks (${(task.subtasks || []).filter((st) => st.completed).length}/${
           (task.subtasks || []).length
-        }) `;
+        })\n`;
         if (!task.subtasks || task.subtasks.length === 0) {
           fileContent += `_No subtasks defined._\n\n`;
         } else {
@@ -439,6 +526,16 @@ export const SettingsController = {
         return `"${text.replace(/"/g, '""')}"`;
       };
 
+      // ۱. بخش ثبت تگ‌ها در CSV
+      fileContent += `# VERSION: ${STORAGE_VERSION}\n`;
+      fileContent += `[TAGS]\n`;
+      fileContent += `Id,Name\n`;
+      tags.forEach((t) => {
+        fileContent += `${escapeCsvValue(t.id)},${escapeCsvValue(t.name)}\n`;
+      });
+
+      // ۲. بخش تسک‌ها در CSV
+      fileContent += `\n[TASKS]\n`;
       const headers = [
         "Id",
         "Title",
@@ -454,13 +551,16 @@ export const SettingsController = {
         "Archived",
         "Subtasks",
       ];
+      fileContent += headers.join(",") + "\n";
 
-      const rows = tasks.map((t) => {
+      tasks.forEach((t) => {
         const subtasksSerialized = (t.subtasks || [])
-          .map((st) => `[${st.completed ? "X" : " "}] ${st.title}`)
+          .map(
+            (st) => `[${st.completed ? "X" : " "}] ${st.title} (ID: ${st.id})`,
+          )
           .join(" | ");
 
-        return [
+        const row = [
           escapeCsvValue(t.id),
           escapeCsvValue(t.title),
           escapeCsvValue(t.description),
@@ -475,11 +575,9 @@ export const SettingsController = {
           escapeCsvValue(t.archived ? "Yes" : "No"),
           escapeCsvValue(subtasksSerialized),
         ];
+        fileContent += row.join(",") + "\n";
       });
 
-      fileContent = [headers.join(","), ...rows.map((e) => e.join(","))].join(
-        "\n",
-      );
       fileName = `Tasks_Backup_${dateStr}_v${STORAGE_VERSION}.csv`;
       contentType = "text/csv;charset=utf-8;";
     }
@@ -495,12 +593,251 @@ export const SettingsController = {
 
     NotificationService.show({
       type: "success",
-      message: `Database layer exported successfully as
-      ${format.toUpperCase()}.`,
+      message: `Database layer exported successfully as ${format.toUpperCase()}.`,
       icon: "fa-file-arrow-down",
       iconColor: "text-emerald-500/80",
       duration: 5000,
     });
+  },
+
+  parseMarkdownToTasks(mdContent) {
+    const importedTags = [];
+    const tasks = [];
+
+    const tagSectionMatch = mdContent.match(
+      /## 🏷️ TAG REGISTRY([\s\S]*?)(?=---|## 📝 TASKS LIST|$)/,
+    );
+    if (tagSectionMatch) {
+      const tagLines = tagSectionMatch[1].match(
+        /- Tag:\s*(.+)\s*\(ID:\s*(.+)\)/g,
+      );
+      if (tagLines) {
+        tagLines.forEach((line) => {
+          const match = line.match(/- Tag:\s*(.+)\s*\(ID:\s*(.+)\)/);
+          if (match) {
+            importedTags.push({
+              name: match[1].trim(),
+              id: match[2].trim(),
+            });
+          }
+        });
+      }
+    }
+
+    const taskBlocks = mdContent
+      .split(/---\s*\n/)
+      .filter((block) => block.includes("## #️⃣"));
+
+    taskBlocks.forEach((block) => {
+      const idMatch = block.match(/## #️⃣\s*(.+)/);
+      const titleMatch = block.match(/### 🎯\s*(.+)/);
+      const descMatch = block.match(
+        /- \*\*Description:\*\*\s*([\s\S]*?)(?=\n- \*\*Status:\*\*|$)/,
+      );
+      const statusMatch = block.match(/- \*\*Status:\*\*\s*(.+)/);
+      const priorityMatch = block.match(/- \*\*Priority:\*\*\s*(.+)/);
+      const dueDateMatch = block.match(/- \*\*Due Date:\*\*\s*📅\s*(.+)/);
+      const estMinutesMatch = block.match(
+        /- \*\*Estimated Time:\*\*\s*⏱️\s*(\d+)/,
+      );
+      const tagsMatch = block.match(/- \*\*Tags:\*\*\s*🏷️\s*(.+)/);
+      const createdAtMatch = block.match(/- \*\*Created At:\*\*\s*⏰\s*(.+)/);
+      const updatedAtMatch = block.match(/- \*\*Updated At:\*\*\s*🔄\s*(.+)/);
+      const completedAtMatch = block.match(
+        /- \*\*Completed At:\*\*\s*✅\s*(.+)/,
+      );
+      const archivedMatch = block.match(/- \*\*Archived:\*\*\s*(.+)/);
+
+      const subtasks = [];
+      const subtaskLines = block.match(/- \[(x| )\] (.+)\(ID: (.+)\)/g);
+      if (subtaskLines) {
+        subtaskLines.forEach((line) => {
+          const match = line.match(/- \[(x| )\] (.+)\(ID: (.+)\)/);
+          if (match) {
+            subtasks.push({
+              completed: match[1] === "x",
+              title: match[2].trim(),
+              id: match[3].trim(),
+            });
+          }
+        });
+      }
+
+      if (idMatch && titleMatch) {
+        let rawDesc = descMatch ? descMatch[1].trim() : "";
+        if (rawDesc === "N/A") rawDesc = "";
+
+        const rawDueDate = dueDateMatch ? dueDateMatch[1].trim() : "";
+        const cleanDueDate =
+          rawDueDate && rawDueDate !== "None" && rawDueDate !== "null"
+            ? rawDueDate
+            : null;
+
+        const rawTags = tagsMatch ? tagsMatch[1].trim() : "";
+        const tagIds =
+          rawTags !== "None" && rawTags
+            ? rawTags
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean)
+            : [];
+
+        tasks.push({
+          id: idMatch[1].trim(),
+          title: titleMatch[1].trim(),
+          description: rawDesc,
+          status: statusMatch ? statusMatch[1].trim().toLowerCase() : "todo",
+          priority: priorityMatch
+            ? priorityMatch[1].trim().toLowerCase()
+            : "medium",
+          dueDate: cleanDueDate,
+          estimatedMinutes: estMinutesMatch
+            ? parseInt(estMinutesMatch[1], 10)
+            : 0,
+          tags: tagIds,
+          createdAt: createdAtMatch ? createdAtMatch[1].trim() : todayISO(),
+          updatedAt:
+            updatedAtMatch && !updatedAtMatch[1].includes("null")
+              ? updatedAtMatch[1].trim()
+              : null,
+          completedAt:
+            completedAtMatch && !completedAtMatch[1].includes("N/A")
+              ? completedAtMatch[1].trim()
+              : null,
+          archived: archivedMatch ? archivedMatch[1].includes("Yes") : false,
+          subtasks,
+        });
+      }
+    });
+
+    return { tasks, tags: importedTags };
+  },
+
+  parseCsvToTasks(csvContent) {
+    const importedTags = [];
+    const tasks = [];
+
+    const parseCsvLine = (text) => {
+      const result = [];
+      let cur = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (c === '"') {
+          if (inQuotes && text[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (c === "," && !inQuotes) {
+          result.push(cur);
+          cur = "";
+        } else {
+          cur += c;
+        }
+      }
+      result.push(cur);
+      return result;
+    };
+
+    const lines = csvContent.split(/\r?\n/);
+    let currentSection = "TASKS"; // default fallback
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line || line.startsWith("#")) continue;
+
+      if (line === "[TAGS]") {
+        currentSection = "TAGS";
+        continue;
+      } else if (line === "[TASKS]") {
+        currentSection = "TASKS";
+        continue;
+      }
+
+      const cols = parseCsvLine(line);
+
+      if (currentSection === "TAGS") {
+        if (cols[0] === "Id" && cols[1] === "Name") continue; // skip header
+        if (cols.length >= 2 && cols[0] && cols[1]) {
+          importedTags.push({ id: cols[0].trim(), name: cols[1].trim() });
+        }
+      } else if (currentSection === "TASKS") {
+        if (cols[0] === "Id" && cols[1] === "Title") continue; // skip header
+        if (cols.length < 2) continue;
+
+        const [
+          id,
+          title,
+          description,
+          status,
+          priority,
+          dueDate,
+          estimatedMinutes,
+          tagsRaw,
+          createdAt,
+          updatedAt,
+          completedAt,
+          archivedStr,
+          subtasksRaw,
+        ] = cols;
+
+        const subtasks = [];
+        if (subtasksRaw && subtasksRaw.trim()) {
+          const stItems = subtasksRaw.split(" | ");
+          stItems.forEach((item, idx) => {
+            const match = item.match(/^\[(X| )\]\s*(.+)(?:\(ID:\s*(.+)\))?$/);
+            if (match) {
+              subtasks.push({
+                id: match[3] ? match[3].trim() : `subtask-${Date.now()}-${idx}`,
+                completed: match[1] === "X",
+                title: match[2].trim(),
+              });
+            }
+          });
+        }
+
+        const cleanDueDate =
+          dueDate && dueDate.trim() !== "null" && dueDate.trim() !== ""
+            ? dueDate.trim()
+            : null;
+        const tagIds = tagsRaw
+          ? tagsRaw
+              .split(";")
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : [];
+
+        tasks.push({
+          id: id ? id.trim() : generateId(),
+          title: title ? title.trim() : "Untitled Task",
+          description: description ? description.trim() : "",
+          status: status ? status.trim().toLowerCase() : "todo",
+          priority: priority ? priority.trim().toLowerCase() : "medium",
+          dueDate: cleanDueDate,
+          estimatedMinutes: estimatedMinutes
+            ? parseInt(estimatedMinutes, 10)
+            : 0,
+          tags: tagIds,
+          createdAt:
+            createdAt && createdAt.trim() !== "null"
+              ? createdAt.trim()
+              : todayISO(),
+          updatedAt:
+            updatedAt && updatedAt.trim() !== "null" ? updatedAt.trim() : null,
+          completedAt:
+            completedAt && completedAt.trim() !== "null"
+              ? completedAt.trim()
+              : null,
+          archived: archivedStr ? archivedStr.trim() === "Yes" : false,
+          subtasks,
+        });
+      }
+    }
+
+    return { tasks, tags: importedTags };
   },
 
   initImportDropzone() {
@@ -576,9 +913,20 @@ export const SettingsController = {
               ? parsedJson
               : parsedJson.tasks || [];
             importedTags = parsedJson.tags || [];
+          } else if (format === "markdown") {
+            const parsedMd = this.parseMarkdownToTasks(rawContent);
+            importedTasks = parsedMd.tasks || [];
+            importedTags = parsedMd.tags || [];
+          } else if (format === "csv") {
+            const parsedCsv = this.parseCsvToTasks(rawContent);
+            importedTasks = parsedCsv.tasks || [];
+            importedTags = parsedCsv.tags || [];
           }
 
-          if (!Array.isArray(importedTasks) || importedTasks.length === 0) {
+          if (
+            !Array.isArray(importedTasks) ||
+            (importedTasks.length === 0 && importedTags.length === 0)
+          ) {
             throw new Error("No structured data could be extracted.");
           }
 
@@ -596,8 +944,7 @@ export const SettingsController = {
 
           NotificationService.show({
             type: "success",
-            message: `Data ledger parsed and synchronized from
-            ${format.toUpperCase()} file.`,
+            message: `Data ledger parsed and synchronized from ${format.toUpperCase()} file.`,
             icon: "fa-circle-check",
             iconColor: "text-emerald-500/80",
             duration: 5000,
