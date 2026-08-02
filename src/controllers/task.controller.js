@@ -102,7 +102,7 @@ export const TaskController = {
               } finally {
                 GlobalLoaderService.hide();
               }
-            }, 10);
+            }, 100);
           },
         },
       );
@@ -160,7 +160,7 @@ export const TaskController = {
               } finally {
                 GlobalLoaderService.hide();
               }
-            }, 10);
+            }, 100);
           },
         },
       );
@@ -208,8 +208,6 @@ export const TaskController = {
 
     TaskFormController.refreshUI();
     SettingsTagController.renderTagsList();
-
-    clearOpenSubtasksState();
 
     renderTagFilterBar();
   },
@@ -292,7 +290,7 @@ export const TaskController = {
           } finally {
             GlobalLoaderService.hide();
           }
-        }, 10);
+        }, 100);
       });
     }
 
@@ -310,7 +308,7 @@ export const TaskController = {
           } finally {
             GlobalLoaderService.hide();
           }
-        }, 10);
+        }, 100);
       });
     }
 
@@ -376,7 +374,7 @@ export const TaskController = {
           } finally {
             GlobalLoaderService.hide();
           }
-        }, 10);
+        }, 100);
       });
 
       searchContainer?.addEventListener("mouseenter", evaluateSearchState);
@@ -393,14 +391,14 @@ export const TaskController = {
             searchInput.value = "";
             StateManager.setSearchQuery("");
 
-            setTimeout(() => searchInput.focus(), 10);
+            setTimeout(() => searchInput.focus(), 100);
 
             this.refreshUI();
             evaluateSearchState();
           } finally {
             GlobalLoaderService.hide();
           }
-        }, 10);
+        }, 100);
       });
     }
 

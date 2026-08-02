@@ -43,7 +43,7 @@ export function renderTaskList(tasks, activeTab = "active") {
   if (tasks.length === 0) {
     container.innerHTML = `
       <div
-        class="min-h-80 bg-surface-2 border border-dashed border-border rounded-2xl p-16 text-center"
+        class="min-h-80 bg-surface border border-dashed border-border rounded-2xl p-16 text-center"
       >
         <div class="text-6xl mb-6">${currentEmptyState.icon}</div>
         <h2 class="text-2xl font-bold text-primary">

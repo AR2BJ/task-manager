@@ -9,7 +9,7 @@ export const TasksView = {
           class="mb-6 flex flex-wrap sm:flex-nowrap gap-4 justify-center sm:justify-between items-center w-full"
         >
           <div
-            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row xs:w-fit xs:justify-start"
+            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface p-1 xs:flex-row xs:w-fit xs:justify-start"
           >
             <div
               id="tab-indicator"

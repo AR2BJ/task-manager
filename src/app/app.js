@@ -14,20 +14,20 @@ const app = document.querySelector("#app");
 app.classList.add("hidden");
 
 document.addEventListener("DOMContentLoaded", () => {
-  GlobalLoaderService.init();
-
-  NavigationController.init();
-  TaskController.init();
-  CalendarController.init();
-  MatrixController.init();
-  SettingsController.init();
-
-  TooltipController.init();
-
-  ThemeController.init();
-
   setTimeout(() => {
     loader.classList.add("opacity-0", "pointer-events-none");
+
+    GlobalLoaderService.init();
+
+    NavigationController.init();
+    TaskController.init();
+    CalendarController.init();
+    MatrixController.init();
+    SettingsController.init();
+
+    TooltipController.init();
+
+    ThemeController.init();
 
     requestAnimationFrame(() => {
       setTimeout(() => {

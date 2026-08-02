@@ -22,7 +22,7 @@ export const CalendarView = {
           </div>
 
           <div
-            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface-2 p-1 xs:flex-row sm:w-fit sm:justify-start"
+            class="relative flex flex-col w-full justify-center rounded-xl border border-border bg-surface p-1 xs:flex-row sm:w-fit sm:justify-start"
             role="tablist"
             aria-label="Calendar Mode Switcher"
           >

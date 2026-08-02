@@ -47,7 +47,7 @@ export function renderMonthGrid(currentDate, tasks) {
 
     cellsHtml += `
       <div 
-        class="group flex flex-col justify-between border border-border/70 min-h-12 sm:min-h-28 rounded-lg sm:rounded-xl p-1 sm:p-2 bg-surface-2 hover:border-brand/50 transition cursor-pointer ${isToday ? "ring-2 ring-brand bg-brand/5" : ""}"
+        class="group flex flex-col justify-between border border-border/70 min-h-12 sm:min-h-28 rounded-lg sm:rounded-xl p-1 sm:p-2 bg-surface hover:border-brand/50 transition cursor-pointer ${isToday ? "ring-2 ring-brand bg-brand/5" : ""}"
         data-calendar-date="${cellDateStr}"
       >
         <div class="flex justify-between items-center mb-0.5 sm:mb-1">
@@ -145,10 +145,25 @@ export function renderDayList(currentDate, tasks) {
         ${
           dayTasks.length > 0
             ? dayTasks.map((task) => TaskCardComponent.render(task)).join("")
-            : `<div class="col-span-full py-12 text-center flex flex-col items-center justify-center gap-3 text-tertiary">
-              <i class="fa-regular fa-calendar-xmark text-4xl text-brand/60"></i>
-              <p class="text-xs font-semibold">No tasks scheduled for this date.</p>
-            </div>`
+            : `
+                <div
+                  class="col-span-full min-h-20 bg-surface border border-dashed border-border rounded-2xl p-12 text-center"
+                >
+                  <div
+                    class="text-center flex flex-col items-center justify-center gap-3 text-tertiary"
+                  >
+                    <i
+                      class="fa-regular fa-calendar-xmark text-4xl text-brand/60"
+                    ></i>
+                    <h2 class="text-lg font-bold text-primary">
+                      No active tasks
+                    </h2>
+                    <p class="text-xs font-semibold">
+                      No tasks scheduled for this date.
+                    </p>
+                  </div>
+                </div>
+              `
         }
       </div>
     </div>
@@ -202,7 +217,7 @@ export function renderYearHeatmap(currentDate, tasks) {
     .map((mName, mIdx) => {
       return `
         <div 
-          class="p-3.5 rounded-2xl bg-surface-2 border border-border/80 hover:border-brand/50 transition cursor-pointer flex flex-col gap-2 group"
+          class="p-3.5 rounded-2xl bg-surface border border-border/80 hover:border-brand/50 transition cursor-pointer flex flex-col gap-2 group"
           data-year-month="${mIdx}"
         >
           <div class="flex items-center justify-between">
