@@ -2,7 +2,7 @@ export const MobileNavComponent = {
   render() {
     return `
       <nav
-        class="lg:hidden fixed bottom-0 left-0 right-0 z-[300] bg-surface/90 backdrop-blur-2xl border-t border-border shadow-[0_-10px_30px_rgba(0,0,0,0.3)]"
+        class="lg:hidden fixed bottom-0 left-0 right-0 z-300 bg-surface/90 backdrop-blur-2xl border-t border-border shadow-[0_-10px_30px_rgba(0,0,0,0.3)]"
       >
         <div 
           id="mobile-nav-scroll-container"
@@ -11,7 +11,7 @@ export const MobileNavComponent = {
         >
           <button
             id="mobile-tasks"
-            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-[85px] xs:w-auto xs:max-w-none xs:flex-1 py-1"
+            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-21.25 xs:w-auto xs:max-w-none xs:flex-1 py-1"
           >
             <i class="fa-regular fa-list text-xl xs:text-2xl"></i>
             <span class="text-[10px] xs:text-xs font-medium tracking-wide whitespace-nowrap">Tasks</span>
@@ -19,7 +19,7 @@ export const MobileNavComponent = {
 
           <button
             id="mobile-analytics"
-            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-[85px] xs:w-auto xs:max-w-none xs:flex-1 py-1"
+            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-21.25 xs:w-auto xs:max-w-none xs:flex-1 py-1"
           >
             <i class="fa-regular fa-chart-line text-xl xs:text-2xl"></i>
             <span class="text-[10px] xs:text-xs font-medium tracking-wide whitespace-nowrap">Analytics</span>
@@ -27,7 +27,7 @@ export const MobileNavComponent = {
           
           <button
             id="mobile-calendar"
-            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-[85px] xs:w-auto xs:max-w-none xs:flex-1 py-1"
+            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-21.25 xs:w-auto xs:max-w-none xs:flex-1 py-1"
           >
             <i class="fa-regular fa-calendar text-xl xs:text-2xl"></i>
             <span class="text-[10px] xs:text-xs font-medium tracking-wide whitespace-nowrap">Calendar</span>
@@ -35,7 +35,7 @@ export const MobileNavComponent = {
 
           <button
             id="mobile-matrix"
-            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-[85px] xs:w-auto xs:max-w-none xs:flex-1 py-1"
+            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-21.25 xs:w-auto xs:max-w-none xs:flex-1 py-1"
           >
             <i class="fa-regular fa-table-cells text-xl xs:text-2xl"></i>
             <span class="text-[10px] xs:text-xs font-medium tracking-wide whitespace-nowrap">Matrix</span>
@@ -43,7 +43,7 @@ export const MobileNavComponent = {
 
           <button
             id="mobile-settings"
-            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-[85px] xs:w-auto xs:max-w-none xs:flex-1 py-1"
+            class="mobile-nav-btn snap-center shrink-0 flex flex-col items-center justify-center gap-1.5 text-secondary w-[23vw] max-w-21.25 xs:w-auto xs:max-w-none xs:flex-1 py-1"
           >
             <i class="fa-regular fa-gear text-xl xs:text-2xl"></i>
             <span class="text-[10px] xs:text-xs font-medium tracking-wide whitespace-nowrap">Settings</span>
