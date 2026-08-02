@@ -15,7 +15,9 @@ import { InfoModalComponent } from "@/components/modals/info-modal.component.js"
 import { MatrixController } from "./matrix.controller.js";
 import { MatrixView } from "@/views/matrix-view.js";
 import { MobileNavComponent } from "@/components/layout/mobile-nav.component.js";
+import { SettingsArchiveController } from "./settings/settings-archive.controller.js";
 import { SettingsController } from "./settings.controller.js";
+import { SettingsTagController } from "./settings/settings-tag.controller.js";
 import { SettingsViewComponent } from "@/components/features/settings/settings-view.component.js";
 import { TaskActionController } from "./tasks/task-action.controller.js";
 import { TaskFormController } from "./tasks/task-form.controller.js";
@@ -35,7 +37,7 @@ export const TaskController = {
     TaskFormController.init(this);
     TaskActionController.init(this);
 
-    SettingsController.runAutoArchivePipeline();
+    SettingsArchiveController.runAutoArchivePipeline();
 
     this.bindStaticEvents();
     this.bindMenuToggle();
@@ -205,7 +207,7 @@ export const TaskController = {
     this.updateNavigationDOM();
 
     TaskFormController.refreshUI();
-    SettingsController.renderTagsList();
+    SettingsTagController.renderTagsList();
 
     clearOpenSubtasksState();
 

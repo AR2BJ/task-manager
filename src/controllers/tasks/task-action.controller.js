@@ -5,6 +5,7 @@ import {
 
 import { GlobalLoaderService } from "@/services/loader.service.js";
 import { NotificationService } from "@/services/notification.service.js";
+import { SettingsArchiveController } from "../settings/settings-archive.controller.js";
 import { SettingsController } from "../settings.controller.js";
 import { StateManager } from "@/models/state.model.js";
 import { TaskService } from "@/services/task.service.js";
@@ -219,8 +220,8 @@ export const TaskActionController = {
               StateManager.save(updated);
 
               StateManager.init();
-              if (SettingsController.runAutoArchivePipeline) {
-                SettingsController.runAutoArchivePipeline();
+              if (SettingsArchiveController.runAutoArchivePipeline) {
+                SettingsArchiveController.runAutoArchivePipeline();
               }
 
               this.mainController.refreshUI();
