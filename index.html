@@ -11,22 +11,23 @@
     />
     <title>Task Manager</title>
     <link
-      href="./src/assets/css/styles.css"
-      rel="stylesheet"
-    />
-    <link
-      type="text/css"
-      href="./vendor/fontawesome/css/all.css"
-      rel="stylesheet"
-    />
-    <link
       rel="shortcut icon"
-      href="./favicon.ico"
+      href="/task-manager/assets/favicon-ROy7OiOR.ico"
       type="image/x-icon"
     />
 
-    <script src="./src/app/theme.js"></script>
-  </head>
+    <script>
+      (() => {
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        const root = document.documentElement;
+
+        root.classList.toggle("dark", savedTheme === "dark");
+        root.classList.toggle("light", savedTheme === "light");
+      })();
+    </script>
+    <script type="module" crossorigin src="/task-manager/assets/index-B8AG6ubq.js"></script>
+    <link rel="stylesheet" crossorigin href="/task-manager/assets/index-CIbH6vab.css">
+  <link rel="manifest" href="/task-manager/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/task-manager/registerSW.js"></script></head>
 
   <body class="min-h-screen bg-surface text-primary">
     <!-- ============================= -->
@@ -87,10 +88,6 @@
       <i class="fa-regular fa-chevron-up text-lg"></i>
     </button>
 
-    <script
-      type="module"
-      src="./src/app/app.js"
-    ></script>
     <script src="./vendor/fontawesome/js/all.js"></script>
   </body>
 </html>
