@@ -492,7 +492,7 @@ export const TaskFormController = {
           type: "error",
           message: "Task title cannot be empty.",
           icon: "fa-triangle-exclamation",
-          duration: 4000,
+          duration: 5000,
         });
         return;
       }
@@ -536,14 +536,14 @@ export const TaskFormController = {
             type: "success",
             message: `Task "${title}" created successfully!`,
             icon: "fa-check",
-            duration: 4000,
+            duration: 5000,
           });
         } catch (error) {
           NotificationService.show({
             type: "error",
             message: error.message || "Failed to create task",
             icon: "fa-triangle-exclamation",
-            duration: 4000,
+            duration: 5000,
           });
         } finally {
           GlobalLoaderService.hide();
@@ -737,7 +737,7 @@ export const TaskFormController = {
         type: "error",
         message: "Task title cannot be empty.",
         icon: "fa-triangle-exclamation",
-        duration: 4000,
+        duration: 5000,
       });
       return;
     }
@@ -814,14 +814,14 @@ export const TaskFormController = {
           type: "success",
           message: `Task "${newTitle}" updated successfully!`,
           icon: "fa-check",
-          duration: 4000,
+          duration: 5000,
         });
       } catch (error) {
         NotificationService.show({
           type: "error",
           message: error.message || "Failed to update task",
           icon: "fa-triangle-exclamation",
-          duration: 4000,
+          duration: 5000,
         });
       } finally {
         GlobalLoaderService.hide();

@@ -51,7 +51,7 @@ export const TaskActionController = {
                 iconColor: isNowCompleted
                   ? "text-emerald-500/80"
                   : "text-brand/80",
-                duration: 4000,
+                duration: 5000,
               });
             } catch (error) {
               NotificationService.show({
@@ -86,7 +86,7 @@ export const TaskActionController = {
             NotificationService.show({
               type: "success",
               message: `Status updated to "${newStatus.replace("_", " ")}"`,
-              duration: 3000,
+              duration: 5000,
             });
           } catch (error) {
             NotificationService.show({

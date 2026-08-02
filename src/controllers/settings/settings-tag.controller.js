@@ -98,7 +98,7 @@ export const SettingsTagController = {
       NotificationService.show({
         type: "error",
         message: "Tag name cannot be empty.",
-        duration: 3000,
+        duration: 5000,
       });
       return;
     }
@@ -112,7 +112,7 @@ export const SettingsTagController = {
       NotificationService.show({
         type: "error",
         message: "A tag with this name already exists.",
-        duration: 3000,
+        duration: 5000,
       });
       return;
     }
@@ -133,7 +133,7 @@ export const SettingsTagController = {
       type: "success",
       message: `Tag "${name}" created successfully.`,
       icon: "fa-check",
-      duration: 3000,
+      duration: 5000,
     });
   },
 
@@ -193,7 +193,7 @@ export const SettingsTagController = {
       NotificationService.show({
         type: "error",
         message: "Tag name cannot be empty.",
-        duration: 3000,
+        duration: 5000,
       });
       return;
     }
@@ -215,7 +215,7 @@ export const SettingsTagController = {
         type: "success",
         message: "Tag updated successfully.",
         icon: "fa-check",
-        duration: 3000,
+        duration: 5000,
       });
     }
   },
@@ -315,10 +315,23 @@ export const SettingsTagController = {
     TaskController.refreshUI();
 
     NotificationService.show({
-      type: "info",
+      type: "error",
       message: `Tag "${targetTag.name}" deleted.`,
       icon: "fa-tag",
-      duration: 3000,
+      duration: 5000,
+      undoAction: () => {
+        const restoredTags = [...updatedTags, targetTag];
+        StateManager.save(currentTasks, restoredTags);
+        this.renderTagsList();
+        TaskController.refreshUI();
+
+        NotificationService.show({
+          type: "success",
+          message: `Tag "${targetTag.name}" restored.`,
+          icon: "fa-check",
+          duration: 5000,
+        });
+      },
     });
   },
 };
