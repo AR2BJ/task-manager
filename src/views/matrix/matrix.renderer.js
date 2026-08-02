@@ -46,7 +46,7 @@ export function renderEisenhowerGrid(tasks) {
         </div>
 
         <div
-          class="flex-1 flex flex-col justify-start space-y-2.5 overflow-y-auto min-h-31 max-h-31 pr-1.5 scrollbar-thin scrollbar-thumb-surface-3"
+          class="flex-1 flex flex-col justify-start space-y-2.5 overflow-y-auto min-h-31 max-h-31 pe-1.5 scrollbar-thin scrollbar-thumb-surface-3"
         >
           ${
             taskList.length > 0
@@ -167,7 +167,7 @@ export function renderAbcdeList(tasks) {
 
   return `
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 w-full"
+      class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full"
     >
       ${categories
         .map((cat, idx) => {
@@ -176,7 +176,7 @@ export function renderAbcdeList(tasks) {
             idx < 4
               ? "col-span-2 md:col-span-1"
               : idx === 4
-                ? "col-span-2 2xl:col-span-1"
+                ? "col-span-2"
                 : "";
 
           return `
@@ -209,7 +209,7 @@ export function renderAbcdeList(tasks) {
               </div>
 
               <div
-                class="flex-1 flex flex-col justify-start space-y-2.5 overflow-y-auto min-h-31 max-h-31 pr-1 scrollbar-thin scrollbar-thumb-surface-3"
+                class="flex-1 flex flex-col justify-start space-y-2.5 overflow-y-auto min-h-31 max-h-31 pe-1 scrollbar-thin scrollbar-thumb-surface-3"
               >
                 ${
                   list.length > 0

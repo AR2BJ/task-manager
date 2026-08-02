@@ -42,7 +42,7 @@ export const EditModalsComponent = {
 
           <div
             id="edit-accordion-group"
-            class="flex-1 min-h-0 flex flex-col gap-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 pr-1"
+            class="flex-1 min-h-0 flex flex-col gap-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 pe-1"
           >
             <div
               class="accordion-item flex flex-col rounded-2xl border border-border/60 bg-surface-2/60 overflow-hidden shrink-0 transition-all duration-300"
@@ -147,33 +147,15 @@ export const EditModalsComponent = {
 
               <div class="accordion-content hidden p-3.5 lg:p-4">
                 <div class="w-full relative">
-                  <label
-                    for="edit-task-tags-input"
-                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
-                  >
-                    Tags
-                  </label>
                   <div id="edit-task-tags-container"></div>
                 </div>
 
                 <div class="grid grid-cols-1 gap-3.5 lg:grid-cols-2 mt-3.5">
                   <div class="w-full">
-                    <label
-                      for="edit-task-priority"
-                      class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
-                    >
-                      Priority Level
-                    </label>
                     <div id="edit-priority-wrapper"></div>
                   </div>
 
                   <div class="w-full">
-                    <label
-                      for="edit-task-status"
-                      class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
-                    >
-                      Task Status
-                    </label>
                     <div id="edit-status-wrapper"></div>
                   </div>
                 </div>

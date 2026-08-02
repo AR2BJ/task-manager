@@ -17,24 +17,32 @@ export const TaskItemComponent = {
 
     let dueDateBadge = "";
     if (task.dueDate) {
-      if (overdue) {
+      const absDays = Math.abs(daysRemaining);
+
+      if (isCompleted) {
         dueDateBadge = `
-          <span class="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-500 animate-pulse">
-            <i class="fa-regular fa-clock"></i> Overdue (${Math.abs(daysRemaining)}d ago)
-          </span>
-        `;
+      <span class="inline-flex items-center gap-1 rounded-md border border-border bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500">
+        <i class="fa-regular fa-calendar-check"></i> ${task.dueDate}
+      </span>
+    `;
+      } else if (overdue || daysRemaining < 0) {
+        dueDateBadge = `
+      <span class="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-500 ${isArchived ? "" : "animate-pulse"}">
+        <i class="fa-regular fa-clock"></i> Overdue (${absDays}d ago)
+      </span>
+    `;
       } else if (daysRemaining === 0) {
         dueDateBadge = `
-          <span class="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
-            <i class="fa-regular fa-clock"></i> Due Today
-          </span>
-        `;
-      } else if (daysRemaining !== null) {
+      <span class="inline-flex items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
+        <i class="fa-regular fa-clock"></i> Due Today
+      </span>
+    `;
+      } else {
         dueDateBadge = `
-          <span class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-secondary">
-            <i class="fa-regular fa-calendar-day"></i> Due in ${daysRemaining}d
-          </span>
-        `;
+      <span class="inline-flex items-center gap-1 rounded-md border border-border bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-secondary">
+        <i class="fa-regular fa-calendar-day"></i> Due in ${daysRemaining}d
+      </span>
+    `;
       }
     }
 

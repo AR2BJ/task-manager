@@ -40,7 +40,7 @@ export const TasksView = {
 
           <div class="relative w-full sm:w-120 group/search">
             <span
-              class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted"
+              class="absolute inset-y-0 left-0 flex items-center ps-3.5 pointer-events-none text-muted"
             >
               <i class="fa-regular fa-magnifying-glass text-sm"></i>
             </span>
@@ -48,11 +48,11 @@ export const TasksView = {
               type="text"
               id="search-tasks"
               placeholder="Search tasks, tags, description, priority or status...."
-              class="w-full pl-10 pr-20 py-2.5 truncate text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
+              class="w-full ps-10 pe-20 py-2.5 truncate text-sm rounded-xl border border-border bg-surface text-primary placeholder:text-muted/70 focus:outline-none focus:border-brand/50 transition-all shadow-sm"
             />
 
             <div
-              class="absolute inset-y-0 right-0 flex items-center pr-3 gap-2"
+              class="absolute inset-y-0 right-0 flex items-center pe-3 gap-2"
             >
               <button
                 id="clear-search-btn"
@@ -145,33 +145,15 @@ export const TasksView = {
 
               <div class="w-full grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="w-full">
-                  <label
-                    for="task-priority-select"
-                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
-                  >
-                    Priority Level
-                  </label>
                   <div id="create-priority-wrapper"></div>
                 </div>
 
                 <div class="w-full">
-                  <label
-                    for="task-status-select"
-                    class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
-                  >
-                    Task Status
-                  </label>
                   <div id="create-status-wrapper"></div>
                 </div>
               </div>
 
               <div class="w-full relative">
-                <label
-                  for="task-tags-input"
-                  class="mb-1.5 block ps-3 text-xs font-semibold text-secondary"
-                >
-                  Tags
-                </label>
                 <div id="task-tags-container"></div>
               </div>
 
@@ -198,7 +180,7 @@ export const TasksView = {
           >
             <div class="relative flex flex-1 items-center gap-2 min-w-0 group">
               <p
-                class="text-xs font-bold uppercase tracking-wider text-secondary shrink-0 mr-1 hidden sm:flex"
+                class="text-xs font-bold uppercase tracking-wider text-secondary shrink-0 me-1 hidden sm:flex"
               >
                 Tags:
               </p>
@@ -239,20 +221,12 @@ export const TasksView = {
             >
               <div class="w-full flex flex-col xs:flex-row items-center gap-3">
                 <div class="w-full flex items-center gap-2">
-                  <label
-                    class="text-xs text-secondary font-medium hidden sm:flex"
-                    >Date:</label
-                  >
                   <div
                     id="date-filter-autocomplete-wrapper"
                   ></div>
                 </div>
 
                 <div class="w-full flex items-center gap-2">
-                  <label
-                    class="text-xs text-secondary font-medium hidden sm:flex"
-                    >Sort:</label
-                  >
                   <div
                     id="sort-autocomplete-wrapper"
                   ></div>
@@ -261,7 +235,7 @@ export const TasksView = {
 
               <div
                 id="task-count-badge"
-                class="shrink-0 flex justify-center items-center gap-1.5 px-4 py-2 bg-surface-3 rounded-lg text-xs font-bold text-primary select-none w-full sm:w-36 lg:w-auto"
+                class="shrink-0 flex justify-center items-center gap-1.5 px-4 py-2 bg-surface-3 rounded-xl text-xs font-bold text-primary select-none w-full sm:w-36 lg:w-auto"
               >
                 0 Tasks
               </div>

@@ -112,7 +112,7 @@ export const InfoModalComponent = {
       .map(
         ([_, group]) => `
           <div
-            class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 first:mt-0 mb-1.5 pl-1"
+            class="text-xs font-bold text-brand/80 uppercase tracking-wider mt-4 first:mt-0 mb-1.5 ps-1"
           >
             ${group.category}
           </div>
@@ -227,7 +227,7 @@ export const InfoModalComponent = {
           </div>
 
           <div
-            class="flex-1 overflow-y-auto pr-1 sm:pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-surface-2 min-h-0"
+            class="flex-1 overflow-y-auto pe-1 sm:pe-2 scroll-smooth scrollbar-thin scrollbar-thumb-surface-2 min-h-0"
             id="help-modal-content"
           >
             <div
@@ -305,7 +305,7 @@ export const InfoModalComponent = {
 
             <div
               id="content-help-shortcuts"
-              class="hidden space-y-2.5 sm:space-y-3 overflow-y-auto pr-1"
+              class="hidden space-y-2.5 sm:space-y-3 overflow-y-auto pe-1"
             >
               ${InfoModalComponent.renderShortcutsData()}
             </div>

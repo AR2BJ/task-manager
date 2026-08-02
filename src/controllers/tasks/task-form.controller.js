@@ -98,6 +98,7 @@ export const TaskFormController = {
         createTagsContainer,
         existingGlobalTags,
         {
+          label: "Tags",
           placeholder: "Type and select tags...",
           iconClass: "fa-regular fa-tag text-brand/80",
           itemTitle: "name",
@@ -132,6 +133,7 @@ export const TaskFormController = {
         priorityWrapper,
         PRIORITY_OPTIONS,
         {
+          label: "Priority Level",
           placeholder: "Select Priority...",
           itemTitle: "title",
           itemValue: "value",
@@ -147,6 +149,7 @@ export const TaskFormController = {
         statusWrapper,
         STATUS_OPTIONS,
         {
+          label: "Task Status",
           placeholder: "Select Status...",
           itemTitle: "title",
           itemValue: "value",
@@ -193,6 +196,7 @@ export const TaskFormController = {
         priorityWrapper,
         PRIORITY_OPTIONS,
         {
+          label: "Priority Level",
           placeholder: "Select Priority...",
           itemTitle: "title",
           itemValue: "value",
@@ -209,6 +213,7 @@ export const TaskFormController = {
         statusWrapper,
         STATUS_OPTIONS,
         {
+          label: "Task Status",
           placeholder: "Select Status...",
           itemTitle: "title",
           itemValue: "value",
@@ -227,6 +232,7 @@ export const TaskFormController = {
     );
     if (editTagsContainer) {
       editTaskCombobox = new ComboboxComponent(editTagsContainer, globalTags, {
+        label: "Tags",
         placeholder: "Type and select tags...",
         iconClass: "fa-regular fa-tag text-brand/80",
         itemTitle: "name",

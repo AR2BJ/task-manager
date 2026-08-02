@@ -3,6 +3,7 @@ import { SettingsExportController } from "./settings/settings-export.controller.
 import { SettingsImportController } from "./settings/settings-import.controller.js";
 import { SettingsResetController } from "./settings/settings-reset.controller.js";
 import { SettingsTagController } from "./settings/settings-tag.controller.js";
+import { getTheme } from "@/services/theme.service.js";
 
 export const SettingsController = {
   init() {
@@ -25,12 +26,10 @@ export const SettingsController = {
       ?.addEventListener("click", () => this.handleThemeSwitch("dark"));
 
     document.addEventListener("themeChanged", (event) => {
-      this.syncThemeControls(
-        event.detail?.theme || localStorage.getItem("theme") || "light",
-      );
+      this.syncThemeControls(event.detail?.theme || getTheme());
     });
 
-    this.syncThemeControls(localStorage.getItem("theme") || "light");
+    this.syncThemeControls(getTheme());
   },
 
   bindSettingsEvents() {
@@ -55,7 +54,7 @@ export const SettingsController = {
 
     // Window resize handler for theme
     window.addEventListener("resize", () => {
-      this.syncThemeControls(localStorage.getItem("theme") || "light");
+      this.syncThemeControls(getTheme());
     });
   },
 
@@ -97,7 +96,7 @@ export const SettingsController = {
   },
 
   handleThemeSwitch(targetTheme) {
-    const currentTheme = localStorage.getItem("theme") || "light";
+    const currentTheme = getTheme();
     if (currentTheme === targetTheme) return;
 
     document.getElementById("theme-toggle")?.click();

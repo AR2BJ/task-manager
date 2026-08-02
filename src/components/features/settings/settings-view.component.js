@@ -117,7 +117,7 @@ export const SettingsViewComponent = {
 
             <div
               id="sett-tags-list"
-              class="flex flex-col gap-2 mt-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 pr-1"
+              class="flex flex-col gap-2 mt-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-surface-2 pe-1"
             >
             </div>
           </div>

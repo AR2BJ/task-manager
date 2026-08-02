@@ -332,7 +332,7 @@ export const DashboardComponent = {
               class="text-2xl font-black text-brand tracking-tight truncate max-w-45"
               title="${topTag[0]}"
             >
-              <i class="fa-regular fa-tag text-base mr-2"></i>${topTag[0]}
+              <i class="fa-regular fa-tag text-base me-2"></i>${topTag[0]}
             </div>
             <p class="text-[11px] text-secondary/80 font-medium mt-1">
               Leading focus area (${topTag[1]} tasks)
@@ -655,6 +655,8 @@ export const DashboardComponent = {
                         );
                         const daysRemaining = getDaysRemaining(task.dueDate);
                         const overdue = isOverdue(task.dueDate, task.status);
+                        const isDone = task.status === "done";
+                        const absDays = Math.abs(daysRemaining);
 
                         const subtaskProgressColor =
                           subtaskInfo.percentage === 100
@@ -686,23 +688,34 @@ export const DashboardComponent = {
                           >No due date</span
                         >`;
                         if (task.dueDate) {
-                          if (overdue) {
-                            dueBadge = `<span
-                              class="text-rose-400 font-bold"
-                              ><i class="fa-regular fa-clock me-1"></i>Overdue
-                              (${Math.abs(daysRemaining)}d)</span
-                            >`;
+                          if (isDone) {
+                            dueBadge = `
+                              <span class="text-emerald-400 font-semibold">
+                                <i class="fa-regular fa-calendar-check me-1"></i
+                                >Completed (${task.dueDate})
+                              </span>
+                            `;
+                          } else if (overdue || daysRemaining < 0) {
+                            dueBadge = `
+                              <span class="text-red-400 font-bold">
+                                <i class="fa-regular fa-clock me-1"></i>Overdue
+                                (${absDays}d ago)
+                              </span>
+                            `;
                           } else if (daysRemaining === 0) {
-                            dueBadge = `<span
-                              class="text-amber-400 font-bold"
-                              ><i class="fa-regular fa-clock me-1"></i>Due
-                              Today</span
-                            >`;
+                            dueBadge = `
+                              <span class="text-amber-400 font-bold">
+                                <i class="fa-regular fa-clock me-1"></i>Due
+                                Today
+                              </span>
+                            `;
                           } else {
-                            dueBadge = `<span class="text-secondary"
-                              ><i class="fa-regular fa-calendar me-1"></i
-                              >${daysRemaining}d left</span
-                            >`;
+                            dueBadge = `
+                              <span class="text-secondary">
+                                <i class="fa-regular fa-calendar me-1"></i
+                                >${daysRemaining}d left
+                              </span>
+                            `;
                           }
                         }
 

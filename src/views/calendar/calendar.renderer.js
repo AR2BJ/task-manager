@@ -81,7 +81,7 @@ export function renderMonthGrid(currentDate, tasks) {
             `;
             })
             .join("")}
-          ${dayTasks.length > 2 ? `<div class="text-[9px] font-bold text-tertiary pl-1">+${dayTasks.length - 2} more</div>` : ""}
+          ${dayTasks.length > 2 ? `<div class="text-[9px] font-bold text-tertiary ps-1">+${dayTasks.length - 2} more</div>` : ""}
         </div>
 
         <div class="flex sm:hidden flex-wrap items-center justify-center gap-0.5 mt-auto pt-1">

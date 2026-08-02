@@ -19,100 +19,139 @@ export const TaskCardComponent = {
     };
     const priorityClass = priorityStyles[task.priority] || priorityStyles.low;
 
+    const matchedTags = state.tags.filter((t) => task.tags?.includes(t.id));
+    const visibleTag = matchedTags[0];
+
     return `
       <div
-        class="group relative min-h-31 flex flex-col justify-between p-3 rounded-xl bg-surface hover:bg-surface-2 border border-border/60 hover:border-brand/40 transition-all duration-200 shadow-sm overflow-hidden"
+        class="group relative w-full min-h-31 flex flex-col justify-between p-2 rounded-xl bg-surface hover:bg-surface-2 border border-border/60 hover:border-brand/40 transition-all duration-200 shadow-sm overflow-hidden"
       >
         <div class="absolute top-0 left-0 bottom-0 w-1 ${statusAccent}"></div>
 
-        <div class="pl-1.5">
-          <div class="flex items-center justify-between gap-1.5 mb-2 shrink-0">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span
-                class="text-[9px] font-extrabold uppercase tracking-wider text-secondary"
-              >
-                ${(task.status || "todo").replace("_", " ")}
-              </span>
-              <span
-                class="inline-flex items-center rounded border px-1 py-0.2 text-[8px] uppercase font-bold tracking-wider ${priorityClass}"
-              >
-                ${task.priority || "low"}
-              </span>
+        <div
+          class="pe-1 ps-1.5 flex flex-col justify-between h-full w-full min-w-0"
+        >
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1.5 min-w-0">
+              <div class="flex items-center gap-1 min-w-0 truncate">
+                <span
+                  class="text-[9px] font-extrabold uppercase tracking-wider text-secondary truncate"
+                >
+                  ${(task.status || "todo").replace("_", " ")}
+                </span>
+                <span
+                  class="inline-flex items-center rounded border px-1 py-0.2 text-[8px] uppercase font-bold tracking-wider ${priorityClass} shrink-0"
+                >
+                  ${task.priority || "low"}
+                </span>
+              </div>
+
+              <div class="shrink-0">${headerExtraHtml}</div>
             </div>
 
-            ${headerExtraHtml}
-          </div>
+            <h4
+              class="block lg:hidden text-xs font-bold text-primary group-hover:text-brand transition-colors truncate mb-1 cursor-pointer"
+              data-tooltip-title="${task.title}"
+            >
+              ${task.title}
+            </h4>
+            <h4
+              class="hidden lg:block text-xs font-bold text-primary group-hover:text-brand transition-colors truncate mb-1"
+              title="${task.title}"
+            >
+              ${task.title}
+            </h4>
 
-          <h4
-            class="block lg:hidden text-xs font-bold text-primary group-hover:text-brand transition-colors truncate line-clamp-2 leading-snug mb-1 cursor-pointer"
-            data-tooltip-title="${task.title}"
-          >
-            ${task.title}
-          </h4>
-          <h4
-            class="hidden lg:flex text-xs font-bold text-primary group-hover:text-brand transition-colors line-clamp-2 leading-snug mb-1"
-            title="${task.title}"
-          >
-            ${task.title}
-          </h4>
-
-          ${
-            task.description
-              ? `<p
-                    class="block xl:hidden text-[11px] text-tertiary line-clamp-1 font-normal mb-2 truncate leading-tight cursor-pointer"
+            ${
+              task.description
+                ? `<p
+                    class="block xl:hidden text-[11px] text-tertiary truncate font-normal mb-1.5 cursor-pointer"
                     data-tooltip-title="${task.description}"
                   >
                     ${task.description}
                   </p>
                   <p
-                    class="hidden xl:flex text-[11px] text-tertiary line-clamp-1 font-normal mb-2 leading-tight"
+                    class="hidden xl:block text-[11px] text-tertiary truncate font-normal mb-1.5"
                     title="${task.description}"
                   >
                     ${task.description}
                   </p>`
-              : ""
-          }
-        </div>
+                : ""
+            }
+          </div>
 
-        <div
-          class="flex flex-wrap items-center justify-between pt-2 mt-1 border-t border-border/40 text-[10px] text-secondary pl-1.5 gap-2"
-        >
-          ${footerExtraHtml || "<div></div>"}
-
-          <div class="flex flex-wrap items-center gap-1.5 justify-start lg:justify-end">
+          <div
+            class="flex items-center justify-between pt-2 mt-1 border-t border-border/40 text-[10px] text-secondary gap-1.5 w-full min-w-0 shrink-0"
+          >
             ${
-              task.dueDate
-                ? `
+              footerExtraHtml
+                ? `<div
+                    class="shrink-0 font-medium text-[10px] text-secondary/90"
+                  >
+                    ${footerExtraHtml}
+                  </div>`
+                : ""
+            }
+
+            <div
+              class="${
+                footerExtraHtml
+                  ? "flex justify-end"
+                  : "w-full flex justify-between"
+              } items-center gap-1.5 shrink-0 min-w-0"
+            >
+              ${
+                task.dueDate
+                  ? `
                     <span
-                      class="text-[9px] text-tertiary font-medium flex items-center gap-1 whitespace-nowrap shrink-0"
+                      class="text-[10px] text-tertiary font-medium flex items-center gap-0.5 whitespace-nowrap shrink-0"
                     >
-                      <i class="fa-regular fa-clock text-[8px]"></i>
+                      <i class="fa-regular fa-clock text-[10px]"></i>
                       ${task.dueDate}
                     </span>
                   `
-                : ""
-            }
+                  : ""
+              }
+              ${
+                matchedTags.length > 0
+                  ? `
+                      <div class="flex items-center gap-1 shrink-0">
+                        <span
+                          class="hidden sm:inline-flex text-[10px] bg-surface-3/40 text-secondary p-0.5 rounded border border-border/40 whitespace-nowrap truncate items-center gap-1"
+                          title="${visibleTag.name}"
+                        >
+                          <i class="fa-regular fa-tags"></i>
+                          ${visibleTag.name}
+                        </span>
 
-            ${
-              task.tags?.length
-                ? `
-                    <div class="flex flex-wrap items-center gap-1">
-                      ${state.tags
-                        .filter((t) => task.tags.includes(t.id))
-                        .map(
-                          (tag) => `
-                            <span
-                              class="text-[9px] bg-surface-3/40 text-secondary px-1.5 py-0.5 rounded border border-border/40 whitespace-nowrap flex flex-row justify-center items-center gap-1"
-                            >
-                              <i class="fa-regular fa-tags"></i> ${tag.name}
-                            </span>
-                          `,
-                        )
-                        .join("")}
-                    </div>
-                  `
-                : ""
-            }
+                        ${
+                          matchedTags.length > 1
+                            ? `<span
+                                class="hidden sm:inline-flex text-[10px] bg-surface-3/60 hover:bg-surface-2 text-secondary p-0.5 rounded border border-border/40 font-mono font-bold cursor-pointer"
+                                data-tooltip-title="${matchedTags
+                                  .slice(1)
+                                  .map((t) => t.name)
+                                  .join(", ")}"
+                              >
+                                +${matchedTags.length - 1}
+                              </span>`
+                            : ""
+                        }
+
+                        <span
+                          class="sm:hidden inline-flex text-[10px] bg-surface-3/60 hover:bg-surface-2 text-secondary p-0.5 rounded border border-border/40 font-mono font-bold cursor-pointer items-center gap-0.5"
+                          data-tooltip-title="${matchedTags
+                            .map((t) => t.name)
+                            .join(", ")}"
+                        >
+                          <i class="fa-regular fa-tags"></i>
+                          +${matchedTags.length}
+                        </span>
+                      </div>
+                    `
+                  : ""
+              }
+            </div>
           </div>
         </div>
       </div>

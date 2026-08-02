@@ -1,10 +1,14 @@
+import { generateId } from "@/utils/helpers";
+
 export class ComboboxComponent {
   constructor(container, items = [], options = {}) {
     const defaults = {
+      label: "combobox",
       placeholder: "Type and press Enter...",
       itemTitle: "title",
       itemValue: "value",
       itemIcon: "icon",
+      isRow: false,
       clearable: true,
       autoSelectFirst: false,
       multiple: true,
@@ -46,59 +50,73 @@ export class ComboboxComponent {
   }
 
   render() {
+    const uuid = `${generateId().split("-")[0]}-${generateId().split("-")[1]}`;
+
     this.container.innerHTML = `
       <div class="relative flex flex-col justify-center items-stretch gap-1">
-        <div
-          id="combobox-container"
-          class="${
-            this.options.containerClass
-          } relative min-h-10 w-full flex flex-wrap items-center content-start gap-1.5 rounded-xl border border-border bg-surface-2 py-1.75 ps-2.5 pe-20 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition group cursor-pointer"
-        >
+        <div class="flex ${this.options.isRow ? "flex-row" : "flex-col"} justify-center items-stretch">
+          ${
+            this.options.label
+              ? `<label
+                  for="combobox-input-${uuid}"
+                  class="${this.options.isRow ? "pe-2 hidden sm:flex flex-row justify-center items-center" : "mb-1.5 ps-3 flex flex-row justify-start items-center"} text-xs font-semibold text-secondary"
+                >
+                  ${this.options.label}${this.options.isRow ? ":" : ""}
+                </label>`
+              : ""
+          }
           <div
-            id="combobox-chips"
-            class="hidden flex-wrap gap-1.5"
-          ></div>
-
-          <input
-            id="combobox-input"
-            type="text"
-            placeholder="${
-              this.options.placeholder
-                ? this.options.placeholder
-                : "Typing and press Enter..."
-            }"
+            id="combobox-container-${uuid}"
             class="${
-              this.options.inputClass
-            } flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none"
-            autocomplete="off"
-          />
-
-          <button
-            id="combobox-clear-btn"
-            type="button"
-            class="${
-              this.options.clearButtonClass
-            } absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10"
-            title="Clear all"
+              this.options.containerClass
+            } relative min-h-10 w-full flex flex-wrap items-center content-start gap-1.5 rounded-xl border border-border bg-surface-2 py-1.75 ps-2.5 pe-20 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/30 transition group cursor-pointer"
           >
-            <i class="fa-regular fa-xmark-large text-[8px]"></i>
-          </button>
+            <div
+              id="combobox-chips-${uuid}"
+              class="hidden flex-wrap gap-1.5"
+            ></div>
 
-          <button
-            type="button"
-            id="combobox-arrow"
-            class="absolute right-3 top-1/2 -translate-y-1/2 flex text-secondary hover:text-primary transition duration-200 pointer-events-none z-10"
-            tabindex="-1"
-          >
-            <i
-              id="combobox-arrow-icon"
-              class="fa-regular fa-chevron-down text-xs"
-            ></i>
-          </button>
+            <input
+              id="combobox-input-${uuid}"
+              type="text"
+              placeholder="${
+                this.options.placeholder
+                  ? this.options.placeholder
+                  : "Typing and press Enter..."
+              }"
+              class="${
+                this.options.inputClass
+              } flex-1 min-w-25 ps-2 pe-16 truncate bg-transparent text-sm text-primary placeholder:text-secondary/70 outline-none pb-0.5 h-7 cursor-text focus:outline-none"
+              autocomplete="off"
+            />
+
+            <button
+              id="combobox-clear-btn-${uuid}"
+              type="button"
+              class="${
+                this.options.clearButtonClass
+              } absolute right-10 top-1/2 -translate-y-1/2 bg-brand/20 w-5.5 h-5.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-brand/40 text-muted p-1 items-center justify-center cursor-pointer flex z-10"
+              title="Clear all"
+            >
+              <i class="fa-regular fa-xmark-large text-[8px]"></i>
+            </button>
+
+            <button
+              type="button"
+              id="combobox-arrow-${uuid}"
+              class="absolute right-3 top-1/2 -translate-y-1/2 flex text-secondary hover:text-primary transition duration-200 pointer-events-none z-10"
+              tabindex="-1"
+            >
+              <i
+                id="combobox-arrow-icon-${uuid}"
+                class="fa-regular fa-chevron-down text-xs"
+              ></i>
+            </button>
+          </div>
         </div>
 
         <div
-          id="combobox-dropdown"
+          id="combobox-dropdown-${uuid}"
           class="${
             this.options.dropdownClass
           } hidden max-h-48 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl backdrop-blur-md scrollbar-thin scrollbar-thumb-surface-2"
@@ -107,12 +125,12 @@ export class ComboboxComponent {
     `;
 
     this.elements = {
-      container: this.container.querySelector("#combobox-container"),
-      input: this.container.querySelector("#combobox-input"),
-      clearBtn: this.container.querySelector("#combobox-clear-btn"),
-      arrow: this.container.querySelector("#combobox-arrow"),
-      dropdown: this.container.querySelector("#combobox-dropdown"),
-      chipsContainer: this.container.querySelector("#combobox-chips"),
+      container: this.container.querySelector(`#combobox-container-${uuid}`),
+      input: this.container.querySelector(`#combobox-input-${uuid}`),
+      clearBtn: this.container.querySelector(`#combobox-clear-btn-${uuid}`),
+      arrow: this.container.querySelector(`#combobox-arrow-${uuid}`),
+      dropdown: this.container.querySelector(`#combobox-dropdown-${uuid}`),
+      chipsContainer: this.container.querySelector(`#combobox-chips-${uuid}`),
     };
 
     this.updateClearButton();
@@ -643,6 +661,28 @@ export class ComboboxComponent {
         const val = this.elements.input.value.trim();
         if (val) {
           this.createNewItem(val);
+          if (!this.options.multiple && !this.options.chips) {
+            this.closeDropdown();
+          }
+        }
+        break;
+
+      case ",":
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.isOpen && this.activeIndex >= 0 && this.activeIndex < total) {
+          const item = this.filteredItems[this.activeIndex];
+          if (item) {
+            this.selectItem(item);
+            if (!this.options.multiple && !this.options.chips) {
+              this.closeDropdown();
+            }
+            return;
+          }
+        }
+        const value = this.elements.input.value.trim();
+        if (value) {
+          this.createNewItem(value);
           if (!this.options.multiple && !this.options.chips) {
             this.closeDropdown();
           }

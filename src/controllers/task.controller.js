@@ -88,6 +88,8 @@ export const TaskController = {
         dateWrapper,
         dateOptions,
         {
+          label: "Date",
+          isRow: true,
           placeholder: "Select Date...",
           itemTitle: "title",
           itemValue: "value",
@@ -146,6 +148,8 @@ export const TaskController = {
         sortWrapper,
         sortOptions,
         {
+          label: "Sort",
+          isRow: true,
           placeholder: "Sort By...",
           itemTitle: "title",
           itemValue: "value",
@@ -226,13 +230,13 @@ export const TaskController = {
           "-translate-x-[calc(100%+2rem)]",
           "translate-x-0",
         );
-        app?.classList.replace("lg:pl-8", "lg:pl-30");
+        app?.classList.replace("lg:ps-8", "lg:ps-30");
       } else {
         desktopNav?.classList.replace(
           "translate-x-0",
           "-translate-x-[calc(100%+2rem)]",
         );
-        app?.classList.replace("lg:pl-30", "lg:pl-8");
+        app?.classList.replace("lg:ps-30", "lg:ps-8");
       }
     });
   },
