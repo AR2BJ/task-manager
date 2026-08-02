@@ -171,7 +171,11 @@ export const SettingsTagController = {
     });
 
     container.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && e.target.classList.contains("tag-name-input")) {
+      if (
+        e.ctrlKey &&
+        e.key === "Enter" &&
+        e.target.classList.contains("tag-name-input")
+      ) {
         e.preventDefault();
         const tagCard = e.target.closest("[data-tag-id]");
         const tagId = tagCard?.dataset.tagId;
@@ -222,6 +226,21 @@ export const SettingsTagController = {
 
     cancelBtn?.addEventListener("click", () => this.closeTagDeleteModal());
     confirmBtn?.addEventListener("click", () => this.executeDeleteTag());
+
+    document.addEventListener("keydown", (e) => {
+      const modal = document.getElementById("tag-delete-modal");
+      if (!modal || modal.classList.contains("hidden")) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        this.closeTagDeleteModal();
+      }
+
+      if (e.ctrlKey && e.key === "Enter") {
+        e.preventDefault();
+        this.executeDeleteTag();
+      }
+    });
   },
 
   openTagDeleteModal(tagId) {

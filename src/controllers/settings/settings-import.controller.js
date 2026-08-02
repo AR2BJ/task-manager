@@ -3,7 +3,9 @@ import { generateId, todayISO } from "@/utils/helpers";
 
 import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
+import { SettingsTagController } from "./settings-tag.controller.js";
 import { TaskController } from "../task.controller.js";
+import { renderTaskList } from "@/views/tasks/task-list.renderer.js";
 
 export const SettingsImportController = {
   init() {
@@ -61,12 +63,12 @@ export const SettingsImportController = {
     }
 
     const reader = new FileReader();
-    reader.addEventListener("load", async (event) => {
+    reader.addEventListener("load",(event) => {
       GlobalLoaderService.show(
         `Parsing storage integrity from ${format.toUpperCase()}...`,
       );
 
-      setTimeout(async () => {
+      setTimeout(() => {
         try {
           const rawContent = event.target.result;
           let importedTasks = [];
@@ -100,15 +102,9 @@ export const SettingsImportController = {
           state.activeTab = "active";
           state.currentView = "tasks";
 
-          const { renderTaskList } =
-            await import("@/views/tasks/task-list.renderer.js");
           renderTaskList(StateManager.getFilteredTasks(), state.activeTab);
 
           TaskController.refreshUI();
-
-          // Import tag controller dynamically to avoid circular dependency
-          const { SettingsTagController } =
-            await import("./settings-tag.controller.js");
           SettingsTagController.renderTagsList();
 
           NotificationService.show({

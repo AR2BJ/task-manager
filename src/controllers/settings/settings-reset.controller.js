@@ -4,8 +4,10 @@ import { GlobalLoaderService } from "@/services/loader.service";
 import { NotificationService } from "@/services/notification.service.js";
 import { STORAGE_KEY } from "@/models/storage.model.js";
 import { SettingsArchiveController } from "./settings-archive.controller.js";
+import { SettingsTagController } from "./settings-tag.controller.js";
 import { TaskController } from "../task.controller.js";
 import { generateDynamicMockData } from "@/utils/seed-generator";
+import { renderTaskList } from "@/views/tasks/task-list.renderer.js";
 
 export const SettingsResetController = {
   keydownHandler: null,
@@ -21,7 +23,7 @@ export const SettingsResetController = {
       ?.addEventListener("click", () => this.handleDataSeeding());
   },
 
-  async handleDataSeeding() {
+  handleDataSeeding() {
     const seedBtn = document.getElementById("sett-seed-btn");
     const seedIcon = document.getElementById("sett-seed-icon");
     const seedSpinner = document.getElementById("sett-seed-spinner");
@@ -44,12 +46,11 @@ export const SettingsResetController = {
     });
 
     setTimeout(() => {
-      // Import dynamically to avoid circular dependency
       SettingsArchiveController.runAutoArchivePipeline();
       this.resetSession();
     }, 200);
 
-    setTimeout(async () => {
+    setTimeout(() => {
       try {
         const dynamicMockData = generateDynamicMockData(mockDataCount);
 
@@ -58,14 +59,8 @@ export const SettingsResetController = {
         state.activeTab = "active";
         state.currentView = "tasks";
 
-        const { renderTaskList } =
-          await import("@/views/tasks/task-list.renderer.js");
         renderTaskList(StateManager.getFilteredTasks(), state.activeTab);
         TaskController.refreshUI();
-
-        // Import tag controller dynamically
-        const { SettingsTagController } =
-          await import("./settings-tag.controller.js");
         SettingsTagController.renderTagsList();
 
         setTimeout(() => {
@@ -103,9 +98,7 @@ export const SettingsResetController = {
   resetSession() {
     StateManager.init();
     TaskController.refreshUI();
-    import("./settings-tag.controller.js").then((module) => {
-      module.SettingsTagController.renderTagsList();
-    });
+    SettingsTagController.renderTagsList();
   },
 
   closeResetModal() {
@@ -152,14 +145,14 @@ export const SettingsResetController = {
       }
 
       if (e.key === "Escape") this.closeResetModal();
-      if (e.key === "Enter")
+      if (e.ctrlKey && e.key === "Enter")
         document.getElementById("confirm-settings-reset")?.click();
     };
 
     document.addEventListener("keydown", this.keydownHandler);
   },
 
-  async executeApplicationReset() {
+  executeApplicationReset() {
     const previousPayload = localStorage.getItem(STORAGE_KEY);
     const previousTasks = StateManager.getTasks().map((task) => ({ ...task }));
     const previousTags = StateManager.getTags().map((tag) => ({ ...tag }));
@@ -168,7 +161,7 @@ export const SettingsResetController = {
 
     GlobalLoaderService.show("Purging storage layers & resetting workspace...");
 
-    setTimeout(async () => {
+    setTimeout(() => {
       try {
         localStorage.removeItem(STORAGE_KEY);
 
@@ -177,14 +170,10 @@ export const SettingsResetController = {
         state.activeTab = "active";
         state.currentView = "tasks";
 
-        const { renderTaskList } =
-          await import("@/views/tasks/task-list.renderer.js");
         renderTaskList([], state.activeTab);
 
         TaskController.refreshUI();
 
-        const { SettingsTagController } =
-          await import("./settings-tag.controller.js");
         SettingsTagController.renderTagsList();
 
         NotificationService.show({
@@ -192,11 +181,11 @@ export const SettingsResetController = {
           message:
             "Application synchronization storage has been completely cleared.",
           duration: 5000,
-          undoAction: async () => {
+          undoAction: () => {
             GlobalLoaderService.show(
               "Re-instating application database state...",
             );
-            setTimeout(async () => {
+            setTimeout(() => {
               try {
                 if (previousPayload) {
                   localStorage.setItem(STORAGE_KEY, previousPayload);
@@ -211,9 +200,10 @@ export const SettingsResetController = {
                 state.activeTab = "active";
                 state.currentView = "tasks";
 
-                const { renderTaskList: reloadList } =
-                  await import("@/views/tasks/task-list.renderer.js");
-                reloadList(StateManager.getFilteredTasks(), state.activeTab);
+                renderTaskList(
+                  StateManager.getFilteredTasks(),
+                  state.activeTab,
+                );
                 TaskController.refreshUI();
                 SettingsTagController.renderTagsList();
               } finally {
