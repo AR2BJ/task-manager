@@ -3384,7 +3384,9 @@ rect.legend-mouseover-inactive,
 `,r+=[`Id`,`Title`,`Description`,`Status`,`Priority`,`Due Date`,`Estimated Minutes`,`Tags`,`Created At`,`Updated At`,`Completed At`,`Archived`,`Subtasks`].join(`,`)+`
 `,e.forEach(e=>{let t=(e.subtasks||[]).map(e=>`[${e.completed?`X`:` `}] ${e.title} (ID: ${e.id})`).join(` | `),i=[n(e.id),n(e.title),n(e.description),n(e.status),n(e.priority),n(e.dueDate),n(e.estimatedMinutes),n((e.tags||[]).join(`;`)),n(e.createdAt),n(e.updatedAt),n(e.completedAt),n(e.archived?`Yes`:`No`),n(t)];r+=i.join(`,`)+`
 `}),r},downloadFile(e,t,n){let r=new Blob([e],{type:n}),i=document.createElement(`a`);i.href=URL.createObjectURL(r),i.download=t,document.body.appendChild(i),i.click(),i.remove(),URL.revokeObjectURL(i.href)}},Oc={pendingDeleteTagId:null,init(){this.renderTagsList(),this.initTagDeleteModalEvents(),this.bindTagEvents()},bindTagEvents(){document.getElementById(`sett-add-tag-btn`)?.addEventListener(`click`,()=>this.handleAddTag()),document.getElementById(`sett-new-tag-input`)?.addEventListener(`keydown`,e=>{e.key===`Enter`&&(e.preventDefault(),this.handleAddTag())}),this.bindTagListActions()},renderTagsList(){let e=document.getElementById(`sett-tags-list`);if(!e)return;let t=v.getTags()||[],n=v.getTasks()||[];if(t.length===0){e.innerHTML=`
-        <div class="w-full h-full min-h-40 sm:min-h-30 lg:min-h-20 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface-2 rounded-2xl border border-dashed border-border p-4 text-center flex flex-col justify-center items-center">
+        <div
+          class="w-full h-full min-h-40 sm:min-h-30 lg:min-h-20 overflow-y-auto scrollbar-thumb-surface-2 scrollbar-thin bg-surface-2 rounded-2xl border border-dashed border-border p-4 text-center flex flex-col justify-center items-center"
+        >
           <div class="h-full flex flex-col justify-center items-center">
             <div class="text-3xl">
               <i class="fa-regular fa-tags text-brand/60"></i>
@@ -3395,7 +3397,10 @@ rect.legend-mouseover-inactive,
           </div>
         </div>
       `;return}e.innerHTML=t.map(e=>{let t=n.filter(t=>Array.isArray(t.tags)&&t.tags.includes(e.id)).length;return`
-          <div data-tag-id="${e.id}" class="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-2 border border-border/80 transition">
+          <div
+            data-tag-id="${e.id}"
+            class="flex flex-col xs:flex-row items-center justify-start xs:justify-between gap-2 p-2 rounded-xl bg-surface-2 border border-border/80 transition"
+          >
             <div class="flex items-center gap-1 min-w-0 flex-1">
               <i class="fa-regular fa-tag text-brand/80 text-xs shrink-0"></i>
               <input
@@ -3406,15 +3411,27 @@ rect.legend-mouseover-inactive,
                 readonly
               />
             </div>
-            <div class="flex items-center gap-1 shrink-0">
-              <div class="min-w-20 flex items-center gap-1 px-2 py-1.75 rounded-md sm:rounded-lg bg-surface border border-border text-[10px] sm:text-xs font-semibold text-secondary" title="Used in ${t} task${t===1?``:`s`}">
-                <i class="fa-regular fa-list-check text-xs text-brand/80"></i>
+            <div class="w-full xs:w-fit flex items-center gap-1 shrink-0">
+              <div
+                class="min-w-0 sm:min-w-20 flex items-center gap-1 px-1.5 py-1 sm:py-1.75 rounded-md sm:rounded-lg bg-surface border border-border text-[9px] sm:text-xs font-semibold text-secondary"
+                title="Used in ${t} task${t===1?``:`s`}"
+              >
+                <i class="fa-regular fa-list-check text-[9px] sm:text-xs text-brand/80"></i>
                 <span>${t} ${t<=1?`task`:`tasks`}</span>
               </div>
-              <button data-action="toggle-edit" class="edit-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition" title="Edit tag name">
-                <i class="fa-regular fa-pen-to-square text-xs text-brand/80"></i>
+              <button
+                data-action="toggle-edit"
+                class="edit-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-brand/10 hover:cursor-pointer transition"
+                title="Edit tag name"
+              >
+                <i
+                  class="fa-regular fa-pen-to-square text-xs text-brand/80"
+                ></i>
               </button>
-              <button data-action="delete-tag" class="delete-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition">
+              <button
+                data-action="delete-tag"
+                class="delete-btn flex h-6 w-6 sm:w-8 sm:h-8 items-center justify-center rounded-md sm:rounded-lg border border-border bg-surface hover:bg-red-600/10 hover:cursor-pointer transition"
+              >
                 <i class="fa-regular fa-trash-can text-red-500/80 text-xs"></i>
               </button>
             </div>
@@ -3878,16 +3895,16 @@ rect.legend-mouseover-inactive,
               </div>
             </div>
 
-            <div class="flex gap-2 items-center">
+            <div class="flex flex-col xs:flex-row gap-2 items-center">
               <input
                 type="text"
                 id="sett-new-tag-input"
                 placeholder="Enter new tag name..."
-                class="flex-1 bg-surface-2 border border-border rounded-xl px-3.5 py-2 text-xs sm:text-sm text-primary placeholder:text-muted focus:outline-none focus:border-brand/80 transition"
+                class="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2 text-xs sm:text-sm text-primary placeholder:text-muted truncate focus:outline-none focus:border-brand/80 transition"
               />
               <button
                 id="sett-add-tag-btn"
-                class="px-4 py-2 bg-brand/80 hover:bg-brand text-white font-medium text-xs sm:text-sm rounded-xl transition cursor-pointer shrink-0 flex items-center gap-1.5"
+                class="w-full xs:w-auto px-4 py-2 bg-brand/80 hover:bg-brand text-white font-medium text-xs sm:text-sm rounded-xl transition cursor-pointer shrink-0 flex justify-center items-center gap-1.5"
               >
                 <i class="fa-regular fa-plus"></i>
                 <span>Add Tag</span>
@@ -4612,7 +4629,7 @@ rect.legend-mouseover-inactive,
                 <button
                   id="btn-scroll-right"
                   type="button"
-                  class="absolute right-0 z-20 flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface/95 backdrop-blur-xl shadow-2xl text-secondary hover:text-primary hover:border-brand/50 transition-all cursor-pointer"
+                  class="absolute right-0 z-20 hidden h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface/95 backdrop-blur-xl shadow-2xl text-secondary hover:text-primary hover:border-brand/50 transition-all cursor-pointer"
                 >
                   <i class="fa-regular fa-chevron-right text-xs"></i>
                 </button>
@@ -4651,7 +4668,7 @@ rect.legend-mouseover-inactive,
           ></div>
         </div>
       </section>
-    `}};function bl(){let e=document.getElementById(`task-filter-scroll`),t=document.getElementById(`btn-scroll-left`),n=document.getElementById(`btn-scroll-right`);if(!e||!t||!n)return;let r=()=>{let r=e.scrollWidth-e.clientWidth>1,i=e.scrollLeft<=2,a=e.scrollLeft+e.clientWidth>=e.scrollWidth-2;if(t.classList.toggle(`hidden`,i||!r),t.classList.toggle(`flex`,!i&&r),n.classList.toggle(`hidden`,!r||a),n.classList.toggle(`flex`,r&&!a),!r){e.style.webkitMaskImage=`none`,e.style.maskImage=`none`;return}let o=``,s=`100px`;o=i&&a?`none`:i?`linear-gradient(to right, black 0%, black calc(100% - ${s}), transparent 100%)`:a?`linear-gradient(to right, transparent 0%, black ${s}, black 100%)`:`linear-gradient(to right, transparent 0%, black ${s}, black calc(100% - ${s}), transparent 100%)`,e.style.webkitMaskImage=o,e.style.maskImage=o},i=()=>{requestAnimationFrame(()=>{requestAnimationFrame(r)})};if(e.addEventListener(`scroll`,r),typeof ResizeObserver<`u`){let t=new ResizeObserver(()=>{i()});t.observe(e),e.parentElement&&t.observe(e.parentElement)}new MutationObserver(()=>{i()}).observe(e,{childList:!0,subtree:!0}),t.addEventListener(`click`,t=>{t.stopPropagation(),e.scrollLeft-=180}),n.addEventListener(`click`,t=>{t.stopPropagation(),e.scrollLeft+=180}),window.addEventListener(`resize`,i),window.addEventListener(`load`,i),i()}typeof window<`u`&&(document.readyState===`loading`?document.addEventListener(`DOMContentLoaded`,()=>{requestAnimationFrame(bl)}):requestAnimationFrame(bl));function xl(){let e=document.getElementById(`task-filter-scroll`);if(!e)return;let t=[...v.getTags()||[]].sort((e,t)=>e.name.localeCompare(t.name)),n=_.selectedTag;t.length||(_.selectedTag=`all`);let r=`
+    `}};function bl(){let e=document.getElementById(`task-filter-scroll`),t=document.getElementById(`btn-scroll-left`),n=document.getElementById(`btn-scroll-right`);if(!e||!t||!n)return;t.addEventListener(`click`,t=>{t.stopPropagation(),e.scrollBy({left:-180,behavior:`smooth`})}),n.addEventListener(`click`,t=>{t.stopPropagation(),e.scrollBy({left:180,behavior:`smooth`})});let r=()=>{if(e.offsetParent===null||e.clientWidth===0){t.classList.add(`hidden`),t.classList.remove(`flex`),n.classList.add(`hidden`),n.classList.remove(`flex`),e.style.maskImage=`none`;return}let{scrollLeft:r,scrollWidth:i,clientWidth:a}=e;if(!(i>a+2)){t.classList.add(`hidden`),t.classList.remove(`flex`),n.classList.add(`hidden`),n.classList.remove(`flex`),e.style.maskImage=`none`;return}let o=Math.ceil(r)<=2,s=Math.ceil(r+a)>=i-2;t.classList.toggle(`hidden`,o),t.classList.toggle(`flex`,!o),n.classList.toggle(`hidden`,s),n.classList.toggle(`flex`,!s);let c=`80px`;o?e.style.maskImage=`linear-gradient(to right, black 0%, black calc(100% - ${c}), transparent 100%)`:s?e.style.maskImage=`linear-gradient(to right, transparent 0%, black ${c}, black 100%)`:e.style.maskImage=`linear-gradient(to right, transparent 0%, black ${c}, black calc(100% - ${c}), transparent 100%)`},i=()=>{requestAnimationFrame(()=>{setTimeout(r,50)})};e.addEventListener(`scroll`,r),new MutationObserver(()=>{i()}).observe(e,{childList:!0,subtree:!0});let a=document.getElementById(`tasks-view`);a&&new MutationObserver(()=>{a.classList.contains(`hidden`)||i()}).observe(a,{attributes:!0,attributeFilter:[`class`]}),window.addEventListener(`resize`,i),i()}typeof window<`u`&&(document.readyState===`loading`?document.addEventListener(`DOMContentLoaded`,()=>{requestAnimationFrame(bl)}):requestAnimationFrame(bl));function xl(){let e=document.getElementById(`task-filter-scroll`);if(!e)return;let t=[...v.getTags()||[]].sort((e,t)=>e.name.localeCompare(t.name)),n=_.selectedTag;t.length||(_.selectedTag=`all`);let r=`
     <button
       data-tag="all"
       class="tag-filter-btn h-8 shrink-0 whitespace-nowrap rounded-lg px-3.5 text-xs font-semibold transition cursor-pointer ${n===`all`?`bg-brand/80 text-white shadow-brand/10 shadow-sm`:`bg-surface border border-border text-secondary hover:text-primary hover:bg-surface-2`}"
