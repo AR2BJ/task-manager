@@ -147,9 +147,7 @@ export const InfoModalComponent = {
                           </div>
                         `,
                       )
-                      .join(
-                        '<span class="text-[10px] text-muted"><i class="fa-regular fa-plus"></i></span>',
-                      )}
+                      .join('<span class="text-[10px] text-muted">+</span>')}
                   </div>
                 </div>
               `,
@@ -285,7 +283,7 @@ export const InfoModalComponent = {
 
             <div
               id="content-help-shortcuts"
-              class="hidden space-y-2.5 sm:space-y-3 overflow-y-auto pe-1"
+              class="hidden"
             >
               ${InfoModalComponent.renderShortcutsData()}
             </div>
