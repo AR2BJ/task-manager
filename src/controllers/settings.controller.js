@@ -49,7 +49,7 @@ export const SettingsController = {
     document
       .getElementById("sett-export-csv-btn")
       ?.addEventListener("click", () =>
-        SettingsExportController.handleDataExport("notion"),
+        SettingsExportController.handleDataExport("csv"),
       );
 
     // Window resize handler for theme

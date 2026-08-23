@@ -34,7 +34,7 @@ export const SettingsExportController = {
       fileContent = this.generateMarkdownExport(tasks, tags);
       fileName = `Tasks_Backup_${dateStr}_v${STORAGE_VERSION}.md`;
       contentType = "text/markdown";
-    } else if (format === "notion") {
+    } else if (format === "csv") {
       fileContent = this.generateCsvExport(tasks, tags);
       fileName = `Tasks_Backup_${dateStr}_v${STORAGE_VERSION}.csv`;
       contentType = "text/csv;charset=utf-8;";
