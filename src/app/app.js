@@ -1,3 +1,5 @@
+import "@/vendor/fontawesome/js/all";
+
 import { CalendarController } from "@/controllers/calendar.controller";
 import { GlobalLoaderService } from "@/services/loader.service";
 import { MatrixController } from "@/controllers/matrix.controller";

@@ -96,7 +96,7 @@ export const TaskItemComponent = {
       : "fa-box-archive text-amber-500/80";
 
     const checkTooltip = isCompleted ? "Uncheck Task" : "Check Task";
-    const isExpanded = openSubtasksState.has(task.id);
+    const isExpanded = openSubtasksState.expandedTaskIds.has(task.id);
 
     return `
       <div

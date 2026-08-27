@@ -842,6 +842,7 @@ export const TaskFormController = {
 
       createDatePicker = new DatePickerComponent({
         id: "task-duedate-input",
+        label: "Due Date",
         value: initialValue,
         placeholder: "YYYY-MM-DD",
       });
@@ -854,6 +855,7 @@ export const TaskFormController = {
 
       editDatePicker = new DatePickerComponent({
         id: "edit-task-duedate",
+        label: "Due Date",
         value: initialValue,
         placeholder: "YYYY-MM-DD",
         background: "surface",

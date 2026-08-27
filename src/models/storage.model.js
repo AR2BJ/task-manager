@@ -34,8 +34,9 @@ function normalizeTask(task) {
           id: String(st.id || crypto.randomUUID()),
           title: st.title || "",
           completed: Boolean(st.completed),
-          createdAt: task.createdAt || formatDate(new Date()),
-          updatedAt: task.updatedAt || formatDate(new Date()) || null,
+          createdAt: st.createdAt || task.createdAt || formatDate(new Date()),
+          updatedAt:
+            st.updatedAt || task.createdAt || formatDate(new Date()) || null,
         }))
       : [],
   };
@@ -73,9 +74,7 @@ export function loadFromStorage() {
     if (!raw) return null;
 
     const data = JSON.parse(raw);
-    const migrated = migrateData(data);
-
-    return migrated;
+    return migrateData(data);
   } catch (error) {
     console.error("Failed to load data from localStorage:", error);
     return null;

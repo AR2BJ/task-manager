@@ -1,4 +1,5 @@
-import { generateId, todayISO } from "@/utils/helpers.js";
+// src/services/task.service.js
+import { generateId, openSubtasksState, todayISO } from "@/utils/helpers.js";
 
 function sanitizeTagIds(tags) {
   if (!Array.isArray(tags)) return [];
@@ -16,12 +17,7 @@ export const TaskService = {
   validateTaskLimits(tasks, targetDate, newPriority, excludeTaskId = null) {
     if (!targetDate) return;
 
-    const LIMITS = {
-      high: 6,
-      medium: 8,
-      low: 10,
-      total: 24,
-    };
+    const LIMITS = { high: 6, medium: 8, low: 10, total: 24 };
 
     const sameDateTasks = tasks.filter((task) => {
       if (task.archived) return false;
@@ -80,60 +76,73 @@ export const TaskService = {
     this.validateTaskLimits(currentTasks, taskDate, taskPriority);
 
     const parsedTagIds = sanitizeTagIds(taskData.tags);
+    const initialStatus = taskData.status || "todo";
+    const isDone = initialStatus === "done";
+
+    let subtasks = Array.isArray(taskData.subtasks) ? taskData.subtasks : [];
+    if (isDone && subtasks.length > 0) {
+      subtasks = subtasks.map((st) => ({
+        ...st,
+        completed: true,
+        createdAt: todayISO(),
+      }));
+    }
 
     const newTask = {
       id: generateId(),
       title: cleanedTitle,
       description: (taskData.description || "").trim(),
-      status: taskData.status || "todo",
+      status: initialStatus,
       priority: taskPriority,
       dueDate: taskData.dueDate || null,
       createdAt: todayISO(),
       updatedAt: null,
-      completedAt: taskData.status === "done" ? todayISO() : null,
+      completedAt: isDone ? todayISO() : null,
       archived: false,
       tags: parsedTagIds,
-      subtasks: Array.isArray(taskData.subtasks) ? taskData.subtasks : [],
+      subtasks: subtasks,
     };
 
     return [newTask, ...currentTasks];
   },
 
-  toggleTask(currentTasks, id) {
+  toggleSubtask(currentTasks, taskId, subtaskId) {
     const today = todayISO();
 
     return currentTasks.map((task) => {
-      if (task.id !== id) return task;
-      if (task.archived) return task;
+      if (task.id !== taskId) return task;
 
-      const isCompleted = task.status === "done";
-      const newStatus = isCompleted ? "todo" : "done";
+      const previousSubtasks = task.subtasks || [];
+      const updatedSubtasks = previousSubtasks.map((st) => {
+        if (st.id !== subtaskId) return st;
+        return { ...st, completed: !st.completed, updatedAt: todayISO() };
+      });
 
-      let updatedSubtasks = [];
-      let savedSubtaskIds = task.completedSubtaskIdsBeforeDone || [];
+      const hasSubtasks = updatedSubtasks.length > 0;
+      const allCompleted =
+        hasSubtasks && updatedSubtasks.every((st) => st.completed);
 
-      if (newStatus === "done") {
-        savedSubtaskIds = (task.subtasks || [])
-          .filter((st) => st.completed)
-          .map((st) => st.id);
+      let newStatus = task.status;
+      if (hasSubtasks) {
+        if (allCompleted) {
+          newStatus = "done";
+        } else if (task.status === "done" && !allCompleted) {
+          newStatus = "todo";
+        }
+      }
 
-        updatedSubtasks = (task.subtasks || []).map((st) => ({
-          ...st,
-          completed: true,
-        }));
-      } else {
-        updatedSubtasks = (task.subtasks || []).map((st) => ({
-          ...st,
-          completed: savedSubtaskIds.includes(st.id),
-        }));
+      if (!allCompleted) {
+        const memoryMap = new Map();
+        updatedSubtasks.forEach((st) => memoryMap.set(st.id, st.completed));
+        openSubtasksState.subtasksMemory.set(taskId, memoryMap);
       }
 
       return {
         ...task,
         status: newStatus,
-        completedAt: newStatus === "done" ? today : null,
+        completedAt: newStatus === "done" ? task.completedAt || today : null,
         subtasks: updatedSubtasks,
-        completedSubtaskIdsBeforeDone: savedSubtaskIds,
+        updatedAt: today,
       };
     });
   },
@@ -147,15 +156,57 @@ export const TaskService = {
     const today = todayISO();
 
     return currentTasks.map((task) => {
-      if (task.id !== id) return task;
+      if (task.id !== id || task.archived) return task;
+      if (task.status === newStatus) return task;
+
+      const isGoingToDone = newStatus === "done";
+      let updatedSubtasks = task.subtasks || [];
+
+      if (isGoingToDone) {
+        const memoryMap = new Map();
+        updatedSubtasks.forEach((st) => memoryMap.set(st.id, st.completed));
+        openSubtasksState.subtasksMemory.set(task.id, memoryMap);
+
+        updatedSubtasks = updatedSubtasks.map((st) => ({
+          ...st,
+          completed: true,
+          updatedAt: todayISO(),
+        }));
+      } else if (task.status === "done") {
+        const savedMemory = openSubtasksState.subtasksMemory.get(task.id);
+        if (savedMemory) {
+          updatedSubtasks = updatedSubtasks.map((st) => ({
+            ...st,
+            completed: savedMemory.has(st.id) ? savedMemory.get(st.id) : false,
+            updatedAt: todayISO(),
+          }));
+        } else {
+          updatedSubtasks = updatedSubtasks.map((st) => ({
+            ...st,
+            completed: false,
+            updatedAt: todayISO(),
+          }));
+        }
+      }
 
       return {
         ...task,
         status: newStatus,
-        completedAt: newStatus === "done" ? today : null,
+        completedAt: isGoingToDone ? today : null,
         updatedAt: today,
+        subtasks: updatedSubtasks,
       };
     });
+  },
+  
+  toggleTask(currentTasks, id) {
+    const task = currentTasks.find((t) => t.id === id);
+    if (!task) return currentTasks;
+
+    const isCompleted = task.status === "done";
+    const newStatus = isCompleted ? "todo" : "done";
+
+    return this.updateTaskStatus(currentTasks, id, newStatus);
   },
 
   editTask(currentTasks, id, updatedFields) {
@@ -185,71 +236,45 @@ export const TaskService = {
         : task.tags;
 
     const alreadyExists = currentTasks.some(
-      (t) => t.id !== id && t.title.toLowerCase() === cleanedTitle.toLowerCase(),
+      (t) =>
+        t.id !== id && t.title.toLowerCase() === cleanedTitle.toLowerCase(),
     );
     if (alreadyExists) {
       throw new Error("Task already exists");
     }
 
+    if (
+      updatedFields.status !== undefined &&
+      updatedFields.status !== task.status
+    ) {
+      const tasksWithStatus = this.updateTaskStatus(
+        currentTasks,
+        id,
+        updatedFields.status,
+      );
+      return tasksWithStatus.map((t) => {
+        if (t.id !== id) return t;
+        return {
+          ...t,
+          ...updatedFields,
+          title: cleanedTitle,
+          tags: parsedTagIds,
+        };
+      });
+    }
+
     return currentTasks.map((t) => {
       if (t.id !== id) return t;
+
+      const updatedSubtasks = updatedFields.subtasks || t.subtasks || [];
 
       return {
         ...t,
         ...updatedFields,
         title: cleanedTitle,
         tags: parsedTagIds,
-        updatedAt: todayISO(),
-      };
-    });
-  },
-
-  toggleSubtask(currentTasks, taskId, subtaskId) {
-    const today = todayISO();
-
-    return currentTasks.map((task) => {
-      if (task.id !== taskId) return task;
-
-      const updatedSubtasks = (task.subtasks || []).map((st) => {
-        if (st.id !== subtaskId) return st;
-        return { ...st, completed: !st.completed };
-      });
-
-      if (task.archived) {
-        return {
-          ...task,
-          subtasks: updatedSubtasks,
-        };
-      }
-
-      const hasSubtasks = updatedSubtasks.length > 0;
-      const allCompleted =
-        hasSubtasks && updatedSubtasks.every((st) => st.completed);
-
-      let newStatus = task.status;
-      let completedAt = task.completedAt;
-      let savedSubtaskIds = task.completedSubtaskIdsBeforeDone || [];
-
-      if (allCompleted) {
-        newStatus = "done";
-        completedAt = today;
-      } else if (task.status === "done" && !allCompleted) {
-        newStatus = "in_progress";
-        completedAt = null;
-      }
-
-      if (newStatus !== "done") {
-        savedSubtaskIds = updatedSubtasks
-          .filter((st) => st.completed)
-          .map((st) => st.id);
-      }
-
-      return {
-        ...task,
-        status: newStatus,
-        completedAt: completedAt,
         subtasks: updatedSubtasks,
-        completedSubtaskIdsBeforeDone: savedSubtaskIds,
+        updatedAt: todayISO(),
       };
     });
   },
@@ -269,10 +294,15 @@ export const TaskService = {
         updatedAt: null,
       };
 
+      const updatedSubtasks = [...(task.subtasks || []), newSubtask];
+      const isDone = task.status === "done";
+      const newStatus = isDone ? "todo" : task.status;
+
       return {
         ...task,
-        subtasks: [...(task.subtasks || []), newSubtask],
-        updatedAt: todayISO(),
+        status: newStatus,
+        completedAt: newStatus === "done" ? task.completedAt : null,
+        subtasks: updatedSubtasks,
       };
     });
   },
@@ -281,9 +311,13 @@ export const TaskService = {
     return currentTasks.map((task) => {
       if (task.id !== taskId) return task;
 
+      const updatedSubtasks = (task.subtasks || []).filter(
+        (st) => st.id !== subtaskId,
+      );
+
       return {
         ...task,
-        subtasks: (task.subtasks || []).filter((st) => st.id !== subtaskId),
+        subtasks: updatedSubtasks,
         updatedAt: todayISO(),
       };
     });

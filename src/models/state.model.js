@@ -1,5 +1,7 @@
 import { loadFromStorage, saveToStorage } from "./storage.model.js";
 
+import { eventBus } from "@/services/event-bus.service.js";
+
 export const state = {
   tasks: [],
   tags: [],
@@ -17,13 +19,51 @@ export const state = {
 };
 
 export const StateManager = {
+  _rawCache: "",
+
   init() {
+    this.reloadFromStorage(false);
+    this.setupReactiveEngine();
+    return state;
+  },
+
+  reloadFromStorage(notify = true) {
     const saved = loadFromStorage();
     if (saved) {
       state.tasks = saved.tasks || [];
       state.tags = saved.tags || [];
+    } else {
+      state.tasks = [];
+      state.tags = [];
     }
-    return state;
+
+    this._rawCache = localStorage.getItem("task_manager") || "";
+
+    if (notify) {
+      this.dispatchStateEvents();
+    }
+  },
+
+  dispatchStateEvents() {
+    eventBus.emit("store:tasks:changed", state.tasks);
+    eventBus.emit("store:tags:changed", state.tags);
+    eventBus.emit("store:changed", { tasks: state.tasks, tags: state.tags });
+  },
+
+  setupReactiveEngine() {
+    window.addEventListener("storage", (event) => {
+      if (event.key === "task_manager") {
+        this.reloadFromStorage(true);
+      }
+    });
+
+    setInterval(() => {
+      const currentRaw = localStorage.getItem("task_manager") || "";
+      if (currentRaw !== this._rawCache) {
+        this._rawCache = currentRaw;
+        this.reloadFromStorage(true);
+      }
+    }, 300);
   },
 
   getTasks() {
@@ -166,6 +206,10 @@ export const StateManager = {
   save(tasks = state.tasks, tags = state.tags) {
     state.tasks = tasks;
     state.tags = tags;
+
     saveToStorage({ tasks: state.tasks, tags: state.tags });
+
+    this._rawCache = localStorage.getItem("task_manager") || "";
+    this.dispatchStateEvents();
   },
 };
