@@ -6,7 +6,6 @@ import {
 import { GlobalLoaderService } from "@/services/loader.service.js";
 import { NotificationService } from "@/services/notification.service.js";
 import { SettingsArchiveController } from "../settings/settings-archive.controller.js";
-import { SettingsController } from "../settings.controller.js";
 import { StateManager } from "@/models/state.model.js";
 import { TaskService } from "@/services/task.service.js";
 import { openSubtasksState } from "@/utils/helpers.js";
@@ -149,7 +148,6 @@ export const TaskActionController = {
       if (editBtn) {
         const id = editBtn.dataset.id;
         setPendingEditId(id);
-
         this.mainController.toggleModal("edit-modal", true);
         return;
       }

@@ -281,7 +281,6 @@ export const TaskController = {
 
   bindStaticEvents() {
     const tagFilterBtn = document.getElementById("task-filter-scroll");
-
     if (tagFilterBtn) {
       tagFilterBtn.addEventListener("click", (e) => {
         const btn = e.target.closest(".tag-filter-btn");
@@ -332,7 +331,6 @@ export const TaskController = {
     const toggleFormBtn = document.getElementById("btn-toggle-task-form");
     const formContainer = document.getElementById("task-form-container");
     const formChevron = document.getElementById("form-chevron");
-
     if (toggleFormBtn && formContainer && formChevron) {
       toggleFormBtn.addEventListener("click", () => {
         const isHidden = formContainer.classList.contains("hidden");
@@ -349,7 +347,6 @@ export const TaskController = {
     const searchInput = document.getElementById("search-tasks");
     const clearBtn = document.getElementById("clear-search-btn");
     const searchContainer = searchInput?.closest(".group\\/search");
-
     if (searchInput) {
       searchInput.value = state.searchQuery || "";
 
