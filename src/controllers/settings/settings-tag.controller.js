@@ -79,7 +79,7 @@ export const SettingsTagController = {
             </div>
             <div class="w-full xs:w-fit flex items-center gap-1 shrink-0">
               <div
-                class="min-w-0 sm:min-w-20 flex items-center gap-1 px-1.5 py-1 sm:py-1.75 rounded-md sm:rounded-lg bg-surface border border-border text-[9px] sm:text-xs font-semibold text-secondary"
+                class="w-fit flex items-center gap-1 px-1.5 py-1 sm:py-1.75 rounded-md sm:rounded-lg bg-surface border border-border text-[9px] sm:text-xs font-semibold text-secondary"
                 title="Used in ${usageCount} task${usageCount === 1 ? "" : "s"}"
               >
                 <i class="fa-regular fa-list-check text-[9px] sm:text-xs text-brand/80"></i>
