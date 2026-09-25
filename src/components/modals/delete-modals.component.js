@@ -9,7 +9,7 @@ export const DeleteModalsComponent = {
           <div
             class="w-11 h-11 rounded-xl bg-red-500/10 text-red-500/80 flex items-center justify-center text-xl mx-auto"
           >
-            <i class="fa-regular fa-trash"></i>
+            <i class="ti ti-trash"></i>
           </div>
 
           <div class="text-center flex flex-col gap-1">

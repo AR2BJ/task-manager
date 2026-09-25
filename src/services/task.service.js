@@ -74,7 +74,7 @@ export const TaskService = {
 
     this.validateTaskLimits(currentTasks, taskDate, taskPriority);
 
-    const parsedTagIds = sanitizeTagIds(taskData.tags);
+    const parsedTagIds = sanitizeTagIds(taskData.tagIds);
     const initialStatus = taskData.status || "todo";
     const isDone = initialStatus === "done";
 
@@ -98,7 +98,7 @@ export const TaskService = {
       updatedAt: null,
       completedAt: isDone ? todayISO() : null,
       archived: false,
-      tags: parsedTagIds,
+      tagIds: parsedTagIds,
       subtasks: subtasks,
     };
 
@@ -147,7 +147,7 @@ export const TaskService = {
   },
 
   updateTaskStatus(currentTasks, id, newStatus) {
-    const validStatuses = ["todo", "in_progress", "done", "blocked"];
+    const validStatuses = ["todo", "in_progress", "blocked", "done"];
     if (!validStatuses.includes(newStatus)) {
       throw new Error("Invalid task status");
     }
@@ -197,7 +197,7 @@ export const TaskService = {
       };
     });
   },
-  
+
   toggleTask(currentTasks, id) {
     const task = currentTasks.find((t) => t.id === id);
     if (!task) return currentTasks;
@@ -230,9 +230,9 @@ export const TaskService = {
     this.validateTaskLimits(currentTasks, finalDate, targetPriority, id);
 
     const parsedTagIds =
-      updatedFields.tags !== undefined
-        ? sanitizeTagIds(updatedFields.tags)
-        : task.tags;
+      updatedFields.tagIds !== undefined
+        ? sanitizeTagIds(updatedFields.tagIds)
+        : task.tagIds;
 
     const alreadyExists = currentTasks.some(
       (t) =>
@@ -257,7 +257,7 @@ export const TaskService = {
           ...t,
           ...updatedFields,
           title: cleanedTitle,
-          tags: parsedTagIds,
+          tagIds: parsedTagIds,
         };
       });
     }
@@ -271,7 +271,7 @@ export const TaskService = {
         ...t,
         ...updatedFields,
         title: cleanedTitle,
-        tags: parsedTagIds,
+        tagIds: parsedTagIds,
         subtasks: updatedSubtasks,
         updatedAt: todayISO(),
       };

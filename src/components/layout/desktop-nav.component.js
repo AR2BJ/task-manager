@@ -7,7 +7,10 @@ export const DesktopNavComponent = {
       >
         <div class="flex flex-col items-center gap-6 w-full px-3">
           <div class="w-13.5 h-13.5 flex flex-row justify-center items-center">
-            <a href="/" class="w-13.5 h-13.5 flex flex-row justify-center items-center">
+            <a
+              href="/"
+              class="w-13.5 h-13.5 flex flex-row justify-center items-center"
+            >
               <img
                 id="logo"
                 src="/picture/logo.png"
@@ -25,7 +28,7 @@ export const DesktopNavComponent = {
             class="nav-item justify-center shadow-brand/10"
             title="Tasks"
           >
-            <i class="fa-regular fa-list text-xl"></i>
+            <i class="ti ti-list text-2xl"></i>
           </button>
 
           <button
@@ -33,7 +36,7 @@ export const DesktopNavComponent = {
             class="nav-item justify-center"
             title="Analytics"
           >
-            <i class="fa-regular fa-chart-line text-xl"></i>
+            <i class="ti ti-chart-line text-2xl"></i>
           </button>
 
           <button
@@ -41,15 +44,15 @@ export const DesktopNavComponent = {
             class="nav-item justify-center"
             title="Calendar"
           >
-            <i class="fa-regular fa-calendar text-lg"></i>
+            <i class="ti ti-calendar text-2xl"></i>
           </button>
-          
+
           <button
             id="nav-matrix"
             class="nav-item justify-center"
             title="Matrix"
           >
-            <i class="fa-regular fa-table-cells text-lg"></i>
+            <i class="ti ti-matrix text-2xl"></i>
           </button>
         </div>
 
@@ -59,7 +62,7 @@ export const DesktopNavComponent = {
             class="nav-item justify-center"
             title="Settings"
           >
-            <i class="fa-regular fa-gear text-xl"></i>
+            <i class="ti ti-settings text-2xl"></i>
           </button>
         </div>
       </div>
