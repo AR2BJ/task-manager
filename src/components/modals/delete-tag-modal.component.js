@@ -3,7 +3,7 @@ export const TagDeleteModalComponent = {
     return `
       <div
         id="tag-delete-modal"
-        class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+        class="fixed inset-0 z-400 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       >
         <div class="bg-surface rounded-2xl p-6 max-w-md w-full shadow-xl flex flex-col gap-4">
           <div
