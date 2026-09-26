@@ -14,7 +14,7 @@ export const SettingsExportController = {
         type: "info",
         message: "There is no data to export",
         icon: "ti-circle-info",
-        iconColor: "text-brand/80",
+        iconColor: "text-sky-500/80",
         duration: 5000,
       });
       return;

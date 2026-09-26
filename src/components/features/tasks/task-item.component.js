@@ -2,13 +2,14 @@ import {
   PRIORITY_OPTIONS,
   STATUS_OPTIONS,
 } from "@/utils/constants/options-value.constants";
-import { StateManager, state } from "@/models/state.model";
 import {
   calculateSubtaskProgress,
   getDaysRemaining,
   isOverdue,
   openSubtasksState,
 } from "@/utils/helpers.js";
+
+import { StateManager } from "@/models/state.model";
 
 export const TaskItemComponent = {
   _normalizeIconClass(iconString) {
@@ -26,19 +27,18 @@ export const TaskItemComponent = {
 
     const iconClass = this._normalizeIconClass(priorityData.icon);
 
-    return `
-      <button
-        type="button"
-        data-task-id="${taskId}"
-        data-current-priority="${priorityData.value}"
-        class="priority-cycle-btn min-h-5.5 inline-flex items-center gap-1 rounded-md border ${priorityData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none"
-        title="Click to cycle priority"
-      >
-        <i
-          class="${iconClass} text-[10px] lg:text-xs pb-px transition-transform duration-300"
-        ></i>
-        <span>${priorityData.title}</span>
-      </button>`;
+    return ` <button
+      type="button"
+      data-task-id="${taskId}"
+      data-current-priority="${priorityData.value}"
+      class="priority-cycle-btn min-h-5.5 inline-flex items-center gap-1 rounded-md border ${priorityData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none"
+      title="Click to cycle priority"
+    >
+      <i
+        class="${iconClass} text-[10px] lg:text-xs pb-px transition-transform duration-300"
+      ></i>
+      <span>${priorityData.title}</span>
+    </button>`;
   },
 
   _getStatusBadgeHtml(statusValue, taskId) {
@@ -51,19 +51,18 @@ export const TaskItemComponent = {
 
     const iconClass = this._normalizeIconClass(statusData.icon);
 
-    return `
-      <button
-        type="button"
-        data-task-id="${taskId}"
-        data-current-status="${statusData.value}"
-        class="status-cycle-btn min-h-5.5 inline-flex items-center gap-1 rounded-md border ${statusData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none"
-        title="Click to cycle status"
-      >
-        <i
-          class="${iconClass} text-[10px] lg:text-xs pb-px transition-transform duration-300"
-        ></i>
-        <span>${statusData.title}</span>
-      </button>`;
+    return ` <button
+      type="button"
+      data-task-id="${taskId}"
+      data-current-status="${statusData.value}"
+      class="status-cycle-btn min-h-5.5 inline-flex items-center gap-1 rounded-md border ${statusData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none"
+      title="Click to cycle status"
+    >
+      <i
+        class="${iconClass} text-[10px] lg:text-xs pb-px transition-transform duration-300"
+      ></i>
+      <span>${statusData.title}</span>
+    </button>`;
   },
 
   _renderTagsHtml(tagIds) {
@@ -80,7 +79,7 @@ export const TaskItemComponent = {
           .map(
             (tag) => `
               <span
-                class="h-5.5 inline-flex items-center gap-1 rounded-md bg-surface-3/50 px-2 py-0.5 text-xs text-secondary/80 border border-border/30"
+                class="min-h-5.5 inline-flex items-center gap-1 rounded-md bg-surface-3/50 px-2 py-0.5 text-xs text-secondary/80 border border-border/30"
               >
                 <i class="ti ti-tag text-[10px] lg:text-xs pb-px"></i>
                 <span>${tag.name}</span>
@@ -311,7 +310,7 @@ export const TaskItemComponent = {
                         class="edit-btn w-9 h-9 rounded-lg bg-surface-2 hover:bg-blue-600/10 border border-border flex items-center justify-center hover:cursor-pointer peer transition"
                       >
                         <i
-                          class="ti ti-edit-circle text-blue-500/80  text-base md:text-lg"
+                          class="ti ti-edit-circle text-blue-500/80 text-base md:text-lg"
                         ></i>
                       </button>
                       <div

@@ -652,13 +652,9 @@ export const DashboardComponent = {
                         const priorityBadge =
                           DashboardComponent._getPriorityBadgeHtml(
                             task.priority,
-                            task.id,
                           );
                         const statusBadge =
-                          DashboardComponent._getStatusBadgeHtml(
-                            task.status,
-                            task.id,
-                          );
+                          DashboardComponent._getStatusBadgeHtml(task.status);
 
                         const tagIdsHtml = DashboardComponent._renderTagsHtml(
                           task.tagIds,
@@ -845,7 +841,7 @@ export const DashboardComponent = {
     return iconString;
   },
 
-  _getPriorityBadgeHtml(priorityValue, taskId) {
+  _getPriorityBadgeHtml(priorityValue) {
     const matched = PRIORITY_OPTIONS.find((p) => p.value === priorityValue);
     const priorityData = matched || {
       value: priorityValue || "low",
@@ -855,19 +851,16 @@ export const DashboardComponent = {
 
     const iconClass = this._normalizeIconClass(priorityData.icon);
 
-    return `
-        <span
-          class="priority-badge min-h-5.5 inline-flex items-center gap-1 rounded-md border ${priorityData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider"
-          title="priority badge"
-        >
-          <i
-            class="${iconClass} text-[10px] lg:text-xs pb-px"
-          ></i>
-          <span>${priorityData.title}</span>
-        </span>`;
+    return ` <span
+      class="priority-badge min-h-5.5 inline-flex items-center gap-1 rounded-md border ${priorityData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider"
+      title="priority badge"
+    >
+      <i class="${iconClass} text-[10px] lg:text-xs pb-px"></i>
+      <span>${priorityData.title}</span>
+    </span>`;
   },
 
-  _getStatusBadgeHtml(statusValue, taskId) {
+  _getStatusBadgeHtml(statusValue) {
     const matched = STATUS_OPTIONS.find((p) => p.value === statusValue);
     const statusData = matched || {
       value: statusValue || "todo",
@@ -877,16 +870,13 @@ export const DashboardComponent = {
 
     const iconClass = this._normalizeIconClass(statusData.icon);
 
-    return `
-        <span
-          class="status-badge min-h-5.5 inline-flex items-center gap-1 rounded-md border ${statusData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider"
-          title="status badge"
-        >
-          <i
-            class="${iconClass} text-[10px] lg:text-xs pb-px"
-          ></i>
-          <span>${statusData.title}</span>
-        </span>`;
+    return ` <span
+      class="status-badge min-h-5.5 inline-flex items-center gap-1 rounded-md border ${statusData.class} px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider"
+      title="status badge"
+    >
+      <i class="${iconClass} text-[10px] lg:text-xs pb-px"></i>
+      <span>${statusData.title}</span>
+    </span>`;
   },
 
   _renderTagsHtml(tagIds) {
@@ -903,7 +893,7 @@ export const DashboardComponent = {
             .map(
               (tag) => `
                 <span
-                  class="h-5.5 inline-flex items-center gap-1 rounded-md bg-surface-3/50 px-2 py-0.5 text-xs text-secondary/80 border border-border/30"
+                  class="min-h-5.5 inline-flex items-center gap-1 rounded-md bg-surface-3/50 px-2 py-0.5 text-xs text-secondary/80 border border-border/30"
                 >
                   <i class="ti ti-tag text-[10px] lg:text-xs pb-px"></i>
                   <span>${tag.name}</span>
