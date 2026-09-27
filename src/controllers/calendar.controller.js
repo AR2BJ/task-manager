@@ -91,7 +91,7 @@ export class CalendarController {
     if (!config) return;
 
     if (titleEl) {
-      titleEl.innerHTML = `<i class="ti ${config.icon} text-brand/80"></i> ${config.title}`;
+      titleEl.innerHTML = `<i class="ti ${config.icon} text-brand/80 text-xl lg:text-2xl"></i> ${config.title}`;
     }
 
     if (descEl) {

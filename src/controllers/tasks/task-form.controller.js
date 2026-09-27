@@ -654,7 +654,7 @@ export const TaskFormController = {
     if (!id) return;
 
     const currentTasks = StateManager.getTasks();
-    const taskToDelete = currentTasks.find((h) => h.id === id);
+    const taskToDelete = currentTasks.find((t) => t.id === id);
 
     if (taskToDelete) {
       const capturedTask = { ...taskToDelete };
