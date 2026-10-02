@@ -167,7 +167,7 @@ Potential future enhancements include:
 
 ## License
 
-This project is licensed under the [MIT license](https://github.com/AR2BJ/task-manager/blob/dev/LICENSE).
+This project is licensed under the [MIT license](https://github.com/AR2BJ/task-manager/blob/master/LICENSE).
 
 ## Contributing
 
